@@ -27,8 +27,11 @@ jobs:
 
       # - name: Install dependencies
       #   run: composer install --prefer-dist --no-progress
-      - name: Generate and upload .env file
-        run: ${{ secrets.ENV }} > .env
+      - run: 'echo "$ENV" > .env'
+        shell: bash
+        env:
+          ENV: ${{ secrets.ENV }}
+
       - name: 📂 Sync files
         uses: SamKirkland/FTP-Deploy-Action@4.0.0
         with:
