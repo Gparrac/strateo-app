@@ -18,9 +18,7 @@ jobs:
       - name: Instalando node v16
         uses: actions/setup-node@v3
         with:
-          node-version: 12
-      - run: npm install
-      - run: npm run production
+          node-version: 16
       - run: rm -rf .git
       - run: rm -rf .github
       - run: 'echo "$SSH_KEY" > key'
