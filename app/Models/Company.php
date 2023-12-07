@@ -4,18 +4,24 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Permission extends Model
+class Company extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'path_logo',
+        'header',
+        'footer',
+    ];
 
     /**__________________________________________
      *                RELATIONSHIP
      * ___________________________________________
      */
-    public function roles():BelongsToMany
+    public function third(): BelongsTo
     {
-        return $this->belongsToMany(Role::class);
+        return $this->belongsTo(Third::class);
     }
 }

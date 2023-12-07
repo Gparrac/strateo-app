@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,4 +16,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+// Endpoint to test
+Route::get('/test', function () {
+    $data = User::with('third')->get();
+    return response()->json(['message' => 'Read', 'data' => $data], 200);
 });

@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Third extends Model
 {
@@ -14,6 +14,7 @@ class Third extends Model
     protected $fillable = [
         'type_document',
         'identification',
+        'verification_id', //NIT COMPANY
         'name',
         'surnames',
         'business_name',
@@ -22,8 +23,23 @@ class Third extends Model
         'email',
         'email2',
     ];
-    public function users():BelongsTo
+
+    /**__________________________________________
+     *                RELATIONSHIP
+     * ___________________________________________
+     */
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function city(): BelongsTo
+    {
+        return $this->belongsTo(City::class);
+    }
+
+    public function company(): HasOne
+    {
+        return $this->hasOne(Company::class);
     }
 }

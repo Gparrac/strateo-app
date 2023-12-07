@@ -4,25 +4,30 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Role extends Model
+class City extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'description'];
+    protected $fillable = [
+        'name',
+        'image1',
+        'status'
+    ];
 
     /**__________________________________________
      *                RELATIONSHIP
      * ___________________________________________
      */
-    public function users():HasMany
+    public function thirds(): HasMany 
     {
-        return $this->hasMany(User::class);
+        return $this->hasMany(Third::class);
     }
-    public function permissions():BelongsToMany
+
+    public function country(): BelongsTo 
     {
-        return $this->belongsToMany(Permission::class);
+        return $this->belongsTo(Country::class);
     }
 }
