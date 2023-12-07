@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Third extends Model
@@ -21,8 +22,8 @@ class Third extends Model
         'email',
         'email2',
     ];
-    public function users():HasMany
+    public function users():BelongsTo
     {
-        return $this->hasMany(User::class);
+        return $this->belongsTo(User::class);
     }
 }
