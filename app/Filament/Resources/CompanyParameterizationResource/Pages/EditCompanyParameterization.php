@@ -9,6 +9,7 @@ use Filament\Resources\Pages\EditRecord;
 class EditCompanyParameterization extends EditRecord
 {
     protected static string $resource = CompanyParameterizationResource::class;
+    protected static ?string $title = 'Editar Empresa';
 
     protected function getHeaderActions(): array
     {

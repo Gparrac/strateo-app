@@ -9,4 +9,6 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateCompanyParameterization extends CreateRecord
 {
     protected static string $resource = CompanyParameterizationResource::class;
+
+    protected static ?string $title = 'Crear Empresa';
 }
