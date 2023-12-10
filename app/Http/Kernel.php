@@ -67,5 +67,7 @@ class Kernel extends HttpKernel
         //AUTH
         'data_register' => \App\Http\Middleware\Auth\DataRegister::class,
         'data_login' => \App\Http\Middleware\Auth\DataLogin::class,
+        //FORMS
+        'company_parameterization' => \App\Http\Middleware\CRUD\CompanyParameterization\CompanyParameterization::class,
     ];
 }
