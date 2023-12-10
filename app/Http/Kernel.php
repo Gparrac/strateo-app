@@ -69,5 +69,6 @@ class Kernel extends HttpKernel
         'data_login' => \App\Http\Middleware\Auth\DataLogin::class,
         //FORMS
         'company_parameterization' => \App\Http\Middleware\CRUD\CompanyParameterization\CompanyParameterization::class,
+        'office' => \App\Http\Middleware\CRUD\Office\Office::class,
     ];
 }

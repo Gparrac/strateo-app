@@ -10,7 +10,15 @@ class Office extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $fillable = [
+        'name',
+        'address',
+        'phone',
+        'city_id',
+        'status',
+        'users_id',
+        'users_update_id'
+    ];
     public function Users(): BelongsToMany
     {
         return $this->belongsToMany(User::class,'office_users','office_id','office_users_id')->withPivot('status');
