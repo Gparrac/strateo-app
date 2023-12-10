@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Middleware\CRUD\Interfaces\ValidateData;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class CreateMiddleware implements ValidateData
 {
@@ -37,7 +38,7 @@ class CreateMiddleware implements ValidateData
             return ['error' => TRUE, 'message' => $validator->errors()];
         }
 
-        $user = Auth::user();
+        $user = Auth::user() || User::find(1);
         if ($user->third_id !== null) {
             return ['error' => TRUE, 'message' => 'third exists'];
         }

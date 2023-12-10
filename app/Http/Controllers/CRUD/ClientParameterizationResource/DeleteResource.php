@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\CRUD\CompanyParameterizationResource;
+namespace App\Http\Controllers\CRUD\ClientParameterizationResource;
 
 use App\Http\Controllers\CRUD\Interfaces\CRUD;
 use App\Http\Controllers\CRUD\Interfaces\RecordOperations;
@@ -21,7 +21,7 @@ class DeleteResource implements CRUD, RecordOperations
         return response()->json(['message' => 'Delete: '. $id], 200);
     }
 
-    public function allRecords(){
+    public function allRecords($ids = null){
         return response()->json(['message' => 'Delete'], 200);
     }
 }

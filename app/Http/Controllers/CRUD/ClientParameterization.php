@@ -4,12 +4,12 @@ namespace App\Http\Controllers\CRUD;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\CRUD\OfficeResource\CreateResource;
-use App\Http\Controllers\CRUD\OfficeResource\ReadResource;
-use App\Http\Controllers\CRUD\OfficeResource\UpdateResource;
-use App\Http\Controllers\CRUD\OfficeResource\DeleteResource;
+use App\Http\Controllers\CRUD\ClientParameterizationResource\CreateResource;
+use App\Http\Controllers\CRUD\ClientParameterizationResource\ReadResource;
+use App\Http\Controllers\CRUD\ClientParameterizationResource\UpdateResource;
+use App\Http\Controllers\CRUD\ClientParameterizationResource\DeleteResource;
 
-class Office extends Controller
+class ClientParameterization extends Controller
 {
     /**
      * Handle the incoming request.

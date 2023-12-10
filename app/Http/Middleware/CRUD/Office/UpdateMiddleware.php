@@ -11,7 +11,7 @@ class UpdateMiddleware implements ValidateData
 {
     public function validate(Request $request)
     {
-        $userId = auth()->id();
+        $userId = auth()->id() || 1;
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|min:3|max:40|regex:/^[\p{L}\s]+$/u',

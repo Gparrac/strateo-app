@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\CRUD\CompanyParameterizationResource;
+namespace App\Http\Controllers\CRUD\OfficeParameterizationResource;
 
 use App\Http\Controllers\CRUD\Interfaces\CRUD;
 use Illuminate\Http\Request;
@@ -13,7 +13,7 @@ class CreateResource implements CRUD
     public function resource(Request $request)
     {
         try {
-            $userId = auth()->id();
+            $userId = auth()->id() ?? 1;
 
             // Create a record in the Office table
             $office = Office::create([
@@ -27,10 +27,10 @@ class CreateResource implements CRUD
 
             return response()->json(['message' => 'Successful']);
         } catch (QueryException $ex) {
-            Log::error('Query error OfficeResource@createResource: ' . $ex->getMessage());
+            Log::error('Query error OfficeResource@createResource: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'create q'], 500);
         } catch (\Exception $ex) {
-            Log::error('unknown error OfficeResource@createResource: ' . $ex->getMessage());
+            Log::error('unknown error OfficeResource@createResource: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'create u'], 500);
         }
     }
