@@ -11,6 +11,7 @@ class UpdateMiddleware implements ValidateData
     public function validate(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            //Third table
             'type_document' => 'required|in:CC,NIT,CE',
             'identificacion' => 'required|numeric|digits_between:7,10',
             'verification_id' => 'required|numeric|digits_between:7,10',
@@ -21,7 +22,13 @@ class UpdateMiddleware implements ValidateData
             'mobile' => 'required|numeric|digits_between:10,13',
             'email' => 'required|email',
             'email2' => 'email',
+            'city_id' => 'required|exists:cities,id',
             'postal_code' => 'required|numeric',
+
+            //Company Table
+            'path_logo' => 'required|string',
+            'header' => 'string',
+            'footer' => 'string'
         ]);
 
         if ($validator->fails()){

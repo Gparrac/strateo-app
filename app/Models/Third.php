@@ -22,6 +22,10 @@ class Third extends Model
         'mobile',
         'email',
         'email2',
+        'postal_code',
+        'city_id',
+        'users_id',
+        'users_update_id'
     ];
 
     /**__________________________________________
