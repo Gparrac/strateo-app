@@ -22,6 +22,13 @@ class User extends Authenticatable
     protected $fillable = [
         'email',
         'password',
+        'name',
+        'role_id',
+        'third_id',
+        'users_id',
+        'users_update_id',
+        'status'
+
     ];
 
     /**
@@ -52,9 +59,13 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Role::class);
     }
-    
+
     public function third():BelongsTo
     {
         return $this->belongsTo(Third::class);
+    }
+    public function offices(): BelongsToMany
+    {
+        return $this->belongsToMany(Office::class,'office_users','office_users_id','office_id')->withPivot('status');
     }
 }

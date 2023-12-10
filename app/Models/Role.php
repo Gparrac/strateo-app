@@ -23,6 +23,6 @@ class Role extends Model
     }
     public function permissions():BelongsToMany
     {
-        return $this->belongsToMany(Permission::class)->withPivot('form_id','status');
+        return $this->belongsToMany(Permission::class,'permission_roles')->withPivot('form_id','status');
     }
 }

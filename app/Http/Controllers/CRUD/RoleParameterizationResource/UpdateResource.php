@@ -4,40 +4,54 @@ namespace App\Http\Controllers\CRUD\RoleParameterizationResource;
 
 use App\Http\Controllers\CRUD\Interfaces\CRUD;
 use App\Models\Role;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UpdateResource implements CRUD
 {
     public function resource(Request $request)
     {
-        //datos entrada [roleId=>roleId,forms=>[formId=> formId, activePermissions => [1,2,..]]
-        // DB::table('permission_roles')->where('role_id',$request->roleId)->update([
-        //     'status'=>'I'
-        // ]);
-        foreach ($request->forms as $key => $form) {
-            $query = DB::table('permission_roles')->where('role_id',$request->roleId)->where('form_id',$form->formId);
-            $query->whereNoIn('permission-id',$form->activePermissions)->update([
-                'status' => 'I'
-            ]);
-            foreach ($form->activePermissions as $key => $permission) {
-                $query = $query->where('permission_id',$permission);
-                if($query->count() == 0){
-                    $query->create([
-                        'permission_id'=> $permission,
-                        'status'=> 'A',
-                        'form_id'=> $form->formId,
-                        'user_id' => Auth::id(),
-                        'users_update_id' => Auth::id(),
-                    ]);
-                }else{
-                    $query->update([
-                        'status' => 'A'
-                    ]);
-                }
+        //datos entrada [role_id=>roleId,forms=>[forms=> form_id, permissions_id => [1,2,..]]
 
+        DB::beginTransaction();
+        try {
+            foreach ($request['forms'] as $key => $form) {
+                DB::table('permission_roles')->where('role_id', $request['role_id'])->where('form_id', $form['form_id'])->whereNotIn('permission_id', $form['permissions_id'])->update([
+                    'status' => 'I'
+                ]);
+
+                foreach ($form['permissions_id'] as $key => $permission_id) {
+                    $query = DB::table('permission_roles')->where('role_id', $request['role_id'])->where('form_id', $form['form_id'])->where('permission_id', $permission_id);
+                    Log::info($request['role_id'].$form['form_id'].$permission_id);
+                    if ($query->count() == 0) {
+                        Log::info($query->get());
+                        Role::find($request['role_id'])->permissions()->attach($permission_id,[
+                            'status'=> 'A',
+                            'form_id'=> $form['form_id'],
+                            'users_id' => Auth::id() || 1, //meanwhile implement auth module
+                            'users_update_id' => Auth::id() || 1, //meanwhile implement auth module
+                        ]);
+                    } else {
+                        $query->update([
+                            'status' => 'A'
+                        ]);
+                    }
+                }
             }
+            DB::commit();
+        } catch (QueryException $ex) {
+            // In case of error, roll back the transaction
+            DB::rollback();
+            Log::error('Query error RolesParameterization@createResource: ' . $ex->getMessage());
+            return response()->json(['message' => 'create q'], 500);
+        } catch (\Exception $ex) {
+            // In case of error, roll back the transaction
+            DB::rollback();
+            Log::error('unknown error RolesParameterization@createResource: ' . $ex->getMessage());
+            return response()->json(['message' => 'create u'], 500);
         }
 
         return response()->json(['message' => 'Update'], 200);

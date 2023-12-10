@@ -27,16 +27,22 @@ try {
         'email' => $request['email'],
         'email2' => $request['email2'],
         'city_id' => $request['city_id'],
-        'user_id' => Auth::id()
+        'users_update_id' => Auth::id() || 1, // meanwhile define auth module ⚠️
+        'users_id' => Auth::id() || 1
     ]);
-    User::create([
+    Log::info($request['name']);
+    $newUser = User::create([
         'name' => $request['name'],
         'password' => bcrypt($request['password']),
         'third_id'=> $newThird['id'],
         'role_id' => $request['role_id'],
-        'user_id' => Auth::id(),
-        'users_update_id' => Auth::id(),
+        'users_id' => Auth::id(),
+        'users_update_id' => Auth::id() || 1, // meanwhile define auth module ⚠️
         'status' => $request['status']
+    ]);
+    $newUser->offices()->attach($request['offices_id'],[
+        'status'=>'A',
+        'users_id'=>Auth::id() || 1
     ]);
     DB::commit();
     return response()->json(['message' => 'Create'], 200);

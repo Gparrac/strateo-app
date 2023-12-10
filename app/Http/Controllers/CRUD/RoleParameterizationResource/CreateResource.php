@@ -16,17 +16,18 @@ class CreateResource implements CRUD
 {
     public function resource(Request $request)
     {
+
         DB::beginTransaction();
 try {
-    //datos entrada [roleId=>roleId,forms=>[formId=> formId, activePermissions => [1,2,..]]
-    foreach ($request->forms as $key => $form) {
-        foreach ($form->activePermissions as $key => $permission) {
-            Role::find($request->roleId)->permissions()->attach([
-                'permission_id'=> $permission,
+    //datos entrada [role_id=>roleId,forms=>[forms=> form_id, permissions_id => [1,2,..]]
+    foreach ($request['forms'] as $key => $form) {
+        foreach ($form['permissions_id'] as $key => $permission) {
+            Log::info($form['formId']);
+            Role::find($request->roleId)->permissions()->attach($permission,[
                 'status'=> 'A',
-                'form_id'=> $form->id,
-                'user_id' => Auth::id(),
-                'users_update_id' => Auth::id(),
+                'form_id'=> $form['formId'],
+                'users_id' => Auth::id() || 1, //meanwhile implement auth module
+                'users_update_id' => Auth::id() || 1, //meanwhile implement auth module
             ]);
         }
     }
