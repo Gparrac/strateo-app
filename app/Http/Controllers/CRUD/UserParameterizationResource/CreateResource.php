@@ -40,10 +40,16 @@ try {
     ]);
     DB::commit();
     return response()->json(['message' => 'Create'], 200);
-} catch (QueryException $th) {
-    DB::rollBack();
-
-    return response()->json(['message' => 'Error Create'], 500);
+} catch (QueryException $ex) {
+    // In case of error, roll back the transaction
+    DB::rollback();
+    Log::error('Query error UsersParameterization@createResource: ' . $ex->getMessage());
+    return response()->json(['message' => 'create q'], 500);
+} catch (\Exception $ex) {
+    // In case of error, roll back the transaction
+    DB::rollback();
+    Log::error('unknown error UsersParameterization@createResource: ' . $ex->getMessage());
+    return response()->json(['message' => 'create u'], 500);
 }
 
 
