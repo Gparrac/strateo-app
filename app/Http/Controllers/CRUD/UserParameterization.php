@@ -15,7 +15,7 @@ class UserParameterization extends Controller
      * Handle the incoming request.
      * $request Query = query_id (int)
      */
-    public function __invoke(Request $request, $resource)
+    public function __invoke(Request $request)
     {
         switch($request->method()){
             case 'POST':
