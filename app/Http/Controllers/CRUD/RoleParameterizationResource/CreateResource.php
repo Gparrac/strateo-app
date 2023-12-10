@@ -22,7 +22,6 @@ try {
     //datos entrada [role_id=>roleId,forms=>[forms=> form_id, permissions_id => [1,2,..]]
     foreach ($request['forms'] as $key => $form) {
         foreach ($form['permissions_id'] as $key => $permission) {
-            Log::info($form['formId']);
             Role::find($request->roleId)->permissions()->attach($permission,[
                 'status'=> 'A',
                 'form_id'=> $form['formId'],

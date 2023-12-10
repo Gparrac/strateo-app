@@ -25,9 +25,9 @@ class UpdateResource implements CRUD
 
                 foreach ($form['permissions_id'] as $key => $permission_id) {
                     $query = DB::table('permission_roles')->where('role_id', $request['role_id'])->where('form_id', $form['form_id'])->where('permission_id', $permission_id);
-                    Log::info($request['role_id'].$form['form_id'].$permission_id);
+
                     if ($query->count() == 0) {
-                        Log::info($query->get());
+
                         Role::find($request['role_id'])->permissions()->attach($permission_id,[
                             'status'=> 'A',
                             'form_id'=> $form['form_id'],

@@ -38,8 +38,8 @@ class UpdateResource implements CRUD
                 $query = DB::table('office_users')
                 ->where('office_users_id',$request['user_id'])
                 ->where('office_id',$office_id);
-                Log::info('paso1');
-                Log::info($query->get());
+
+
                 if($query->count() == 0){
                     User::find($request['user_id'])->offices()->attach($office_id,[
                         'status'=>'A',
@@ -47,16 +47,16 @@ class UpdateResource implements CRUD
                         'users_update_id' => Auth::id() || 1 // meanwhile define auth module ⚠️
                     ]);
                 }else{
-                    Log::info('paso2');
-                    Log::info($query->get());
+
+
                     $query->update([
                         'status'=>'A',
                         'users_update_id' => Auth::id() || 1, // meanwhile define auth module ⚠️
                     ]);
-                    Log::info('paso3');
+
                 }
             }
-            Log::info('paso4');
+
 
             User::find($request['user_id'])->update([
                 'name' => $request['name'],

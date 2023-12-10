@@ -30,7 +30,7 @@ try {
         'users_update_id' => Auth::id() || 1, // meanwhile define auth module ⚠️
         'users_id' => Auth::id() || 1
     ]);
-    Log::info($request['name']);
+
     $newUser = User::create([
         'name' => $request['name'],
         'password' => bcrypt($request['password']),
