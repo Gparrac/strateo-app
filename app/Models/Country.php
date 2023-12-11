@@ -20,7 +20,7 @@ class Country extends Model
      *                RELATIONSHIP
      * ___________________________________________
      */
-    public function cities(): HasMany 
+    public function cities(): HasMany
     {
         return $this->hasMany(City::class);
     }

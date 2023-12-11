@@ -21,12 +21,12 @@ class City extends Model
      *                RELATIONSHIP
      * ___________________________________________
      */
-    public function thirds(): HasMany 
+    public function thirds(): HasMany
     {
         return $this->hasMany(Third::class);
     }
 
-    public function country(): BelongsTo 
+    public function country(): BelongsTo
     {
         return $this->belongsTo(Country::class);
     }

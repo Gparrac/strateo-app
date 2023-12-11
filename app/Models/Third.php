@@ -29,10 +29,7 @@ class Third extends Model
         'users_update_id'
     ];
 
-    /**__________________________________________
-     *                RELATIONSHIP
-     * ___________________________________________
-     */
+    //Relationship
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
