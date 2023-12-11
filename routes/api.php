@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+include __DIR__.'/custom/auth.php';
+include __DIR__.'/custom/form.php';
 /*
 |--------------------------------------------------------------------------
 | API Routes

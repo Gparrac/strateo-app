@@ -17,13 +17,16 @@ class City extends Model
         'status'
     ];
 
-    //Relationship
-    public function thirds(): HasMany 
+    /**__________________________________________
+     *                RELATIONSHIP
+     * ___________________________________________
+     */
+    public function thirds(): HasMany
     {
         return $this->hasMany(Third::class);
     }
 
-    public function country(): BelongsTo 
+    public function country(): BelongsTo
     {
         return $this->belongsTo(Country::class);
     }

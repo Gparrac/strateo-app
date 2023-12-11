@@ -16,8 +16,11 @@ class Country extends Model
         'status'
     ];
 
-    //Relationship
-    public function cities(): HasMany 
+    /**__________________________________________
+     *                RELATIONSHIP
+     * ___________________________________________
+     */
+    public function cities(): HasMany
     {
         return $this->hasMany(City::class);
     }

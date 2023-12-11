@@ -16,7 +16,10 @@ class Company extends Model
         'footer',
     ];
 
-    //Relationship
+    /**__________________________________________
+     *                RELATIONSHIP
+     * ___________________________________________
+     */
     public function third(): BelongsTo
     {
         return $this->belongsTo(Third::class);
