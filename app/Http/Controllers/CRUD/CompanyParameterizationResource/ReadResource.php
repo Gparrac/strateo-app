@@ -3,46 +3,38 @@
 namespace App\Http\Controllers\CRUD\CompanyParameterizationResource;
 
 use App\Http\Controllers\CRUD\Interfaces\CRUD;
-use App\Http\Controllers\CRUD\Interfaces\RecordOperations;
-use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use App\Models\Company;
+use App\Models\User;
+use App\Models\Third;
 
 class ReadResource implements CRUD
 {
     public function resource(Request $request)
     {
         try {
-            $user = Auth::user();
-            $third = $request->third;
-
-            $thirdResponse = [
-                'type_document' => $third->type_document,
-                'identificacion' => $third->identificacion,
-                'verification_id' => $third->verification_id,
-                'names' => $third->names,
-                'surnames' => $third->surnames,
-                'business_name' => $third->business_name,
-                'address' => $third->address,
-                'mobile' => $third->mobile,
-                'email' => $third->email,
-                'postal_code' => $third->postal_code,
-                'city_id' => $third->city_id,
-            ];
+            $user = Auth::user() ?? User::find(2);
+            // Find Third with third_id in user
+            $third = Third::select('id','type_document', 'identification', 'verification_id',
+                'business_name', 'address', 'mobile', 'email', 'postal_code', 'city_id')
+                ->where('id', $user->third_id)
+                ->first();
 
             $company = Company::select('path_logo', 'header', 'footer')
                         ->where('third_id', $third->id)
                         ->first();
-            
-            $companyArray = $companyInfo ? $companyInfo->toArray() : [];
+            $companyArray = $company ? $company->toArray() : [];
 
-            return response()->json(array_merge($thirdResponse, $company), 200);
+            return response()->json(array_merge($third->toArray(), $companyArray), 200);
 
         } catch (QueryException $ex) {
-            Log::error('Query error CompanyParameterization@readResource: ' . $ex->getMessage());
+            Log::error('Query error CompanyParameterization@readResource: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'read q'], 500);
         } catch (\Exception $ex) {
-            Log::error('unknown error CompanyParameterization@readResource: ' . $ex->getMessage());
+            Log::error('unknown error CompanyParameterization@readResource: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'read u'], 500);
         }
     }

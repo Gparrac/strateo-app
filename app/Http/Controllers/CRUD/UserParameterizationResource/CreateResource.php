@@ -27,8 +27,8 @@ try {
         'email' => $request['email'],
         'email2' => $request['email2'],
         'city_id' => $request['city_id'],
-        'users_update_id' => Auth::id() || 1, // meanwhile define auth module ⚠️
-        'users_id' => Auth::id() || 1
+        'users_update_id' => Auth::id() ?? 1, // meanwhile define auth module ⚠️
+        'users_id' => Auth::id() ?? 1
     ]);
 
     $newUser = User::create([
@@ -37,12 +37,12 @@ try {
         'third_id'=> $newThird['id'],
         'role_id' => $request['role_id'],
         'users_id' => Auth::id(),
-        'users_update_id' => Auth::id() || 1, // meanwhile define auth module ⚠️
+        'users_update_id' => Auth::id() ?? 1, // meanwhile define auth module ⚠️
         'status' => $request['status']
     ]);
     $newUser->offices()->attach($request['offices_id'],[
         'status'=>'A',
-        'users_id'=>Auth::id() || 1
+        'users_id'=>Auth::id() ?? 1
     ]);
     DB::commit();
     return response()->json(['message' => 'Create'], 200);

@@ -27,7 +27,8 @@ class ReadResource implements CRUD, RecordOperations
         $data = Role::with('permissions')->find($id);
         return response()->json(['message' => 'Read: '.$id, 'data' => $data], 200);
     }
-    public function allRecords(){
+
+    public function allRecords($ids = null){
         if($this->format == 'short'){
             $data = Role::select('id','name')->get();
         }else{

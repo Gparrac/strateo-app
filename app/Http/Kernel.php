@@ -73,6 +73,7 @@ class Kernel extends HttpKernel
         'company_parameterization' => \App\Http\Middleware\CRUD\CompanyParameterization\CompanyParameterization::class,
         'user_parameterization' => \App\Http\Middleware\CRUD\UserParameterization\UserParameterization::class,
         //INVOKES
-        'validateNameInvoke' => \App\Http\Middleware\Invokes\ValidateNameParameter::class
+        'validateNameInvoke' => \App\Http\Middleware\Invokes\ValidateNameParameter::class,
+        'office' => \App\Http\Middleware\CRUD\Office\Office::class,
     ];
 }

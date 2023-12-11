@@ -26,12 +26,12 @@ class UpdateResource implements CRUD
                 'email' => $request['email'],
                 'email2' => $request['email2'],
                 'city_id' => $request['city_id'],
-                'users_update_id' => Auth::id() || 1 // meanwhile define auth module ⚠️
+                'users_update_id' => Auth::id() ?? 1 // meanwhile define auth module ⚠️
             ]);
 
             DB::table('office_users')->where('office_users_id',$request['user_id'])->update([
                 'status' => 'I',
-                'users_update_id' => Auth::id() || 1, // meanwhile define auth module ⚠️
+                'users_update_id' => Auth::id() ?? 1, // meanwhile define auth module ⚠️
             ]);
 
             foreach ($request['offices_id'] as $key => $office_id) {
@@ -43,15 +43,15 @@ class UpdateResource implements CRUD
                 if($query->count() == 0){
                     User::find($request['user_id'])->offices()->attach($office_id,[
                         'status'=>'A',
-                        'users_id'=>Auth::id() || 1,
-                        'users_update_id' => Auth::id() || 1 // meanwhile define auth module ⚠️
+                        'users_id'=>Auth::id() ?? 1,
+                        'users_update_id' => Auth::id() ?? 1 // meanwhile define auth module ⚠️
                     ]);
                 }else{
 
 
                     $query->update([
                         'status'=>'A',
-                        'users_update_id' => Auth::id() || 1, // meanwhile define auth module ⚠️
+                        'users_update_id' => Auth::id() ?? 1, // meanwhile define auth module ⚠️
                     ]);
 
                 }
@@ -62,7 +62,7 @@ class UpdateResource implements CRUD
                 'name' => $request['name'],
                 'password' => bcrypt($request['password']),
                 'role_id' => $request['role_id'],
-                'users_update_id' => Auth::id() || 1, // meanwhile define auth module ⚠️
+                'users_update_id' => Auth::id() ?? 1, // meanwhile define auth module ⚠️
                 'status' => $request['status']
             ]);
             DB::commit();

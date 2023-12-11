@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\CRUD\CompanyParameterizationResource;
+namespace App\Http\Controllers\CRUD\ClientParameterizationResource;
 
 use App\Http\Controllers\CRUD\Interfaces\CRUD;
 use Illuminate\Http\Request;
@@ -20,12 +20,13 @@ class UpdateResource implements CRUD
         try {
             $user = Auth::user() ?? User::find(1);
             // Find Third with third_id in user
-            $third = Third::findOrFail($user->third_id);
+            $third = Third::findOrFail($request->input('client_id'));
             // Create a record in the Third table
             $third->fill($request->only([
                 'identificacion',
                 'verification_id',
-                'business_name',
+                'names',
+                'surnames',
                 'address',
                 'mobile',
                 'email',
@@ -34,31 +35,12 @@ class UpdateResource implements CRUD
                 'city_id',
             ]) + ['users_update_id' => $user->id])->save();
 
-            // Update the existing Company record
-            $company = Company::where('third_id', $third->id)->firstOrFail();
-            
-            //Since the path_logo attribute has a CAST, the data must be manually assigned if it exists
-            if($request->hasFile('path_logo')){
-                $company->path_logo = $request->file('path_logo')->store('logos');
-            }
-
-            $company->fill($request->only([
-                'header',
-                'footer',
-            ]))->save();
-
-            // Commit the transaction
-            DB::commit();
             return response()->json(['message' => 'Successful']);
         } catch (QueryException $ex) {
-            // In case of error, roll back the transaction
-            DB::rollback();
-            Log::error('Query error CompanyParameterization@updateResource: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
+            Log::error('Query error ClientResource@updateResource: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'update q'], 500);
         } catch (\Exception $ex) {
-            // In case of error, roll back the transaction
-            DB::rollback();
-            Log::error('unknown error CompanyParameterization@updateResource: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
+            Log::error('unknown error ClientResource@updateResource: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'update u'], 500);
         }
     }

@@ -21,7 +21,7 @@ class DeleteResource implements CRUD, RecordOperations
         return response()->json(['message' => 'Delete: '. $id], 200);
     }
 
-    public function allRecords(){
+    public function allRecords($ids = null){
         return response()->json(['message' => 'Delete'], 200);
     }
 }
