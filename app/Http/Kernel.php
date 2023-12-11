@@ -21,6 +21,8 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+
+
     ];
 
     /**
@@ -69,5 +71,8 @@ class Kernel extends HttpKernel
         'data_login' => \App\Http\Middleware\Auth\DataLogin::class,
         //FORMS
         'company_parameterization' => \App\Http\Middleware\CRUD\CompanyParameterization\CompanyParameterization::class,
+        'user_parameterization' => \App\Http\Middleware\CRUD\UserParameterization\UserParameterization::class,
+        //INVOKES
+        'validateNameInvoke' => \App\Http\Middleware\Invokes\ValidateNameParameter::class
     ];
 }

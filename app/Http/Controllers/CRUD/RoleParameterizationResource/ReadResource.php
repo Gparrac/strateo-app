@@ -11,12 +11,15 @@ use Illuminate\Http\Request;
 
 class ReadResource implements CRUD, RecordOperations
 {
+
+    private $format;
     public function resource(Request $request)
     {
         if($request->has('query_id')){
             return $this->singleRecord($request->input('query_id'));
         }else{
-            return $this->allRecords();
+            $this->format = $request->input('format');
+                return $this->allRecords();
         }
     }
 
@@ -25,7 +28,13 @@ class ReadResource implements CRUD, RecordOperations
         return response()->json(['message' => 'Read: '.$id, 'data' => $data], 200);
     }
     public function allRecords(){
-        $data = Role::with('permissions')->get();
+        if($this->format == 'short'){
+            $data = Role::select('id','name')->get();
+        }else{
+            $data = Role::with('permissions')->get();
+        }
+
         return response()->json(['message' => 'Read', 'data' => $data], 200);
     }
+
 }

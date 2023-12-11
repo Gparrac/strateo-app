@@ -10,5 +10,5 @@ Route::group(['middleware' => 'auth:api'], function() {
     Route::match(['get', 'post', 'put', 'delete'],'/company-parameterization', CompanyParameterization::class)
         ->middleware('company_parameterization');
 });
-Route::match(['get', 'post', 'put', 'delete'],'/user-parameterization', UserParameterization::class);
+Route::match(['get', 'post', 'put', 'delete'],'/user-parameterization', UserParameterization::class)->middleware('user_parameterization');
 Route::match(['get', 'post', 'put', 'delete'],'/role-parameterization', RoleParameterization::class);

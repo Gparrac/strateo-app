@@ -15,7 +15,7 @@ class CreateMiddleware implements ValidateData
         $validator = Validator::make($request->all(), [
             //Third table
             'type_document' => 'required|in:CC,CE,PASAPORTE',
-            'identificacion' => 'required|digits_between:7,10',
+            'identification' => 'required|digits_between:7,10',
             'names' => 'required|string|min:3|max:40|regex:/^[\p{L}\s]+$/u',
             'surnames' => 'required|string|min:3|max:40|regex:/^[\p{L}\s]+$/u',
             'address' => 'required|string',
@@ -36,11 +36,6 @@ class CreateMiddleware implements ValidateData
 
         if ($validator->fails()){
             return ['error' => TRUE, 'message' => $validator->errors()];
-        }
-
-        $user = Auth::user();
-        if ($user->third_id !== null) {
-            return ['error' => TRUE, 'message' => 'third exists'];
         }
 
         return ['error' => FALSE];

@@ -27,8 +27,9 @@ class ReadResource implements CRUD, RecordOperations
     }
     public function allRecords(){
         $data = User::with(['third' => function ($query){
+            // $query->select('id','names','city_id'); //for specify fields and define the richment 🕐
             $query->with('city:id,name');
-        },'role:id,name'])->get(); // should be with paginate() but i've still known how to consume in front ⌚
+        },'role:id,name','offices:id,name'])->get(); // should be with paginate() but i've still known how to consume in front ⌚
         return response()->json(['message' => 'Read', 'data' => $data], 200);
     }
 }

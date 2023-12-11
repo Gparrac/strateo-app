@@ -12,15 +12,6 @@ class ReadMiddleware implements ValidateData
 {
     public function validate(Request $request)
     {
-        $user = User::where('id', $request->user_id)->first();
-
-        if(!$user){
-            return ['error' => TRUE, 'message' => 'user not exist'];
-        }
-
-        $request->merge([
-            'user' => $user,
-        ]);
 
         return ['error' => FALSE];
     }
