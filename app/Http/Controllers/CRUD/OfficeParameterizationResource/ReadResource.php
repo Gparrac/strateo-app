@@ -12,11 +12,13 @@ use App\Models\Office;
 
 class ReadResource implements CRUD, RecordOperations
 {
+    private $format;
     public function resource(Request $request)
     {
         if($request->has('office_id')){
             return $this->singleRecord($request->input('office_id'));
         }else{
+            $this->format = $request->input('format');
             return $this->allRecords();
         }
     }
@@ -40,7 +42,12 @@ class ReadResource implements CRUD, RecordOperations
     public function allRecords($ids = null)
     {
         try {
-            $office = Office::paginate(20);
+            if($this->format == 'short'){
+                $office = Office::select('id','name')->get();
+            }else{
+                $office = Office::paginate(20);
+            }
+
 
             return response()->json($office, 200);
         } catch (QueryException $ex) {

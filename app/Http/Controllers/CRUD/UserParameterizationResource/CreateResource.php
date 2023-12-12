@@ -13,10 +13,12 @@ use Illuminate\Support\Facades\Log;
 
 class CreateResource implements CRUD
 {
+
     public function resource(Request $request)
     {
         DB::beginTransaction();
 try {
+
     $newThird = Third::create([
         'type_document' => $request['type_document'],
         'identification' => $request['identification'],

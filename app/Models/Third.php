@@ -16,7 +16,7 @@ class Third extends Model
         'type_document',
         'identification',
         'verification_id', //NIT COMPANY
-        'name',
+        'names',
         'surnames',
         'business_name',
         'address',

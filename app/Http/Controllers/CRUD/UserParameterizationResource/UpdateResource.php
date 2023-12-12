@@ -16,6 +16,7 @@ class UpdateResource implements CRUD
     {
         DB::beginTransaction();
         try {
+            Log::info('paso1');
             User::find($request['user_id'])->third->update([
                 'type_document' => $request['type_document'],
                 'identification' => $request['identification'],
@@ -33,7 +34,7 @@ class UpdateResource implements CRUD
                 'status' => 'I',
                 'users_update_id' => Auth::id() ?? 1, // meanwhile define auth module ⚠️
             ]);
-
+            Log::info('paso2');
             foreach ($request['offices_id'] as $key => $office_id) {
                 $query = DB::table('office_users')
                 ->where('office_users_id',$request['user_id'])
@@ -57,7 +58,7 @@ class UpdateResource implements CRUD
                 }
             }
 
-
+            Log::info('paso3');
             User::find($request['user_id'])->update([
                 'name' => $request['name'],
                 'password' => bcrypt($request['password']),

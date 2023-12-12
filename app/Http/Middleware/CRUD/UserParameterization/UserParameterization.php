@@ -19,6 +19,7 @@ class UserParameterization
      */
     public function handle(Request $request, Closure $next): Response
     {
+        Log::info($request);
         $validationPermissions = false;
         $query = DB::table('forms')
         ->join('permission_roles','forms.id','=','permission_roles.form_id')
