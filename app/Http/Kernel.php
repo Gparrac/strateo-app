@@ -45,6 +45,10 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
+
+        'role.user' => [
+            \App\Http\Middleware\Auth\RoleMiddleware::class
+        ] 
     ];
 
     /**
@@ -67,13 +71,13 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         //AUTH
-        'data_register' => \App\Http\Middleware\Auth\DataRegister::class,
-        'data_login' => \App\Http\Middleware\Auth\DataLogin::class,
+        'data.register' => \App\Http\Middleware\Auth\DataRegister::class,
+        'data.login' => \App\Http\Middleware\Auth\DataLogin::class,
         //FORMS
-        'company_parameterization' => \App\Http\Middleware\CRUD\CompanyParameterization\CompanyParameterization::class,
-        'user_parameterization' => \App\Http\Middleware\CRUD\UserParameterization\UserParameterization::class,
+        'company.parameterization' => \App\Http\Middleware\CRUD\CompanyParameterization\CompanyParameterization::class,
+        'user.parameterization' => \App\Http\Middleware\CRUD\UserParameterization\UserParameterization::class,
         //INVOKES
-        'validateNameInvoke' => \App\Http\Middleware\Invokes\ValidateNameParameter::class,
+        'validate.name.invoke' => \App\Http\Middleware\Invokes\ValidateNameParameter::class,
         'office' => \App\Http\Middleware\CRUD\Office\Office::class,
     ];
 }

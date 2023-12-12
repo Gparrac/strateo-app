@@ -16,34 +16,32 @@ class CreateResource implements CRUD
 {
     public function resource(Request $request)
     {
-
         DB::beginTransaction();
-try {
-    //datos entrada [role_id=>roleId,forms=>[forms=> form_id, permissions_id => [1,2,..]]
-    foreach ($request['forms'] as $key => $form) {
-        foreach ($form['permissions_id'] as $key => $permission) {
-            Role::find($request->roleId)->permissions()->attach($permission,[
-                'status'=> 'A',
-                'form_id'=> $form['formId'],
-                'users_id' => Auth::id() || 1, //meanwhile implement auth module
-                'users_update_id' => Auth::id() || 1, //meanwhile implement auth module
-            ]);
+        try {
+            //datos entrada [role_id=>roleId,forms=>[forms=> form_id, permissions_id => [1,2,..]]
+            foreach ($request['forms'] as $key => $form) {
+                foreach ($form['permissions_id'] as $key => $permission) {
+                    Role::findOrFail($request->role_id)->permissions()->attach($permission,[
+                        'status'=> 'A',
+                        'form_id'=> $form['form_id'],
+                        'users_id' => Auth::id() || 1, //meanwhile implement auth module
+                        'users_update_id' => Auth::id() || 1, //meanwhile implement auth module
+                    ]);
+                }
+            }
+            DB::commit();
+            return response()->json(['message' => 'Create'], 200);
+        } catch (QueryException $ex) {
+            // In case of error, roll back the transaction
+            DB::rollback();
+            Log::error('Query error RolesParameterization@createResource: ' . $ex->getMessage());
+            return response()->json(['message' => 'create q'], 500);
+        } catch (\Exception $ex) {
+            // In case of error, roll back the transaction
+            DB::rollback();
+            Log::error('unknown error RolesParameterization@createResource: ' . $ex->getMessage());
+            return response()->json(['message' => 'create u'], 500);
         }
-    }
-    DB::commit();
-    return response()->json(['message' => 'Create'], 200);
-} catch (QueryException $ex) {
-    // In case of error, roll back the transaction
-    DB::rollback();
-    Log::error('Query error RolesParameterization@createResource: ' . $ex->getMessage());
-    return response()->json(['message' => 'create q'], 500);
-} catch (\Exception $ex) {
-    // In case of error, roll back the transaction
-    DB::rollback();
-    Log::error('unknown error RolesParameterization@createResource: ' . $ex->getMessage());
-    return response()->json(['message' => 'create u'], 500);
-}
-
 
     }
 }
