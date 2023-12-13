@@ -29,7 +29,7 @@ class ReadResource implements CRUD, RecordOperations
             $office = Office::where('id', $id)
                     ->firstOrFail(['name', 'address', 'phone', 'city_id', 'status']);
             // Create a record in the Office table
-            return response()->json($office, 200);
+            return response()->json(['message' => 'read: '.$id, 'data' => $office], 200);
         } catch (QueryException $ex) {
             Log::error('Query error CompanyParameterization@readResource: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'read q'], 500);
@@ -48,8 +48,7 @@ class ReadResource implements CRUD, RecordOperations
                 $office = Office::paginate(20);
             }
 
-
-            return response()->json($office, 200);
+            return response()->json(['message' => 'Read', 'data' => $office], 200);
         } catch (QueryException $ex) {
             Log::error('Query error CompanyParameterization@readResource: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'read q'], 500);

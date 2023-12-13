@@ -21,7 +21,6 @@ class ReadResource implements CRUD, RecordOperations
         }else{
             return $this->allRecords();
         }
-        
     }
 
     public function singleRecord($id){
@@ -31,7 +30,7 @@ class ReadResource implements CRUD, RecordOperations
                 ->where('id', $id)
                 ->first();
 
-            return response()->json($client, 200);
+            return response()->json(['message' => 'read: '.$id, 'data' => $client], 200);
         } catch (QueryException $ex) {
             Log::error('Query error ClientResource@readResource:singleRecord: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'read q'], 500);
@@ -45,7 +44,7 @@ class ReadResource implements CRUD, RecordOperations
         try {
         $clients = Third::paginate(20);
 
-        return response()->json($clients, 200);
+        return response()->json(['message' => 'read: '.$id, 'data' => $clients], 200);
         } catch (QueryException $ex) {
             Log::error('Query error ClientResource@readResource:allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'read q'], 500);
