@@ -12,8 +12,8 @@ class ReadResource implements CRUD, RecordOperations
 {
     public function resource(Request $request)
     {
-        if($request->has('query_id')){
-            return $this->singleRecord($request->input('query_id'));
+        if($request->has('user_id')){
+            return $this->singleRecord($request->input('user_id'));
         }else{
             return $this->allRecords();
         }
@@ -22,7 +22,7 @@ class ReadResource implements CRUD, RecordOperations
     public function singleRecord($id){
         $data = User::with(['third' => function ($query){
             $query->with('city:id,name');
-        },'role:id,name'])->find($id);
+        },'role:id,name','offices:id,name'])->find($id);
         return response()->json(['message' => 'Read: '.$id, 'data' => $data], 200);
     }
     public function allRecords($ids = null){

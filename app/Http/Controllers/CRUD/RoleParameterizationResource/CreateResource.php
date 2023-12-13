@@ -24,7 +24,7 @@ try {
         foreach ($form['permissions_id'] as $key => $permission) {
             Role::find($request->roleId)->permissions()->attach($permission,[
                 'status'=> 'A',
-                'form_id'=> $form['formId'],
+                'form_id'=> $form['form_id'],
                 'users_id' => Auth::id() || 1, //meanwhile implement auth module
                 'users_update_id' => Auth::id() || 1, //meanwhile implement auth module
             ]);
