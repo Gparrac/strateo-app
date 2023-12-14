@@ -11,26 +11,6 @@ use Illuminate\Support\Facades\Crypt;
 
 class AuthController extends Controller
 {
-    public function signup(Request $request)
-    {
-        try {
-            
-            $user = User::create([
-                'name' => $request->input('name'),
-                'email' => $request->input('email'),
-                'password' => bcrypt($request->password),
-            ]);
-
-            return response()->json($this->getFormatTokenResponse($user), 200);
-        } catch (QueryException $ex) {
-            Log::error('Query error AuthController@signup: ' . $ex->getMessage());
-            return response()->json(['message' => 'signup q'], 500);
-        } catch (\Exception $ex) {
-            Log::error('unknown error AuthController@signup: ' . $ex->getMessage());
-            return response()->json(['message' => 'signup u'], 500);
-        }
-    }
-
     public function login(Request $request)
     {
         try {
@@ -59,7 +39,6 @@ class AuthController extends Controller
     }
 
     private function getFormatTokenResponse($user){
-        $user->tokens()->delete();
         $token = $user->createToken('strateo');
         $refresh_token = Crypt::encrypt($token->token->id);
         return [
