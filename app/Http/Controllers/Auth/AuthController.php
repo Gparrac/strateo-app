@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -16,7 +17,11 @@ class AuthController extends Controller
         try {
             $user = $request->user;
             
-            return response()->json($this->getFormatTokenResponse($user), 200);
+            return response()->json([
+                'message' => 'login',
+                'data' => $this->getFormatTokenResponse($user)
+            ]
+            , 200);
         } catch (\Exception $ex) {
             Log::error('unknown error AuthController@login: ' . $ex->getMessage());
             return response()->json(['message' => 'login u'], 500);
@@ -35,6 +40,19 @@ class AuthController extends Controller
         } catch (\Exception $ex) {
             Log::error('unknown error AuthController@logout: ' . $ex->getMessage());
             return response()->json(['message' => 'logout u'], 500);
+        }
+    }
+
+    public function user(Request $request)
+    {
+        try {
+            return response()->json([
+                'message' => 'user',
+                'data' => Auth::user(),
+            ]);
+        } catch (\Exception $ex) {
+            Log::error('unknown error AuthController@user: ' . $ex->getMessage());
+            return response()->json(['message' => 'user u'], 500);
         }
     }
 

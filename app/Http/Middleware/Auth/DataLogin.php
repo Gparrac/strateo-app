@@ -8,7 +8,6 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Custom\Error\ProcessErrors;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Third;
 use App\Models\User;
 
@@ -31,7 +30,7 @@ class DataLogin
             ]);
 
             if ($validator->fails()){
-                return response()->json(['errors' => $validator->errors()], 400);
+                return response()->json(['error' => $validator->errors()], 400);
             }
             
             //Get email or identification
@@ -39,7 +38,7 @@ class DataLogin
             $identification = $request->input('identification');
 
             if($email && $identification){
-                return response()->json(['errors' => 'too much fields for request'], 400);
+                return response()->json(['error' => 'too much fields for request'], 400);
             }
 
             $third = Third::where('email', $email)
@@ -62,7 +61,7 @@ class DataLogin
             return response()->json(['error' => 'Invalid Credentials'], 400);
         } catch (\Exception $ex) {
             Log::error('unknown error Middleware@DataLogin: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
-            return response()->json(['message' => 'login u'], 500);
+            return response()->json(['error' => 'login u'], 500);
         }
     }
 
