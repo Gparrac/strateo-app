@@ -27,9 +27,9 @@ class ReadResource implements CRUD
                         ->where('third_id', $third->id)
                         ->first();
             $companyArray = $company ? $company->toArray() : [];
+            $data = array_merge($third->toArray(), $companyArray);
 
-            return response()->json(array_merge($third->toArray(), $companyArray), 200);
-
+            return response()->json(['message' => 'Read', 'data' => $data], 200);
         } catch (QueryException $ex) {
             Log::error('Query error CompanyParameterization@readResource: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'read q'], 500);
