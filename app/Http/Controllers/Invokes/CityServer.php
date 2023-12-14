@@ -14,7 +14,12 @@ class CityServer extends Controller
      */
     public function __invoke(Request $request)
     {
-        $cities = City::where('status','A')->where(DB::raw('UPPER(name)'),'like', '%' . strtoupper($request->input('name')) . '%')->select('id','name')->limit(10)->get();
+        $cities = City::where('status','A');
+        if($request->has('name')){
+            $cities = $cities->where(DB::raw('UPPER(name)'),'like', '%' . strtoupper($request->input('name')) . '%')->select('id','name')->limit(10)->get();
+        }else{
+            $cities = $cities->select('id','name')->limit(10)->get();
+        }
         // $cities = City::where('status','A')->select('id','name','image1')->get();
         return response()->json(['message' => 'Read: ', 'data' => $cities], 200);
     }
