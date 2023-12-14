@@ -30,9 +30,9 @@ class Third extends Model
     ];
 
     //Relationship
-    public function user(): BelongsTo
+    public function user(): HasOne
     {
-        return $this->belongsTo(User::class);
+        return $this->hasOne(User::class);
     }
 
     public function city(): BelongsTo

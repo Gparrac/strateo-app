@@ -8,9 +8,7 @@ use App\Http\Controllers\CRUD\OfficeParameterization;
 use App\Http\Controllers\CRUD\ClientParameterization;
 use App\Http\Controllers\CRUD\UserParameterization;
 
-
-// Route::group(['middleware' => 'auth:api'], function() {
-Route::group(['middleware' => 'role.user'], function() {
+Route::group(['middleware' => ['auth:api', 'role.user']], function() {
     Route::match(['get', 'post', 'put', 'delete'],'/company-parameterization', CompanyParameterization::class);
     Route::match(['get', 'post', 'put', 'delete'],'/office', OfficeParameterization::class);
     Route::match(['get', 'post', 'put', 'delete'],'/client', ClientParameterization::class);

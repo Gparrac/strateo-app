@@ -24,14 +24,13 @@ class RoleMiddleware
             $validator = Validator::make($request->all(), [
                 //Third table
                 'form_id' => 'required|exists:forms,id',
-
             ]);
-
 
             if ($validator->fails()){
                 return response()->json(['error' => TRUE, 'message' => $validator->errors()]);
             }
-            $userId = Auth::id() ?? 1;
+
+            $userId = Auth::id();
             $query = Form::join('permission_roles','forms.id','=','permission_roles.form_id')
             ->join('roles','permission_roles.role_id','=','roles.id')
             ->join('permissions','permission_roles.permission_id','=','permissions.id')
@@ -39,7 +38,6 @@ class RoleMiddleware
             ->where('permission_roles.status','A')
             ->where('users.id', $userId)
             ->where('forms.id', $request->input('form_id'));
-
 
             // dd($query->count());
             switch($request->method()){

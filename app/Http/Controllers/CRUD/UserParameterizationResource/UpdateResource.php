@@ -16,7 +16,7 @@ class UpdateResource implements CRUD
     {
         DB::beginTransaction();
         try {
-            Log::info('paso1');
+            $authId = Auth::id();
             User::find($request['user_id'])->third->update([
                 'type_document' => $request['type_document'],
                 'identification' => $request['identification'],
@@ -27,43 +27,42 @@ class UpdateResource implements CRUD
                 'email' => $request['email'],
                 'email2' => $request['email2'],
                 'city_id' => $request['city_id'],
-                'users_update_id' => Auth::id() ?? 1 // meanwhile define auth module ⚠️
+                'users_update_id' => $authId // meanwhile define auth module ⚠️
             ]);
 
             DB::table('office_users')->where('office_users_id',$request['user_id'])->update([
                 'status' => 'I',
-                'users_update_id' => Auth::id() ?? 1, // meanwhile define auth module ⚠️
+                'users_update_id' => $authId, // meanwhile define auth module ⚠️
             ]);
-            Log::info('paso2');
-            foreach ($request['offices_id'] as $key => $office_id) {
+
+            foreach ($request['offices_id'] as $key => $officeId) {
                 $query = DB::table('office_users')
                 ->where('office_users_id',$request['user_id'])
-                ->where('office_id',$office_id);
+                ->where('office_id',$officeId);
 
 
                 if($query->count() == 0){
-                    User::find($request['user_id'])->offices()->attach($office_id,[
+                    User::find($request['user_id'])->offices()->attach($officeId,[
                         'status'=>'A',
-                        'users_id'=>Auth::id() ?? 1,
-                        'users_update_id' => Auth::id() ?? 1 // meanwhile define auth module ⚠️
+                        'users_id'=>$authId,
+                        'users_update_id' => $authId // meanwhile define auth module ⚠️
                     ]);
                 }else{
 
 
                     $query->update([
                         'status'=>'A',
-                        'users_update_id' => Auth::id() ?? 1, // meanwhile define auth module ⚠️
+                        'users_update_id' => $authId, // meanwhile define auth module ⚠️
                     ]);
 
                 }
             }
 
-            Log::info('paso3');
             User::find($request['user_id'])->update([
                 'name' => $request['name'],
                 'password' => bcrypt($request['password']),
                 'role_id' => $request['role_id'],
-                'users_update_id' => Auth::id() ?? 1, // meanwhile define auth module ⚠️
+                'users_update_id' => $authId, // meanwhile define auth module ⚠️
                 'status' => $request['status']
             ]);
             DB::commit();

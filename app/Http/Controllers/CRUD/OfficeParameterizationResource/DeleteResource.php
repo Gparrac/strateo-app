@@ -22,7 +22,7 @@ class DeleteResource implements CRUD, RecordOperations
 
     public function singleRecord($id){
         try {
-            $userId = auth()->id() ?? 1;
+            $userId = auth()->id();
             $office = Office::findOrFail($id);
             // Create a record in the Office table
             $office->update([
@@ -42,7 +42,7 @@ class DeleteResource implements CRUD, RecordOperations
     public function allRecords($ids = null){
         try {
             $idsArray = json_decode($ids, true);
-            $userId = auth()->id() ?? 1;
+            $userId = auth()->id();
 
             Office::whereIn('id', $idsArray)->update([
                 'status' => 'I',
