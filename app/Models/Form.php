@@ -25,4 +25,8 @@ class Form extends Model
     {
         return $this->belongsTo(Section::class);
     }
+    public function permissions()
+    {
+        return $this->hasManyThrough(Permission::class, 'permission_roles', 'form_id', 'permission_id');
+    }
 }

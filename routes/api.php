@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\invokes\CityServer;
+use App\Http\Controllers\invokes\FormServer;
 use App\Http\Controllers\invokes\TypedocumentUserServer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -23,3 +24,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 Route::middleware('validate.name.invoke')->get('/cities', CityServer::class);
 Route::get('/type-document-user', TypedocumentUserServer::class);
+Route::get('/forms', FormServer::class);
+Route::get('/permissions', FormServer::class);

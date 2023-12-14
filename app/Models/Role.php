@@ -25,4 +25,8 @@ class Role extends Model
     {
         return $this->belongsToMany(Permission::class,'permission_roles')->withPivot('form_id','status');
     }
+    public function forms()
+    {
+        return $this->hasManyThrough(Permission::class, 'permission_roles', 'role_id','form_id');
+    }
 }
