@@ -17,49 +17,47 @@ class CreateResource implements CRUD
     public function resource(Request $request)
     {
         DB::beginTransaction();
-try {
+        try {
+            $authId = Auth::id();
+            $newThird = Third::create([
+                'type_document' => $request['type_document'],
+                'identification' => $request['identification'],
+                'names' => $request['names'],
+                'surnames' => $request['surnames'],
+                'address' => $request['address'],
+                'mobile' => $request['mobile'],
+                'email' => $request['email'],
+                'email2' => $request['email2'],
+                'city_id' => $request['city_id'],
+                'users_update_id' => $authId, // meanwhile define auth module ⚠️
+                'users_id' => $authId
+            ]);
 
-    $newThird = Third::create([
-        'type_document' => $request['type_document'],
-        'identification' => $request['identification'],
-        'names' => $request['names'],
-        'surnames' => $request['surnames'],
-        'address' => $request['address'],
-        'mobile' => $request['mobile'],
-        'email' => $request['email'],
-        'email2' => $request['email2'],
-        'city_id' => $request['city_id'],
-        'users_update_id' => Auth::id() ?? 1, // meanwhile define auth module ⚠️
-        'users_id' => Auth::id() ?? 1
-    ]);
-
-    $newUser = User::create([
-        'name' => $request['name'],
-        'password' => bcrypt($request['password']),
-        'third_id'=> $newThird['id'],
-        'role_id' => $request['role_id'],
-        'users_id' => Auth::id(),
-        'users_update_id' => Auth::id() ?? 1, // meanwhile define auth module ⚠️
-        'status' => $request['status']
-    ]);
-    $newUser->offices()->attach($request['offices_id'],[
-        'status'=>'A',
-        'users_id'=>Auth::id() ?? 1
-    ]);
-    DB::commit();
-    return response()->json(['message' => 'Create'], 200);
-} catch (QueryException $ex) {
-    // In case of error, roll back the transaction
-    DB::rollback();
-    Log::error('Query error UsersParameterization@createResource: ' . $ex->getMessage());
-    return response()->json(['message' => 'create q'], 500);
-} catch (\Exception $ex) {
-    // In case of error, roll back the transaction
-    DB::rollback();
-    Log::error('unknown error UsersParameterization@createResource: ' . $ex->getMessage());
-    return response()->json(['message' => 'create u'], 500);
-}
-
-
+            $newUser = User::create([
+                'name' => $request['name'],
+                'password' => bcrypt($request['password']),
+                'third_id'=> $newThird['id'],
+                'role_id' => $request['role_id'],
+                'users_id' => $authId,
+                'users_update_id' => $authId, // meanwhile define auth module ⚠️
+                'status' => $request['status']
+            ]);
+            $newUser->offices()->attach($request['offices_id'],[
+                'status'=>'A',
+                'users_id'=>$authId
+            ]);
+            DB::commit();
+            return response()->json(['message' => 'Create'], 200);
+        } catch (QueryException $ex) {
+            // In case of error, roll back the transaction
+            DB::rollback();
+            Log::error('Query error UsersParameterization@createResource: ' . $ex->getMessage());
+            return response()->json(['message' => 'create q'], 500);
+        } catch (\Exception $ex) {
+            // In case of error, roll back the transaction
+            DB::rollback();
+            Log::error('unknown error UsersParameterization@createResource: ' . $ex->getMessage());
+            return response()->json(['message' => 'create u'], 500);
+        }
     }
 }

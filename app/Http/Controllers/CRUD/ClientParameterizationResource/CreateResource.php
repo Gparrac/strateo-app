@@ -15,7 +15,7 @@ class CreateResource implements CRUD
     public function resource(Request $request)
     {
         try {
-            $userId = auth()->id() ?? 1;
+            $userId = auth()->id();
             // Create body to create third record
             $thirdData = [
                 'type_document' => 'CC',

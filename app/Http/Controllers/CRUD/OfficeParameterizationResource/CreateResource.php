@@ -13,7 +13,7 @@ class CreateResource implements CRUD
     public function resource(Request $request)
     {
         try {
-            $userId = auth()->id() ?? 1;
+            $userId = auth()->id();
 
             // Create a record in the Office table
             $office = Office::create([
