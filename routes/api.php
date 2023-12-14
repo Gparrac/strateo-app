@@ -21,5 +21,5 @@ include __DIR__.'/custom/form.php';
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::middleware('validateNameInvoke')->get('/cities', CityServer::class);
+Route::middleware('validate.name.invoke')->get('/cities', CityServer::class);
 Route::get('/type-document-user', TypedocumentUserServer::class);
