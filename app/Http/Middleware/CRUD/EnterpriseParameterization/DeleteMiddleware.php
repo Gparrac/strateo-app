@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Middleware\CRUD\CompanyParameterization;
+namespace App\Http\Middleware\CRUD\EnterpriseParameterization;
 
 use Illuminate\Http\Request;
 use App\Http\Middleware\CRUD\Interfaces\ValidateData;

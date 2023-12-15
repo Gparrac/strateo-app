@@ -1,18 +1,15 @@
 <?php
 
-namespace App\Http\Middleware\CRUD\CompanyParameterization;
+namespace App\Http\Middleware\CRUD\EnterpriseParameterization;
 
 use Illuminate\Http\Request;
 use App\Http\Middleware\CRUD\Interfaces\ValidateData;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 
-class CreateMiddleware implements ValidateData
+class UpdateMiddleware implements ValidateData
 {
     public function validate(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             //Third table
             'type_document' => 'required|in:CC,NIT,CE',
@@ -25,22 +22,20 @@ class CreateMiddleware implements ValidateData
             'mobile' => 'required|numeric|digits_between:10,13',
             'email' => 'required|email',
             'email2' => 'email',
-            'postal_code' => 'required|numeric',
             'city_id' => 'required|exists:cities,id',
+            'postal_code' => 'required|numeric',
 
             //Company Table
-            'path_logo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'path_logo' => 'required|string',
             'header' => 'string',
             'footer' => 'string'
         ]);
-        
-        if ($validator->fails()){
-            return ['error' => TRUE, 'message' => $validator->errors()];
-        }
 
-        $user = Auth::user() || User::find(1);
-        if ($user->third_id !== null) {
-            return ['error' => TRUE, 'message' => 'third exists'];
+        if ($validator->fails()){
+            return [
+                'error' => TRUE,
+                'message' => $validator->errors()
+            ];
         }
 
         return ['error' => FALSE];

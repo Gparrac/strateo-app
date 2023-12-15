@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Middleware\CRUD\CompanyParameterization;
+namespace App\Http\Middleware\CRUD\EnterpriseParameterization;
 
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Http\Middleware\CRUD\ValidateDataMiddlewareContext;
 
-class CompanyParameterization
+class EnterpriseParameterization
 {
     /**
      * Handle an incoming request.

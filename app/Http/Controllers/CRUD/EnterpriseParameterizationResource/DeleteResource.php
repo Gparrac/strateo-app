@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\CRUD\CompanyParameterizationResource;
+namespace App\Http\Controllers\CRUD\EnterpriseParameterizationResource;
 
 use App\Http\Controllers\CRUD\Interfaces\CRUD;
 use App\Http\Controllers\CRUD\Interfaces\RecordOperations;

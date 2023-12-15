@@ -44,18 +44,18 @@ class RoleMiddleware
                 case 'POST':
                     $validationPermissions = $query->where('permissions.name','GUARDAR')->count() == 0;
                     break;
-                    case 'GET':
-                        $validationPermissions = $query->where('permissions.name','CONSULTAR')->count() == 0;
-                        break;
-                        case 'PUT':
-                            $validationPermissions = $query->where('permissions.name','ACTUALIZAR')->count() == 0;
-                            break;
-                            case 'DELETE':
-                                $validationPermissions = $query->where('permissions.name','ELIMINAR')->count() == 0;
-                                break;
-                                default:
-                                return response()->json(['error' => 'Method not allowed'], 400);
-                            }
+                case 'GET':
+                    $validationPermissions = $query->where('permissions.name','CONSULTAR')->count() == 0;
+                    break;
+                case 'PUT':
+                    $validationPermissions = $query->where('permissions.name','ACTUALIZAR')->count() == 0;
+                    break;
+                case 'DELETE':
+                    $validationPermissions = $query->where('permissions.name','ELIMINAR')->count() == 0;
+                    break;
+                default:
+                return response()->json(['error' => 'Method not allowed'], 400);
+            }
 
             if($validationPermissions) return response()->json(['error' => 'insufficient privileges'], 403);
 
