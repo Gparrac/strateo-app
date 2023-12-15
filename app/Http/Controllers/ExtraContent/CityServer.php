@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\invokes;
+namespace App\Http\Controllers\ExtraContent;
 
 use App\Http\Controllers\Controller;
 use App\Models\City;

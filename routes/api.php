@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 
 include __DIR__.'/custom/auth.php';
 include __DIR__.'/custom/form.php';
+include __DIR__.'/custom/extraContent.php';
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -22,7 +23,4 @@ include __DIR__.'/custom/form.php';
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::middleware('validate.name.invoke')->get('/cities', CityServer::class);
-Route::get('/type-document-user', TypedocumentUserServer::class);
-Route::get('/forms', FormServer::class);
-Route::get('/permissions', FormServer::class);
+
