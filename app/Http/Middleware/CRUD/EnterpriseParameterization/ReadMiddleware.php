@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Middleware\CRUD\CompanyParameterization;
+namespace App\Http\Middleware\CRUD\EnterpriseParameterization;
 
 use Illuminate\Http\Request;
 use App\Http\Middleware\CRUD\Interfaces\ValidateData;
@@ -13,17 +13,12 @@ class ReadMiddleware implements ValidateData
 {
     public function validate(Request $request)
     {
-        $user = Auth::user() || User::find(1);
+        if(!$request->has('enterprise_id')) return ['error' => FALSE];
 
-        $third = Third::where('id', $user->third_id)->first();
-
-        if(!$third){
-            return ['error' => TRUE, 'message' => 'third not exist'];
+        $third = Third::find($request->input('enterprise_id'));
+        if(!$third || !$third->business_name){
+            return ['error' => TRUE, 'message' => 'Entreprise not exist'];
         }
-
-        $request->merge([
-            'third' => $third, 
-        ]);
 
         return ['error' => FALSE];
     }

@@ -74,7 +74,7 @@ class Kernel extends HttpKernel
         'data.register' => \App\Http\Middleware\Auth\DataRegister::class,
         'data.login' => \App\Http\Middleware\Auth\DataLogin::class,
         //FORMS
-        'company.parameterization' => \App\Http\Middleware\CRUD\CompanyParameterization\CompanyParameterization::class,
+        'enterprise.parameterization' => \App\Http\Middleware\CRUD\EnterpriseParameterization\EnterpriseParameterization::class,
         'user.parameterization' => \App\Http\Middleware\CRUD\UserParameterization\UserParameterization::class,
         //INVOKES
         'validate.name.invoke' => \App\Http\Middleware\Invokes\ValidateNameParameter::class,
