@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Form;
 
 
-class FormServer extends Controller
+class FormsServer extends Controller
 {
     /**
      * Handle the incoming request.
