@@ -8,15 +8,12 @@ use App\Http\Controllers\CRUD\RoleParameterization;
 use App\Http\Controllers\CRUD\OfficeParameterization;
 use App\Http\Controllers\CRUD\ClientParameterization;
 use App\Http\Controllers\CRUD\UserParameterization;
-use App\Http\Controllers\ExtraContent\FormServer;
-use App\Http\Controllers\ExtraContent\PermissionServer;
-use App\Http\Controllers\ExtraContent\TypedocumentUserServer;
 
-Route::group(['middleware' => ['auth:api', 'role.user']], function() {
+Route::group(['middleware' => ['auth:api']], function() {
     Route::match(['get', 'post', 'put', 'delete'],'/enterprise-parameterization', EnterpriseParameterization::class)->middleware('enterprise.parameterization');
     Route::match(['get', 'post', 'put', 'delete'],'/office', OfficeParameterization::class);
     Route::match(['get', 'post', 'put', 'delete'],'/client', ClientParameterization::class);
 
-    Route::match(['get', 'post', 'put', 'delete'],'/user-parameterization', UserParameterization::class)->middleware('user.parameterization');;
     Route::match(['get', 'post', 'put', 'delete'],'/role-parameterization', RoleParameterization::class);
 });
+Route::match(['get', 'post', 'put', 'delete'],'/user-parameterization', UserParameterization::class)->middleware('user.parameterization');;

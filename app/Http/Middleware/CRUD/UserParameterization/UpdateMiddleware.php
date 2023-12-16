@@ -14,7 +14,8 @@ class UpdateMiddleware implements ValidateData
     public function validate(Request $request)
     {
         Log::info($request);
-
+        Log::info('testing');
+        Log::info(User::find($request['user_id'])->third->id);
         $validator = Validator::make($request->all(), [
             //Third table
             'type_document' => 'required|in:CC,CE,PASAPORTE',
@@ -36,7 +37,6 @@ class UpdateMiddleware implements ValidateData
             'password' => 'string',
             'identification' => ['required','digits_between:7,10', Rule::unique('thirds', 'identification')->ignore(User::find($request['user_id'])->third->id),],
         ]);
-
         if ($validator->fails()){
             return [
                 'error' => TRUE,

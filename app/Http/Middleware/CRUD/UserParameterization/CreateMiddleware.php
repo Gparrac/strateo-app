@@ -6,12 +6,13 @@ use Illuminate\Http\Request;
 use App\Http\Middleware\CRUD\Interfaces\ValidateData;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class CreateMiddleware implements ValidateData
 {
     public function validate(Request $request)
     {
-
+        Log::info('entrando post');
         $validator = Validator::make($request->all(), [
             //Third table
             'type_document' => 'required|in:CC,CE,PASAPORTE',

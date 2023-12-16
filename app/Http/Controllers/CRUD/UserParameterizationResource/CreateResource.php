@@ -57,7 +57,7 @@ class CreateResource implements CRUD
             // In case of error, roll back the transaction
             DB::rollback();
             Log::error('unknown error UsersParameterization@createResource: ' . $ex->getMessage());
-            return response()->json(['message' => 'create u'], 500);
+            return response()->json(['error' => 'create u'], 500);
         }
     }
 }
