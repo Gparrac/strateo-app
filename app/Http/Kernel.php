@@ -47,7 +47,8 @@ class Kernel extends HttpKernel
         ],
 
         'role.user' => [
-            \App\Http\Middleware\Auth\RoleMiddleware::class
+            \App\Http\Middleware\Auth\Role\RouteMiddleware::class,
+            \App\Http\Middleware\Auth\Role\RoleMiddleware::class
         ] 
     ];
 

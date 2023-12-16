@@ -11,8 +11,8 @@ use App\Http\Controllers\CRUD\UserParameterization;
 
 Route::group(['middleware' => ['auth:api']], function() {
     Route::match(['get', 'post', 'put', 'delete'],'/enterprise-parameterization', EnterpriseParameterization::class)->middleware('enterprise.parameterization');
-    Route::match(['get', 'post', 'put', 'delete'],'/office', OfficeParameterization::class);
-    Route::match(['get', 'post', 'put', 'delete'],'/client', ClientParameterization::class);
+    Route::match(['get', 'post', 'put', 'delete'], '/office-parameterization', OfficeParameterization::class);
+    Route::match(['get', 'post', 'put', 'delete'],'/client-parameterization', ClientParameterization::class);
 
     Route::match(['get', 'post', 'put', 'delete'],'/role-parameterization', RoleParameterization::class);
 });
