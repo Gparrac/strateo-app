@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Middleware\Auth;
+namespace App\Http\Middleware\Auth\Role;
 
 use Closure;
 use Illuminate\Http\Request;
@@ -21,15 +21,6 @@ class RoleMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         try {
-            $validator = Validator::make($request->all(), [
-                //Third table
-                'form_id' => 'required|exists:forms,id',
-            ]);
-
-            if ($validator->fails()){
-                return response()->json(['error' => TRUE, 'message' => $validator->errors()]);
-            }
-
             $userId = Auth::id();
             $query = Form::join('permission_roles','forms.id','=','permission_roles.form_id')
             ->join('roles','permission_roles.role_id','=','roles.id')
@@ -37,7 +28,7 @@ class RoleMiddleware
             ->join('users','roles.id','users.role_id')
             ->where('permission_roles.status','A')
             ->where('users.id', $userId)
-            ->where('forms.id', $request->input('form_id'));
+            ->where('forms.id', $request->formId);
 
             // dd($query->count());
             switch($request->method()){
