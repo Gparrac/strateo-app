@@ -19,6 +19,7 @@ class ReadResource implements CRUD, RecordOperations
             return $this->singleRecord($request->input('office_id'));
         }else{
             $this->format = $request->input('format');
+            Log::info('llegando');
             return $this->allRecords();
         }
     }
