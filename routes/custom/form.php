@@ -14,6 +14,6 @@ Route::group(['middleware' => ['auth:api']], function() {
     Route::match(['get', 'post', 'put', 'delete'], '/office-parameterization', OfficeParameterization::class);
     Route::match(['get', 'post', 'put', 'delete'],'/client-parameterization', ClientParameterization::class);
 
-    Route::match(['get', 'post', 'put', 'delete'],'/role-parameterization', RoleParameterization::class);
 });
-Route::match(['get', 'post', 'put', 'delete'],'/user-parameterization', UserParameterization::class)->middleware('user.parameterization');;
+Route::match(['get', 'post', 'put', 'delete'],'/role-parameterization', RoleParameterization::class)->middleware('role.parameterization');
+Route::match(['get', 'post', 'put', 'delete'],'/user-parameterization', UserParameterization::class)->middleware('user.parameterization');

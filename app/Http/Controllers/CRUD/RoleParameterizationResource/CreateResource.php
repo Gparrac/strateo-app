@@ -18,14 +18,21 @@ class CreateResource implements CRUD
     {
         DB::beginTransaction();
         try {
+            $userId = Auth::id() || 1; //meanwhile implement auth module
+            $role = Role::create([
+                'name' =>  $request['name'],
+                'description' => $request['description'],
+                'users_id' => $userId,
+                'users_update_id' => $userId,
+            ]);
             //datos entrada [role_id=>roleId,forms=>[forms=> form_id, permissions_id => [1,2,..]]
             foreach ($request['forms'] as $key => $form) {
                 foreach ($form['permissions_id'] as $key => $permission) {
-                    Role::findOrFail($request->role_id)->permissions()->attach($permission,[
+                    Role::findOrFail($role['id'])->permissions()->attach($permission,[
                         'status'=> 'A',
                         'form_id'=> $form['form_id'],
-                        'users_id' => Auth::id() || 1, //meanwhile implement auth module
-                        'users_update_id' => Auth::id() || 1, //meanwhile implement auth module
+                        'users_id' => $userId,
+                        'users_update_id' => $userId,
                     ]);
                 }
             }

@@ -13,8 +13,8 @@ class FormsServer extends Controller
      */
     public function __invoke()
     {
-        $forms = Form::where('status','1');
-            $forms = $forms->select('id','name')->get();
+        $forms = Form::join('sections','forms.section_id','sections.id')->select('forms.id','forms.name', 'sections.name as section_name')->get();
+            // $forms = $forms->select('id','name')->get();
         // $forms = City::where('status','A')->select('id','name','image1')->get();
         return response()->json(['message' => 'Read: ', 'data' => $forms], 200);
     }

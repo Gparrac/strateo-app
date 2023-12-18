@@ -49,7 +49,7 @@ class Kernel extends HttpKernel
         'role.user' => [
             \App\Http\Middleware\Auth\Role\RouteMiddleware::class,
             \App\Http\Middleware\Auth\Role\RoleMiddleware::class
-        ] 
+        ]
     ];
 
     /**
@@ -77,8 +77,9 @@ class Kernel extends HttpKernel
         //FORMS
         'enterprise.parameterization' => \App\Http\Middleware\CRUD\EnterpriseParameterization\EnterpriseParameterization::class,
         'user.parameterization' => \App\Http\Middleware\CRUD\UserParameterization\UserParameterization::class,
+        'role.parameterization' => \App\Http\Middleware\CRUD\RoleParameterization\RoleParameterization::class,
         //INVOKES
         'validate.name.invoke' => \App\Http\Middleware\Invokes\ValidateNameParameter::class,
-        'office' => \App\Http\Middleware\CRUD\Office\Office::class,
+        'office' => \App\Http\Middleware\CRUD\OfficeParameterization\OfficeParameterization::class,
     ];
 }

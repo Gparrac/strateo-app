@@ -14,7 +14,7 @@ class DeleteResource implements CRUD
 {
     public function resource(Request $request)
     {
-        Log::info('passando!');
+
         $userIds = $request['users_id'];
         try {
             DB::beginTransaction();
@@ -33,7 +33,6 @@ class DeleteResource implements CRUD
                     ]);
                 }
             }
-            Log::info('passando!');
             // Confirmar la transacción si todas las operaciones fueron exitosas
             DB::commit();
 

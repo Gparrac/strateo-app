@@ -18,6 +18,12 @@ class UpdateResource implements CRUD
 
         DB::beginTransaction();
         try {
+            $userId = Auth::id() || 1; //meanwhile implement auth module
+            Role::find($request['role_id'])->update([
+                'name' =>  $request['name'],
+                'description' => $request['description'],
+                'users_update_id' => $userId,
+            ]);
             foreach ($request['forms'] as $key => $form) {
                 DB::table('permission_roles')->where('role_id', $request['role_id'])->where('form_id', $form['form_id'])->whereNotIn('permission_id', $form['permissions_id'])->update([
                     'status' => 'I'
@@ -31,8 +37,8 @@ class UpdateResource implements CRUD
                         Role::find($request['role_id'])->permissions()->attach($permission_id,[
                             'status'=> 'A',
                             'form_id'=> $form['form_id'],
-                            'users_id' => Auth::id() || 1, //meanwhile implement auth module
-                            'users_update_id' => Auth::id() || 1, //meanwhile implement auth module
+                            'users_id' => $userId, //meanwhile implement auth module
+                            'users_update_id' => $userId, //meanwhile implement auth module
                         ]);
                     } else {
                         $query->update([
