@@ -26,7 +26,7 @@ class ReadResource implements CRUD, RecordOperations
     public function singleRecord($id){
         try {
             $third = Third::select('id', 'type_document', 'identification', 'verification_id',
-            'business_name', 'address', 'mobile', 'email', 'postal_code', 'city_id')
+            'business_name', 'address', 'mobile', 'email', 'email2', 'postal_code', 'city_id')
             ->findOrFail($id);
 
             $company = Company::select('path_logo', 'header', 'footer')
@@ -49,7 +49,7 @@ class ReadResource implements CRUD, RecordOperations
         try {
             $user = Auth::user();
             // Find Third with third_id in user
-            $third = Third::select('id', 'identification', 'verification_id',
+            $third = Third::select('id', 'type_document', 'identification', 'verification_id',
                 'business_name', 'address')
                 ->whereNotNull('business_name')
                 ->paginate(10);

@@ -23,8 +23,11 @@ class UpdateResource implements CRUD
             $third = Third::findOrFail($user->third_id);
             // Create a record in the Third table
             $third->fill($request->only([
+                'type_document',
                 'identificacion',
                 'verification_id',
+                'names',
+                'surnames',
                 'business_name',
                 'address',
                 'mobile',

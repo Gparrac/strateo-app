@@ -12,12 +12,12 @@ class UpdateMiddleware implements ValidateData
     {
         $validator = Validator::make($request->all(), [
             //Third table
-            'type_document' => 'required|in:CC,NIT,CE',
+            'type_document' => 'required|in:CC,NIT,CE,PASAPORTE',
             'identificacion' => 'required|numeric|digits_between:7,10',
             'verification_id' => 'required|numeric|digits_between:7,10',
-            'names' => 'required|string|min:3|max:40|regex:/^[\p{L}\s]+$/u',
-            'surnames' => 'required|string|min:3|max:40|regex:/^[\p{L}\s]+$/u',
-            'business_name' => 'required|string|min:3|max:40|regex:/^[\p{L}\s]+$/u',
+            'names' => 'string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
+            'surnames' => 'string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
+            'business_name' => 'string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'address' => 'required|string',
             'mobile' => 'required|numeric|digits_between:10,13',
             'email' => 'required|email',
@@ -36,6 +36,14 @@ class UpdateMiddleware implements ValidateData
                 'error' => TRUE,
                 'message' => $validator->errors()
             ];
+        }
+
+        $names = $request->input('names');
+        $surnames = $request->input('surnames');
+        $business_name = $request->input('business_name');
+
+        if($names && $surnames && $business_name){
+            return response()->json(['error' => 'too much names fields for request'], 400);
         }
 
         return ['error' => FALSE];
