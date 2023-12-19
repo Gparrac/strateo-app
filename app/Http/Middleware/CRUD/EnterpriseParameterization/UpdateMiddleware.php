@@ -13,7 +13,7 @@ class UpdateMiddleware implements ValidateData
         $validator = Validator::make($request->all(), [
             //Third table
             'type_document' => 'required|in:CC,NIT,CE,PASAPORTE',
-            'identificacion' => 'required|numeric|digits_between:7,10',
+            'identification' => 'required|numeric|digits_between:7,10',
             'verification_id' => 'required|numeric|digits_between:7,10',
             'names' => 'string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'surnames' => 'string|min:3|max:80|regex:/^[\p{L}\s]+$/u',

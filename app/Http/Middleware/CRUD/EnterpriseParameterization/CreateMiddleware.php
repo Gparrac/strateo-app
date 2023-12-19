@@ -16,7 +16,7 @@ class CreateMiddleware implements ValidateData
         $validator = Validator::make($request->all(), [
             //Third table
             'type_document' => 'required|in:CC,NIT,CE,PASAPORTE',
-            'identificacion' => 'required|numeric|digits_between:7,10',
+            'identification' => 'required|numeric|digits_between:7,10',
             'verification_id' => 'required|numeric|digits_between:7,10',
             'names' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'surnames' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
@@ -46,7 +46,7 @@ class CreateMiddleware implements ValidateData
             return ['error' => TRUE, 'message' => 'too much names fields for request'];
         }
 
-        $user = Auth::user() || User::find(1);
+        $user = Auth::user();
         if ($user->third_id !== null) {
             return ['error' => TRUE, 'message' => 'third exists'];
         }
