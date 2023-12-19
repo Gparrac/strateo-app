@@ -32,7 +32,7 @@ class DataLogin
             if ($validator->fails()){
                 return response()->json(['error' => $validator->errors()], 400);
             }
-            
+
             //Get email or identification
             $email = $request->input('email');
             $identification = $request->input('identification');
@@ -52,8 +52,8 @@ class DataLogin
             if (!$user || !password_verify($request->input('password'), $user->password)) {
                 return response()->json(['error' => 'Invalid Credentials'], 400);
             }
-            
-            $request->merge(['user' => $user]);
+
+            $request->merge(['user' => $user, 'third' => $third]);
 
             return $next($request);
         } catch (QueryException $ex) {
