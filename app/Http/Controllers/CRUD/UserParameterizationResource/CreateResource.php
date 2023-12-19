@@ -18,7 +18,8 @@ class CreateResource implements CRUD
     {
         DB::beginTransaction();
         try {
-            $authId = Auth::id();
+            $authId = Auth::id() ?? 1;
+            // $authId = Auth::id();
             $newThird = Third::create([
                 'type_document' => $request['type_document'],
                 'identification' => $request['identification'],

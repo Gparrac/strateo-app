@@ -20,8 +20,8 @@ class UpdateMiddleware implements ValidateData
             'description' => 'required|string|min:3|max:40|regex:/^[\p{L}\s]+$/u',
             'forms' => 'required|array',
             'forms.*.form_id' => 'required|integer|exists:forms,id',
-            'forms.*.permissions_id' => 'required|array',
-            'forms.*.permissions_id.*' => 'required|integer|exists:permissions,id',
+            'forms.*.permissions_id' => 'array',
+            'forms.*.permissions_id.*' => 'integer|exists:permissions,id',
         ]);
         if ($validator->fails()){
             return [

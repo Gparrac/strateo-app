@@ -16,10 +16,14 @@ class AuthController extends Controller
     {
         try {
             $user = $request->user;
-            
+            $dataUser = [
+                'email' => $request['user']->name,
+                'name' => $request['third']->email,
+            ];
             return response()->json([
                 'message' => 'login',
-                'data' => $this->getFormatTokenResponse($user)
+                'data' => $this->getFormatTokenResponse($user),
+                'user' => $dataUser
             ]
             , 200);
         } catch (\Exception $ex) {
