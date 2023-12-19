@@ -50,7 +50,7 @@ class DataLogin
 
             $user = $third->user;
             if (!$user || !password_verify($request->input('password'), $user->password)) {
-                return response()->json(['error' => 'Invalid Credentials'], 400);
+                return response()->json(['error' => 'Invalid Credentials.'], 400);
             }
 
             $request->merge(['user' => $user, 'third' => $third]);
