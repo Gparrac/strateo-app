@@ -12,10 +12,6 @@ class ReadMiddleware implements ValidateData
 {
     public function validate(Request $request)
     {
-        $user = User::find(1);
-
-        $third = Office::where('id', $user->third_id)->first();
-
         return ['error' => FALSE];
     }
 }

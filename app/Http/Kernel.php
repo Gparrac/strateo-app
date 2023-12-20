@@ -76,10 +76,10 @@ class Kernel extends HttpKernel
         'data.login' => \App\Http\Middleware\Auth\DataLogin::class,
         //FORMS
         'enterprise.parameterization' => \App\Http\Middleware\CRUD\EnterpriseParameterization\EnterpriseParameterization::class,
+        'office.parameterization' => \App\Http\Middleware\CRUD\OfficeParameterization\OfficeParameterization::class,
         'user.parameterization' => \App\Http\Middleware\CRUD\UserParameterization\UserParameterization::class,
         'role.parameterization' => \App\Http\Middleware\CRUD\RoleParameterization\RoleParameterization::class,
         //INVOKES
         'validate.name.invoke' => \App\Http\Middleware\Invokes\ValidateNameParameter::class,
-        'office' => \App\Http\Middleware\CRUD\OfficeParameterization\OfficeParameterization::class,
     ];
 }

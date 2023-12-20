@@ -46,11 +46,6 @@ class CreateMiddleware implements ValidateData
             return ['error' => TRUE, 'message' => 'too much names fields for request'];
         }
 
-        $user = Auth::user();
-        if ($user->third_id !== null) {
-            return ['error' => TRUE, 'message' => 'third exists'];
-        }
-
         return ['error' => FALSE];
     }
 }
