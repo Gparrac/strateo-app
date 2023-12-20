@@ -30,8 +30,8 @@ class FormsServer extends Controller
         return response()->json(['message' => 'Read: ', 'data' => $forms], 200);
     }
     public function routesAvailable(){
-        Log::info(Auth::id());
-        $roleUser = User::find(Auth::id())->role_id;
+        Log::info(Auth::id() ?? 1);
+        $roleUser = User::find(Auth::id() ?? 1)->role_id;
         // $sections = Role::join('permission_roles', 'roles.id', '=', 'permission_roles.role_id')
         // ->join('forms', 'forms.id', '=', 'permission_roles.form_id')
         // ->join('sections', 'forms.section_id', '=', 'sections.id')
