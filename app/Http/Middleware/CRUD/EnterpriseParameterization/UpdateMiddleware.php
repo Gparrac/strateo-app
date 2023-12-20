@@ -14,7 +14,7 @@ class UpdateMiddleware implements ValidateData
             //Third table
             'type_document' => 'required|in:CC,NIT,CE,PASAPORTE',
             'identification' => 'required|numeric|digits_between:7,10',
-            'verification_id' => 'required|numeric|digits_between:7,10',
+            'verification_id' => 'required|numeric|digits_between:1,3',
             'names' => 'string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'surnames' => 'string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'business_name' => 'string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
@@ -43,7 +43,12 @@ class UpdateMiddleware implements ValidateData
         $business_name = $request->input('business_name');
 
         if($names && $surnames && $business_name){
-            return response()->json(['error' => 'too much names fields for request'], 400);
+            return ['error' => TRUE, 'message' => 'too much names fields for request'];
+        }
+
+        Company::first();
+        if(!$company){
+            return ['error' => TRUE, 'message' => 'company not exist'];
         }
 
         return ['error' => FALSE];

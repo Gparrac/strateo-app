@@ -34,7 +34,8 @@ class EnterpriseParameterization
         }
 
         $execValidate = $strategy->execValidate($request);
-        if($execValidate['error']) return response()->json(['error' => $execValidate['message']], 400);
+        $statusResponse = $execValidate['statusResponse'] ?? 400;
+        if($execValidate['error']) return response()->json(['error' => $execValidate['message']], $statusResponse);
 
         return $next($request);
     }

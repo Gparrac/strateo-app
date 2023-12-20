@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Middleware\CRUD\Interfaces\ValidateData;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
+use App\Models\Company;
 
 class CreateMiddleware implements ValidateData
 {
@@ -17,7 +17,7 @@ class CreateMiddleware implements ValidateData
             //Third table
             'type_document' => 'required|in:CC,NIT,CE,PASAPORTE',
             'identification' => 'required|numeric|digits_between:7,10',
-            'verification_id' => 'required|numeric|digits_between:7,10',
+            'verification_id' => 'required|numeric|digits_between:1,3',
             'names' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'surnames' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'business_name' => 'required_without:names,surnames|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
@@ -44,6 +44,11 @@ class CreateMiddleware implements ValidateData
 
         if($names && $surnames && $business_name){
             return ['error' => TRUE, 'message' => 'too much names fields for request'];
+        }
+
+        $company = Company::first();
+        if($company){
+            return ['error' => TRUE, 'message' => 'The company already exists'];
         }
 
         return ['error' => FALSE];
