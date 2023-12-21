@@ -5,6 +5,7 @@ namespace App\Http\Middleware\CRUD\EnterpriseParameterization;
 use Illuminate\Http\Request;
 use App\Http\Middleware\CRUD\Interfaces\ValidateData;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Company;
 
 class UpdateMiddleware implements ValidateData
 {
@@ -26,7 +27,7 @@ class UpdateMiddleware implements ValidateData
             'postal_code' => 'required|numeric',
 
             //Company Table
-            'path_logo' => 'required|string',
+            'path_logo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'header' => 'string',
             'footer' => 'string'
         ]);
@@ -46,7 +47,7 @@ class UpdateMiddleware implements ValidateData
             return ['error' => TRUE, 'message' => 'too much names fields for request'];
         }
 
-        Company::first();
+        $company = Company::first();
         if(!$company){
             return ['error' => TRUE, 'message' => 'company not exist'];
         }
