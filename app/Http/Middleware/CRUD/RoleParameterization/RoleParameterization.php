@@ -17,7 +17,6 @@ class RoleParameterization
      */
     public function handle(Request $request, Closure $next): Response
     {
-        Log::info($request->all());
             switch($request->method()){
                 case 'POST':
                     $strategy = new ValidateDataMiddlewareContext(new CreateMiddleware());

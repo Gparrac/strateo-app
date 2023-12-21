@@ -7,21 +7,22 @@ use App\Http\Middleware\CRUD\Interfaces\ValidateData;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class CreateMiddleware implements ValidateData
 {
     public function validate(Request $request)
     {
-        Log::info('entrando post');
         $validator = Validator::make($request->all(), [
             //Third table
-            'type_document' => 'required|in:CC,CE,PASAPORTE',
-            'identification' => 'required|digits_between:7,10|unique:thirds,identification',
-            'names' => 'required|string|min:3|max:40|regex:/^[\p{L}\s]+$/u',
-            'surnames' => 'required|string|min:3|max:40|regex:/^[\p{L}\s]+$/u',
+            'type_document' => 'required|in:CC,CE,PASAPORTE,NIT',
+            'identification' => 'required|digits_between:7,12|unique:thirds,identification',
+            'names' => ['string','min:3','max:40','regex:/^[\p{L}\s]+$/u',Rule::when($request->type_document != 'NIT', ['required'])],
+            'surnames' => ['string','min:3','max:40','regex:/^[\p{L}\s]+$/u',Rule::when($request->type_document != 'NIT', ['required'])],
+            'business_name' => ['string','min:3','max:40','regex:/^[\p{L}\s]+$/u',Rule::when($request->type_document == 'NIT', ['required'])],
             'address' => 'required|string',
             'mobile' => 'required|numeric|digits_between:10,13',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:thirds,email',
             'email2' => 'email',
             'city_id' => 'required|exists:cities,id',
             'offices_id' => 'required|array',

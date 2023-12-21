@@ -9,6 +9,7 @@ class DeleteMiddleware implements ValidateData
 {
     public function validate(Request $request)
     {
+        //enterprise_id
         return ['error' => FALSE];
     }
 }

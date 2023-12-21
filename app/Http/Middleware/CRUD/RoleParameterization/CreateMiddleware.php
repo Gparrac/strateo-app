@@ -12,7 +12,6 @@ class CreateMiddleware implements ValidateData
 {
     public function validate(Request $request)
     {
-        Log::info('entrando post');
         $validator = Validator::make($request->all(), [
             //Third table
 

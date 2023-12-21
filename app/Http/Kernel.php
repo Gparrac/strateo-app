@@ -72,8 +72,8 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         //AUTH
-        'data.register' => \App\Http\Middleware\Auth\DataRegister::class,
         'data.login' => \App\Http\Middleware\Auth\DataLogin::class,
+        'data.change.password' => \App\Http\Middleware\Auth\ChangePassword::class,
         //FORMS
         'enterprise.parameterization' => \App\Http\Middleware\CRUD\EnterpriseParameterization\EnterpriseParameterization::class,
         'user.parameterization' => \App\Http\Middleware\CRUD\UserParameterization\UserParameterization::class,

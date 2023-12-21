@@ -20,8 +20,10 @@ class UpdateResource implements CRUD
             User::find($request['user_id'])->third->update([
                 'type_document' => $request['type_document'],
                 'identification' => $request['identification'],
-                'names' => $request['names'],
-                'surnames' => $request['surnames'],
+                'business_name' => $request['business_name'] ?? null,
+                'names' => $request['names'] ?? null,
+                'surnames' => $request['surnames'] ?? null,
+                'verification_id' => $request['verification_id'] ?? null,
                 'address' => $request['address'],
                 'mobile' => $request['mobile'],
                 'email' => $request['email'],

@@ -15,16 +15,16 @@ class CreateMiddleware implements ValidateData
 
         $validator = Validator::make($request->all(), [
             //Third table
-            'type_document' => 'required|in:CC,NIT,CE',
-            'identificacion' => 'required|numeric|digits_between:7,10',
+            'type_document' => 'required|in:CC,NIT,CE,PASAPORTE',
+            'identification' => 'required|numeric|digits_between:7,10',
             'verification_id' => 'required|numeric|digits_between:7,10',
-            'names' => 'required|string|min:3|max:40|regex:/^[\p{L}\s]+$/u',
-            'surnames' => 'required|string|min:3|max:40|regex:/^[\p{L}\s]+$/u',
-            'business_name' => 'required|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
+            'names' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
+            'surnames' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
+            'business_name' => 'required_without:names,surnames|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'address' => 'required|string',
             'mobile' => 'required|numeric|digits_between:10,13',
             'email' => 'required|email',
-            'email2' => 'email',
+            'email2' => 'email|different:email',
             'postal_code' => 'required|numeric',
             'city_id' => 'required|exists:cities,id',
 
@@ -38,7 +38,15 @@ class CreateMiddleware implements ValidateData
             return ['error' => TRUE, 'message' => $validator->errors()];
         }
 
-        $user = Auth::user() || User::find(1);
+        $names = $request->input('names');
+        $surnames = $request->input('surnames');
+        $business_name = $request->input('business_name');
+
+        if($names && $surnames && $business_name){
+            return ['error' => TRUE, 'message' => 'too much names fields for request'];
+        }
+
+        $user = Auth::user();
         if ($user->third_id !== null) {
             return ['error' => TRUE, 'message' => 'third exists'];
         }

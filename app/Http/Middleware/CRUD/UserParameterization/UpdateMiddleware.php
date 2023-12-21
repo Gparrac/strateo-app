@@ -13,14 +13,12 @@ class UpdateMiddleware implements ValidateData
 {
     public function validate(Request $request)
     {
-        Log::info($request);
-        Log::info('testing');
-        Log::info(User::find($request['user_id'])->third->id);
         $validator = Validator::make($request->all(), [
             //Third table
-            'type_document' => 'required|in:CC,CE,PASAPORTE',
-            'names' => 'required|string|min:3|max:40|regex:/^[\p{L}\s]+$/u',
-            'surnames' => 'required|string|min:3|max:40|regex:/^[\p{L}\s]+$/u',
+            'type_document' => 'required|in:CC,CE,PASAPORTE,NIT',
+            'names' => ['string','min:3','max:40','regex:/^[\p{L}\s]+$/u',Rule::when($request->type_document != 'NIT', ['required'])],
+            'surnames' => ['string','min:3','max:40','regex:/^[\p{L}\s]+$/u',Rule::when($request->type_document != 'NIT', ['required'])],
+            'business_name' => ['string','min:3','max:40','regex:/^[\p{L}\s]+$/u',Rule::when($request->type_document == 'NIT', ['required'])],
             'address' => 'required|string',
             'mobile' => 'required|numeric|digits_between:10,13',
             'email' => 'required|email',

@@ -16,7 +16,8 @@ class TypedocumentUserServer extends Controller
         $typeDocuments = [
             ['name' => 'CC', 'label' => 'Cedula de ciudadania'],
             ['name' => 'CE', 'label' => 'Cedula de extranjeria'],
-            ['name' => 'PASAPORTE', 'label' => 'Pasaporte']
+            ['name' => 'PASAPORTE', 'label' => 'Pasaporte'],
+            ['name' => 'NIT', 'label' => 'Número de Identificación Tributaria'],
         ];
         return response()->json(['message' => 'Read: ', 'data' => $typeDocuments], 200);
     }
