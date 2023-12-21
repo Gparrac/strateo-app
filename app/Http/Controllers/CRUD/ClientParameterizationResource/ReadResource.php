@@ -8,9 +8,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-use App\Models\Company;
-use App\Models\User;
-use App\Models\Third;
+use App\Models\Client;
 
 class ReadResource implements CRUD, RecordOperations
 {
@@ -25,9 +23,11 @@ class ReadResource implements CRUD, RecordOperations
 
     public function singleRecord($id){
         try {
-            $client = Third::select('id','type_document', 'identification', 'verification_id',
-                'names', 'surnames', 'address', 'mobile', 'email', 'postal_code', 'city_id')
-                ->where('id', $id)
+            $client = Client::select('id', 'commercial_registry', 'commercial_registry_file', 'rut_file', 'legal_representative_id', 
+            'legal_representative_name', 'note', 'status', 'third_id')
+                ->with('third:id,type_document,identification,verification_id,names,surnames,business_name,
+                    address,mobile,email,email2,postal_code,city_id')
+                ->where('clients.id', $id)
                 ->first();
 
             return response()->json(['message' => 'read: '.$id, 'data' => $client], 200);
@@ -42,9 +42,11 @@ class ReadResource implements CRUD, RecordOperations
 
     public function allRecords($ids = null){
         try {
-        $clients = Third::paginate(20);
+        $clients = Client::select('id','status', 'legal_representative_name', 'legal_representative_id', 'third_id')
+                ->with('third:id,identification,email')
+                ->paginate(20);
 
-        return response()->json(['message' => 'read: '.$id, 'data' => $clients], 200);
+        return response()->json(['message' => 'read', 'data' => $clients], 200);
         } catch (QueryException $ex) {
             Log::error('Query error ClientResource@readResource:allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'read q'], 500);

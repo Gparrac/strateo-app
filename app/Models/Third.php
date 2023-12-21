@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Third extends Model
 {
@@ -43,5 +44,10 @@ class Third extends Model
     public function company(): HasOne
     {
         return $this->hasOne(Company::class);
+    }
+
+    public function clients(): HasMany
+    {
+        return $this->hasMany(Client::class);
     }
 }
