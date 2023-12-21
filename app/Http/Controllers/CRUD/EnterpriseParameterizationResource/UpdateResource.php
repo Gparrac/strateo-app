@@ -18,9 +18,9 @@ class UpdateResource implements CRUD
     {
         DB::beginTransaction();
         try {
-            $user = Auth::user() ?? User::find(1);
-            // Find Third with third_id in user
-            $third = Third::findOrFail($user->third_id);
+            $company = Company::first();
+            // Find Third with third_id in company
+            $third = Third::findOrFail($company->third_id);
             // Create a record in the Third table
             $third->fill($request->only([
                 'type_document',
@@ -35,11 +35,8 @@ class UpdateResource implements CRUD
                 'email2',
                 'postal_code',
                 'city_id',
-            ]) + ['users_update_id' => $user->id])->save();
+            ]) + ['users_update_id' => Auth::id()])->save();
 
-            // Update the existing Company record
-            $company = Company::where('third_id', $third->id)->firstOrFail();
-            
             //Since the path_logo attribute has a CAST, the data must be manually assigned if it exists
             if($request->hasFile('path_logo')){
                 $company->path_logo = $request->file('path_logo')->store('logos');

@@ -5,7 +5,7 @@ namespace App\Casts;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Model;
 
-class LogoCast implements CastsAttributes
+class FileCast implements CastsAttributes
 {
     /**
      * Cast the given value.
@@ -14,7 +14,7 @@ class LogoCast implements CastsAttributes
      */
     public function get(Model $model, string $key, mixed $value, array $attributes): mixed
     {
-        return env('APP_URL').'/uploads/'.$value;
+        return config('app.url').'/uploads/'.$value;
     }
 
     /**

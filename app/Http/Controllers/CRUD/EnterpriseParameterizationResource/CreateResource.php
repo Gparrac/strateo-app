@@ -50,10 +50,6 @@ class CreateResource implements CRUD
                 'third_id' => $third->id
             ]);
 
-            // Assign third_id in User table
-            $user = User::findOrFail($userId);
-            $user->update(['third_id' => $third->id]);
-
             // Commit the transaction
             DB::commit();
             return response()->json(['message' => 'Successful']);

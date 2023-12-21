@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Casts\LogoCast;
+use App\Casts\FileCast;
 
 class Company extends Model
 {
@@ -19,7 +19,7 @@ class Company extends Model
     ];
 
     protected $casts = [
-        'path_logo' => LogoCast::class,
+        'path_logo' => FileCast::class,
     ];
 
     /**__________________________________________

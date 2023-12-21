@@ -27,10 +27,7 @@ class UpdateMiddleware implements ValidateData
 
         try {
             $office = Office::where('id', $request->input('office_id'))
-                            ->whereHas('users', function ($query) use ($userId){
-                                $query->where('users.id', $userId);
-                            })
-                            ->findOrFail();
+                            ->firstOrFail();
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return ['error' => TRUE, 'message' => 'Office not found'];
         }
