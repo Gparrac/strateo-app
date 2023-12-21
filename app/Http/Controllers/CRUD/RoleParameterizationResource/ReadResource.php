@@ -39,11 +39,9 @@ class ReadResource implements CRUD, RecordOperations
                 ->where('permission_roles.form_id', $value['id'])
                 ->where('permission_roles.role_id', $id)->select('permissions.id')->get();;
                 if ($permissions->isNotEmpty()) {
-                    Log::info($value['id']);
                     // return response()->json(['message' => 'Read: ' . $id, 'data' => $permissions], 200);
                 $form['permissions_id'] = clone $permissions->pluck('id');
             }
-            Log::info($form);
 
             array_push($forms, $form);
         }

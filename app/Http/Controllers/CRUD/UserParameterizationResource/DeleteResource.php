@@ -19,17 +19,18 @@ class DeleteResource implements CRUD
         try {
             DB::beginTransaction();
 
-            User::whereIn('id', $userIds)->update([
-                'status' => 'I'
-            ]);
-
             // Eliminar relaciones muchos a muchos con office
             foreach ($userIds as $userId) {
+                $user = User::find($userId);
+                $currentStatus = $user->status == 'I' ? 'A' : 'I';
+                $user = $user->update([
+                    'status' => $currentStatus
+                ]);
                 $offices = User::find($userId)->offices;
                 // return response()->json(['message' => User::find($userId)->offices]);
                 foreach ($offices as $key => $office) {
                     User::find($userId)->offices()->updateExistingPivot($office['id'],[
-                        'status' => 'I'
+                        'status' => $currentStatus
                     ]);
                 }
             }

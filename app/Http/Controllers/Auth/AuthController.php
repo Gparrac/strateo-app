@@ -10,6 +10,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Auth;
 
+use function Laravel\Prompts\password;
+
 class AuthController extends Controller
 {
     public function login(Request $request)
@@ -17,8 +19,8 @@ class AuthController extends Controller
         try {
             $user = $request->user;
             $dataUser = [
-                'email' => $request['user']->name,
-                'name' => $request['third']->email,
+                'email' => $request['third']->email,
+                'name' => $request['user']->name
             ];
             return response()->json([
                 'message' => 'login',
@@ -56,6 +58,17 @@ class AuthController extends Controller
             ]);
         } catch (\Exception $ex) {
             Log::error('unknown error AuthController@user: ' . $ex->getMessage());
+            return response()->json(['message' => 'user u'], 500);
+        }
+    }
+    public function changePassword(Request $request)
+    {
+        try{
+            User::find(Auth::id())->update([
+                 'password' => bcrypt($request['password']),
+             ]);
+        }catch (\Exception $ex) {
+            Log::error('unknown error AuthController@changePassword: ' . $ex->getMessage());
             return response()->json(['message' => 'user u'], 500);
         }
     }

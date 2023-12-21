@@ -27,7 +27,6 @@ class FormsServer extends Controller
     }
     public function routesAvailable(){
         try {
-            Log::info(Auth::id());
             $roleUser = User::find(Auth::id())->role_id;
             // $sections = Role::join('permission_roles', 'roles.id', '=', 'permission_roles.role_id')
             // ->join('forms', 'forms.id', '=', 'permission_roles.form_id')
@@ -69,6 +68,7 @@ class FormsServer extends Controller
         }
     }
     public function allRecords(){
-        return  Form::join('sections','forms.section_id','sections.id')->select('forms.id','forms.name', 'sections.name as section_name')->get();
+        $forms =   Form::join('sections','forms.section_id','sections.id')->select('forms.id','forms.name', 'sections.name as section_name')->get();
+        return response()->json(['message' => 'Read: ', 'data' => $forms], 200);
     }
 }
