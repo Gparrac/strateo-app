@@ -15,9 +15,9 @@ class ReadResource implements CRUD, RecordOperations
     private $format;
     public function resource(Request $request)
     {
-        if($request->has('office_id')){
+        if ($request->has('office_id')) {
             return $this->singleRecord($request->input('office_id'));
-        }else{
+        } else {
             $this->format = $request->input('format');
             return $this->allRecords();
         }
@@ -27,9 +27,9 @@ class ReadResource implements CRUD, RecordOperations
     {
         try {
             $office = Office::where('id', $id)
-                    ->firstOrFail(['id','name', 'address', 'phone', 'city_id', 'status']);
+                ->firstOrFail(['id', 'name', 'address', 'phone', 'city_id', 'status']);
             // Create a record in the Office table
-            return response()->json(['message' => 'read: '.$id, 'data' => $office], 200);
+            return response()->json(['message' => 'read: ' . $id, 'data' => $office], 200);
         } catch (QueryException $ex) {
             Log::error('Query error CompanyParameterization@readResource: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'read q'], 500);
@@ -42,12 +42,12 @@ class ReadResource implements CRUD, RecordOperations
     public function allRecords($ids = null)
     {
         try {
-            if($this->format == 'short'){
-                $office = Office::select('id','name')->get();
-            }else{
-                $office = Office::select('id','name', 'address', 'phone', 'status', 'city_id')
-                        ->with('city:id,name')
-                        ->paginate(20);
+            if ($this->format == 'short') {
+                $office = Office::select('id', 'name')->get();
+            } else {
+                $office = Office::select('id', 'name', 'address', 'phone', 'status', 'city_id')
+                    ->with('city:id,name')
+                    ->paginate(20);
             }
 
             return response()->json(['message' => 'Read', 'data' => $office], 200);

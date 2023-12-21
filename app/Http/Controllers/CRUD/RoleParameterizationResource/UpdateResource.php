@@ -25,26 +25,32 @@ class UpdateResource implements CRUD
                 'users_update_id' => $userId,
             ]);
             foreach ($request['forms'] as $key => $form) {
-                DB::table('permission_roles')->where('role_id', $request['role_id'])->where('form_id', $form['form_id'])->whereNotIn('permission_id', $form['permissions_id'])->update([
-                    'status' => 'I'
-                ]);
+                if (isset($request['forms'][$key]['permissions_id'])) {
+                    DB::table('permission_roles')->where('role_id', $request['role_id'])->where('form_id', $form['form_id'])->whereNotIn('permission_id', $form['permissions_id'])->update([
+                        'status' => 'I'
+                    ]);
 
-                foreach ($form['permissions_id'] as $key => $permission_id) {
-                    $query = DB::table('permission_roles')->where('role_id', $request['role_id'])->where('form_id', $form['form_id'])->where('permission_id', $permission_id);
+                    foreach ($form['permissions_id'] as $key => $permission_id) {
+                        $query = DB::table('permission_roles')->where('role_id', $request['role_id'])->where('form_id', $form['form_id'])->where('permission_id', $permission_id);
 
-                    if ($query->count() == 0) {
+                        if ($query->count() == 0) {
 
-                        Role::find($request['role_id'])->permissions()->attach($permission_id,[
-                            'status'=> 'A',
-                            'form_id'=> $form['form_id'],
-                            'users_id' => $userId, //meanwhile implement auth module
-                            'users_update_id' => $userId, //meanwhile implement auth module
-                        ]);
-                    } else {
-                        $query->update([
-                            'status' => 'A'
-                        ]);
+                            Role::find($request['role_id'])->permissions()->attach($permission_id, [
+                                'status' => 'A',
+                                'form_id' => $form['form_id'],
+                                'users_id' => $userId, //meanwhile implement auth module
+                                'users_update_id' => $userId, //meanwhile implement auth module
+                            ]);
+                        } else {
+                            $query->update([
+                                'status' => 'A'
+                            ]);
+                        }
                     }
+                } else {
+                    DB::table('permission_roles')->where('role_id', $request['role_id'])->where('form_id', $form['form_id'])->update([
+                        'status' => 'I'
+                    ]);
                 }
             }
             DB::commit();

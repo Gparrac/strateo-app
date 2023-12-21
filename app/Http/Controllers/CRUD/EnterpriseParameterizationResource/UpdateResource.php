@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Third;
 use App\Models\Company;
 use App\Models\User;
+use App\Http\Utils\CastVerificationNit;
 
 class UpdateResource implements CRUD
 {
@@ -22,10 +23,11 @@ class UpdateResource implements CRUD
             // Find Third with third_id in company
             $third = Third::findOrFail($company->third_id);
             // Create a record in the Third table
+            $verificationId = CastVerificationNit::calculate($request['identification']);
+            Log::info($verificationId);
             $third->fill($request->only([
                 'type_document',
                 'identificacion',
-                'verification_id',
                 'names',
                 'surnames',
                 'business_name',
@@ -35,7 +37,7 @@ class UpdateResource implements CRUD
                 'email2',
                 'postal_code',
                 'city_id',
-            ]) + ['users_update_id' => Auth::id()])->save();
+            ]) + ['users_update_id' => Auth::id(), 'verification_id' => $verificationId])->save();
 
             //Since the path_logo attribute has a CAST, the data must be manually assigned if it exists
             if($request->hasFile('path_logo')){

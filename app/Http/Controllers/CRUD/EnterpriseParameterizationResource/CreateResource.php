@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Third;
 use App\Models\Company;
-
+use App\Http\Utils\CastVerificationNit;
 class CreateResource implements CRUD
 {
     public function resource(Request $request)
@@ -22,7 +22,7 @@ class CreateResource implements CRUD
             $thirdData = [
                 'type_document' => $request->input('type_document'),
                 'identification' => $request->input('identification'),
-                'verification_id' => $request->input('verification_id'),
+                'verification_id' => CastVerificationNit::calculate($request['identification']),
                 'names' => $request->input('names') ?? null,
                 'surnames' => $request->input('surnames') ?? null,
                 'business_name' => $request->input('business_name') ?? null,
