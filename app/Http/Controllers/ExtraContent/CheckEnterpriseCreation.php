@@ -19,8 +19,9 @@ class CheckEnterpriseCreation extends Controller
     public function __invoke()
     {
         try {
-            $third = User::find(Auth::id())->third->id;
-            $companyExist = Company::where('third_id', $third)->count() == 0 ? false : true;
+            Log::info(Auth::id());
+
+            $companyExist = Company::count() == 0 ? false : true;
             return response()->json(['message' => 'Successful', 'data' => $companyExist]);
         } catch (QueryException $ex) {
             // In case of error, roll back the transaction

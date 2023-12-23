@@ -65,8 +65,12 @@ class AuthController extends Controller
     {
         try{
             User::find(Auth::id())->update([
-                 'password' => bcrypt($request['password']),
+                 'password' => bcrypt($request['new_password']),
              ]);
+             return response()->json([
+                'message' => 'Successfully change password',
+                'changePassword' => TRUE
+            ]);
         }catch (\Exception $ex) {
             Log::error('unknown error AuthController@changePassword: ' . $ex->getMessage());
             return response()->json(['message' => 'user u'], 500);

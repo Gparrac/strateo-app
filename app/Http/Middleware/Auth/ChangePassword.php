@@ -5,6 +5,7 @@ namespace App\Http\Middleware\Auth;
 use Closure;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,13 +21,16 @@ class ChangePassword
     {
         try {
             $validator = Validator::make($request->all(), [
-                'old_password' => 'required|string|password',
+                'old_password' => 'required|string',
                 'new_password' => 'required|string',
-
             ]);
 
             if ($validator->fails()){
                 return response()->json(['error' => $validator->errors()], 400);
+            }
+            $user = Auth::user();
+            if (!$user || !password_verify($request->input('old_password'), $user->password)) {
+                return response()->json(['error' => ['auth' => 'Invalid Credentials.']], 400);
             }
             return $next($request);
         } catch (QueryException $ex) {
