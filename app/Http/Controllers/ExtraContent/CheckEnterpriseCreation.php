@@ -19,7 +19,6 @@ class CheckEnterpriseCreation extends Controller
     public function __invoke()
     {
         try {
-            Log::info(Auth::id());
 
             $companyExist = Company::count() == 0 ? false : true;
             return response()->json(['message' => 'Successful', 'data' => $companyExist]);

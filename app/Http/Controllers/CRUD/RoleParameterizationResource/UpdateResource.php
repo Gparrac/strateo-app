@@ -18,12 +18,15 @@ class UpdateResource implements CRUD
 
         DB::beginTransaction();
         try {
-            $userId = Auth::id() || 1; //meanwhile implement auth module
+            $userId = Auth::id(); //meanwhile implement auth module
+            $adminRole = $request['role_id'] == 1 ?  true : false;
+
             Role::find($request['role_id'])->update([
                 'name' =>  $request['name'],
                 'description' => $request['description'],
                 'users_update_id' => $userId,
             ]);
+            if(!$adminRole){
             foreach ($request['forms'] as $key => $form) {
                 if (isset($request['forms'][$key]['permissions_id'])) {
                     DB::table('permission_roles')->where('role_id', $request['role_id'])->where('form_id', $form['form_id'])->whereNotIn('permission_id', $form['permissions_id'])->update([
@@ -53,6 +56,7 @@ class UpdateResource implements CRUD
                     ]);
                 }
             }
+        }
             DB::commit();
         } catch (QueryException $ex) {
             // In case of error, roll back the transaction

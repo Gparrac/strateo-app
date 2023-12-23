@@ -13,7 +13,6 @@ class UpdateMiddleware implements ValidateData
 {
     public function validate(Request $request)
     {
-        Log::info($request->forms);
         $validator = Validator::make($request->all(), [
             //Third table
             'role_id' => 'required|integer|exists:roles,id',

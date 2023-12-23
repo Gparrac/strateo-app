@@ -17,6 +17,7 @@ class UpdateResource implements CRUD
         DB::beginTransaction();
         try {
             $authId = Auth::id();
+            $adminUser = $request['user_id'] == 1 ?  true : false;
             User::find($request['user_id'])->third->update([
                 'type_document' => $request['type_document'],
                 'identification' => $request['identification'],
@@ -31,7 +32,7 @@ class UpdateResource implements CRUD
                 'city_id' => $request['city_id'],
                 'users_update_id' => $authId // meanwhile define auth module ⚠️
             ]);
-
+            if(!$adminUser){
             DB::table('office_users')->where('office_users_id',$request['user_id'])->update([
                 'status' => 'I',
                 'users_update_id' => $authId, // meanwhile define auth module ⚠️
@@ -51,7 +52,6 @@ class UpdateResource implements CRUD
                     ]);
                 }else{
 
-
                     $query->update([
                         'status'=>'A',
                         'users_update_id' => $authId, // meanwhile define auth module ⚠️
@@ -59,13 +59,13 @@ class UpdateResource implements CRUD
 
                 }
             }
-
-            User::find($request['user_id'])->update([
+            }
+            User::where('id', $request['user_id'])->update([
                 'name' => $request['name'],
                 'password' => bcrypt($request['password']),
                 'role_id' => $request['role_id'],
                 'users_update_id' => $authId, // meanwhile define auth module ⚠️
-                'status' => $request['status']
+                'status' => $adminUser ? 'A' : $request['status']
             ]);
             DB::commit();
             return response()->json(['message' => 'Update'], 200);

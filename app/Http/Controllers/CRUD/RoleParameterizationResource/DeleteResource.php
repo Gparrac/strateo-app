@@ -14,15 +14,12 @@ class DeleteResource implements CRUD
     public function resource(Request $request)
     {
         //roles_id
-        $userId = Auth::id() || 1; //meanwhile implement auth module
+        $userId = Auth::id(); //meanwhile implement auth module
         try {
-            $userId = Auth::id() || 1; //meanwhile implement auth module
-            foreach ($request['forms'] as $key => $form) {
                 DB::table('permission_roles')->whereIn('role_id', $request['roles_id'])->update([
                     'status' => 'I',
                     'users_update_id' => $userId
                 ]);
-            }
             DB::commit();
 
 

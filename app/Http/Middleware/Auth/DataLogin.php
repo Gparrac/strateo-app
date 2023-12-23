@@ -52,6 +52,9 @@ class DataLogin
             if (!$user || !password_verify($request->input('password'), $user->password)) {
                 return response()->json(['error' => 'Invalid Credentials.'], 400);
             }
+            if ($user->status != 'A') {
+                return response()->json(['error' => 'Usuario desactivado..'], 400);
+            }
 
             $request->merge(['user' => $user, 'third' => $third]);
 

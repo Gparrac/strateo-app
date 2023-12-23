@@ -24,7 +24,6 @@ class UpdateResource implements CRUD
             $third = Third::findOrFail($company->third_id);
             // Create a record in the Third table
             $verificationId = CastVerificationNit::calculate($request['identification']);
-            Log::info($verificationId);
             $third->fill($request->only([
                 'type_document',
                 'identificacion',
