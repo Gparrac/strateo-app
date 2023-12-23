@@ -15,7 +15,6 @@ class UpdateMiddleware implements ValidateData
             //Third table
             'type_document' => 'required|in:CC,NIT,CE,PASAPORTE',
             'identification' => 'required|numeric|digits_between:7,10|exists:thirds,identification',
-            'verification_id' => 'required|numeric|digits_between:1,3',
             'names' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'surnames' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'business_name' => 'required_without:names,surnames|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
@@ -29,8 +28,8 @@ class UpdateMiddleware implements ValidateData
             
             //Client table
             'commercial_registry' => 'required|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
-            'commercial_registry_file' => 'required|file|mimes:pdf,docx|max:2048',
-            'rut_file' => 'required|file|mimes:pdf,docx|max:2048',
+            'commercial_registry_file' => 'file|mimes:pdf,docx|max:2048',
+            'rut_file' => 'file|mimes:pdf,docx|max:2048',
             'legal_representative_name' => 'required|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'legal_representative_id' => 'required|string|min:3|max:80',
             'note' => 'required|string|min:3|max:80',

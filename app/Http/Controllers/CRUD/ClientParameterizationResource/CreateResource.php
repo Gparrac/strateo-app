@@ -22,7 +22,6 @@ class CreateResource implements CRUD
             $thirdData = [
                 'type_document' => $request->input('type_document'),
                 'identification' => $request->input('identification'),
-                'verification_id' => $request->input('verification_id'),
                 'names' => $request->input('names') ?? null,
                 'surnames' => $request->input('surnames') ?? null,
                 'business_name' => $request->input('business_name') ?? null,
@@ -55,6 +54,7 @@ class CreateResource implements CRUD
                             FileFormat::formatName($request->file('rut_file')->getClientOriginalName(),
                             $request->file('rut_file')->guessExtension())),
                 'legal_representative_name' => $request->input('legal_representative_name'),
+                'legal_representative_id' => $request->input('legal_representative_id'),
                 'note' => $request->input('note'),
                 'status' => $request->input('status'),
                 'third_id' => $third->id,
