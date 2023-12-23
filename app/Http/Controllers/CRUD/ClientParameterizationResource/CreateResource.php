@@ -54,6 +54,7 @@ class CreateResource implements CRUD
                             FileFormat::formatName($request->file('rut_file')->getClientOriginalName(),
                             $request->file('rut_file')->guessExtension())),
                 'legal_representative_name' => $request->input('legal_representative_name'),
+                'legal_representative_id' => $request->input('legal_representative_id'),
                 'note' => $request->input('note'),
                 'status' => $request->input('status'),
                 'third_id' => $third->id,

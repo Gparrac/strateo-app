@@ -28,8 +28,8 @@ class UpdateMiddleware implements ValidateData
             
             //Client table
             'commercial_registry' => 'required|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
-            'commercial_registry_file' => 'required|file|mimes:pdf,docx|max:2048',
-            'rut_file' => 'required|file|mimes:pdf,docx|max:2048',
+            'commercial_registry_file' => 'file|mimes:pdf,docx|max:2048',
+            'rut_file' => 'file|mimes:pdf,docx|max:2048',
             'legal_representative_name' => 'required|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'legal_representative_id' => 'required|string|min:3|max:80',
             'note' => 'required|string|min:3|max:80',
