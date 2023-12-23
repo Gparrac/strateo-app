@@ -27,7 +27,7 @@ class UpdateMiddleware implements ValidateData
             'postal_code' => 'required|numeric',
 
             //Company Table
-            'path_logo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'path_logo' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'header' => 'string',
             'footer' => 'string'
         ]);

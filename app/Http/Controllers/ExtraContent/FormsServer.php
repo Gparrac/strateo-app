@@ -68,7 +68,7 @@ class FormsServer extends Controller
         }
     }
     public function allRecords(){
-        $forms =   Form::join('sections','forms.section_id','sections.id')->select('forms.id','forms.name', 'sections.name as section_name')->get();
+        $forms =   Form::leftjoin('sections','forms.section_id','sections.id')->select('forms.id','forms.name', 'sections.name as section_name')->get();
         return response()->json(['message' => 'Read: ', 'data' => $forms], 200);
     }
 }

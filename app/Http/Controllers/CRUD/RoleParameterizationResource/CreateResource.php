@@ -27,13 +27,15 @@ class CreateResource implements CRUD
             ]);
             //datos entrada [role_id=>roleId,forms=>[forms=> form_id, permissions_id => [1,2,..]]
             foreach ($request['forms'] as $key => $form) {
-                foreach ($form['permissions_id'] as $key => $permission) {
-                    Role::findOrFail($role['id'])->permissions()->attach($permission,[
-                        'status'=> 'A',
-                        'form_id'=> $form['form_id'],
-                        'users_id' => $userId,
-                        'users_update_id' => $userId,
-                    ]);
+                if (isset($request['forms'][$key]['permissions_id'])) {
+                    foreach ($form['permissions_id'] as $key => $permission) {
+                        Role::findOrFail($role['id'])->permissions()->attach($permission, [
+                            'status' => 'A',
+                            'form_id' => $form['form_id'],
+                            'users_id' => $userId,
+                            'users_update_id' => $userId,
+                        ]);
+                    }
                 }
             }
             DB::commit();
@@ -49,6 +51,5 @@ class CreateResource implements CRUD
             Log::error('unknown error RolesParameterization@createResource: ' . $ex->getMessage());
             return response()->json(['message' => 'create u'], 500);
         }
-
     }
 }
