@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Assets\AssetController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,4 +19,4 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-
+Route::get('uploads/{filefolder}/{filename}', AssetController::class);
