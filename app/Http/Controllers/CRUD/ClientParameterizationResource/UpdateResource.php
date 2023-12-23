@@ -51,7 +51,6 @@ class UpdateResource implements CRUD
             $third->fill($request->only([
                 'type_document',
                 'identificacion',
-                'verification_id',
                 'names',
                 'surnames',
                 'address',

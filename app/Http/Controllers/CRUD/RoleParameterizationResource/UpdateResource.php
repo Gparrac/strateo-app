@@ -25,6 +25,7 @@ class UpdateResource implements CRUD
                 'users_update_id' => $userId,
             ]);
             foreach ($request['forms'] as $key => $form) {
+                dd($form['permissions_id']);
                 DB::table('permission_roles')->where('role_id', $request['role_id'])->where('form_id', $form['form_id'])->whereNotIn('permission_id', $form['permissions_id'])->update([
                     'status' => 'I'
                 ]);
@@ -51,13 +52,13 @@ class UpdateResource implements CRUD
         } catch (QueryException $ex) {
             // In case of error, roll back the transaction
             DB::rollback();
-            Log::error('Query error RolesParameterization@createResource: ' . $ex->getMessage());
-            return response()->json(['message' => 'create q'], 500);
+            Log::error('Query error RolesParameterization@updateResource: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
+            return response()->json(['message' => 'update q'], 500);
         } catch (\Exception $ex) {
             // In case of error, roll back the transaction
             DB::rollback();
-            Log::error('unknown error RolesParameterization@createResource: ' . $ex->getMessage());
-            return response()->json(['message' => 'create u'], 500);
+            Log::error('unknown error RolesParameterization@updateResource: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
+            return response()->json(['message' => 'update u'], 500);
         }
 
         return response()->json(['message' => 'Update'], 200);

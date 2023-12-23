@@ -15,7 +15,6 @@ class UpdateMiddleware implements ValidateData
             //Third table
             'type_document' => 'required|in:CC,NIT,CE,PASAPORTE',
             'identification' => 'required|numeric|digits_between:7,10|exists:thirds,identification',
-            'verification_id' => 'required|numeric|digits_between:1,3',
             'names' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'surnames' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'business_name' => 'required_without:names,surnames|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',

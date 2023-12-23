@@ -22,7 +22,6 @@ class CreateResource implements CRUD
             $thirdData = [
                 'type_document' => $request->input('type_document'),
                 'identification' => $request->input('identification'),
-                'verification_id' => $request->input('verification_id'),
                 'names' => $request->input('names') ?? null,
                 'surnames' => $request->input('surnames') ?? null,
                 'business_name' => $request->input('business_name') ?? null,
