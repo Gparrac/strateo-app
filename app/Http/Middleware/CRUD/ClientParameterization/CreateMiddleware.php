@@ -23,7 +23,7 @@ class CreateMiddleware implements ValidateData
             'email2' => 'email|different:email',
             'postal_code' => 'required|numeric',
             'city_id' => 'required|exists:cities,id',
-
+            'ciiu_id' => 'required|exists:ciiu,id',
             //Client table
             'commercial_registry' => 'required|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'commercial_registry_file' => 'required|file|mimes:pdf,docx|max:2048',
@@ -33,7 +33,7 @@ class CreateMiddleware implements ValidateData
             'note' => 'required|string|min:3|max:80',
             'status' => 'required|in:A,I',
         ]);
-        
+
         if ($validator->fails()){
             return ['error' => TRUE, 'message' => $validator->errors()];
         }

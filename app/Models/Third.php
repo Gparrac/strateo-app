@@ -52,6 +52,6 @@ class Third extends Model
     }
     public function ciiu(): BelongsTo
     {
-        return $this->belongsTo(Ciiu::class,'id');
+        return $this->belongsTo(Ciiu::class,'code_ciiu_id');
     }
 }

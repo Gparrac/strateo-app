@@ -23,9 +23,8 @@ class ReadResource implements CRUD, RecordOperations
 
     public function singleRecord($id){
         try {
-            $client = Client::select('id', 'commercial_registry', 'commercial_registry_file', 'rut_file', 'legal_representative_id',
-            'legal_representative_name', 'note', 'status', 'third_id')
-            ->with(['third' => function ($query){
+            $client = Client::with(['third' => function ($query){
+                $query->select('id','type_document','identification','code_ciiu_id','verification_id','names','surnames','business_name','address','mobile','email','email2','postal_code','city_id');
                 $query->with('ciiu:id,code,description');
             }])
                 ->where('clients.id', $id)
