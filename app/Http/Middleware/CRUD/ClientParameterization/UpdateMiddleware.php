@@ -25,7 +25,7 @@ class UpdateMiddleware implements ValidateData
             'postal_code' => 'required|numeric',
             'city_id' => 'required|exists:cities,id',
             'client_id' => 'required|exists:clients,id',
-            
+            'ciiu_id' => 'required|exists:ciiu,id',
             //Client table
             'commercial_registry' => 'required|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'commercial_registry_file' => 'file|mimes:pdf,docx|max:2048',
