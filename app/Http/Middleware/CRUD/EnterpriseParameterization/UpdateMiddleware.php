@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Middleware\CRUD\Interfaces\ValidateData;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Company;
+use App\Models\Third;
+use Illuminate\Validation\Rule;
 
 class UpdateMiddleware implements ValidateData
 {
@@ -14,8 +16,7 @@ class UpdateMiddleware implements ValidateData
         $validator = Validator::make($request->all(), [
             //Third table
             'type_document' => 'required|in:CC,NIT,CE,PASAPORTE',
-            'identification' => 'required|numeric|digits_between:7,10',
-            'verification_id' => 'required|numeric|digits_between:1,3',
+            'identification' => ['required','digits_between:7,10', Rule::unique('thirds', 'identification')->ignore(Company::first()->third_id),],
             'names' => 'string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'surnames' => 'string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'business_name' => 'string|min:3|max:80|regex:/^[\p{L}\s]+$/u',

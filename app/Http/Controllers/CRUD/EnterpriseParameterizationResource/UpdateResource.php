@@ -36,6 +36,7 @@ class UpdateResource implements CRUD
                 'email2',
                 'postal_code',
                 'city_id',
+                'code_ciiu_id',
             ]) + ['users_update_id' => Auth::id(), 'verification_id' => $verificationId])->save();
 
             //Since the path_logo attribute has a CAST, the data must be manually assigned if it exists
