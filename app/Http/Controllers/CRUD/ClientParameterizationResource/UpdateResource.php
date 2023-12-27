@@ -59,7 +59,7 @@ class UpdateResource implements CRUD
                 'email2',
                 'postal_code',
                 'city_id',
-                'ciiu_id',
+                'code_ciiu_id',
             ]) + ['users_update_id' => $user->id])->save();
 
             DB::commit();

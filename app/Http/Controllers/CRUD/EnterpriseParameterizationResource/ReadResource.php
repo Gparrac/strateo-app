@@ -20,7 +20,8 @@ class ReadResource implements CRUD
 
             $third = Third::select('id', 'type_document', 'identification', 'verification_id',
             'names', 'surnames', 'business_name', 'address', 'mobile', 'email', 'email2', 
-            'postal_code', 'city_id')
+            'postal_code', 'city_id', 'code_ciiu_id')
+            ->with('ciiu:id,code,description')
             ->findOrFail($company->third_id);
 
             $data = array_merge($third->toArray(), $company->toArray());

@@ -26,6 +26,7 @@ class Third extends Model
         'email2',
         'postal_code',
         'city_id',
+        'code_ciiu_id',
         'users_id',
         'users_update_id'
     ];

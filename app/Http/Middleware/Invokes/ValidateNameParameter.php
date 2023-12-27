@@ -17,7 +17,7 @@ class ValidateNameParameter
     public function handle(Request $request, Closure $next): Response
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'string|min:3|max:20', // Puedes ajustar las reglas de validación según tus necesidades
+            'name' => 'string|min:3|max:80', // Puedes ajustar las reglas de validación según tus necesidades
         ]);
         if ($validator->fails()){
             return response()->json([
