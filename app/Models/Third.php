@@ -50,4 +50,8 @@ class Third extends Model
     {
         return $this->hasMany(Client::class);
     }
+    public function ciiu(): BelongsTo
+    {
+        return $this->belongsTo(Ciiu::class,'id');
+    }
 }
