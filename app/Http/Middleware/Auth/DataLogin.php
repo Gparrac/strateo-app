@@ -38,22 +38,22 @@ class DataLogin
             $identification = $request->input('identification');
 
             if($email && $identification){
-                return response()->json(['error' => 'too much fields for request'], 400);
+                return response()->json(['error' => ['fields' => 'too much fields for request']], 400);
             }
 
             $third = Third::where('email', $email)
                 ->orWhere('identification', $identification)
                 ->first();
             if(!$third){
-                return response()->json(['error' => 'Invalid Credentials'], 400);
+                return response()->json(['error' => ['auth' => 'Invalid Credentials.']], 400);
             }
 
             $user = $third->user;
             if (!$user || !password_verify($request->input('password'), $user->password)) {
-                return response()->json(['error' => 'Invalid Credentials.'], 400);
+                return response()->json(['error' => ['auth' => 'Invalid Credentials.']], 400);
             }
             if ($user->status != 'A') {
-                return response()->json(['error' => 'Usuario desactivado..'], 400);
+                return response()->json(['error' => ['auth' => 'Usuario desactivado']], 400);
             }
 
             $request->merge(['user' => $user, 'third' => $third]);
@@ -61,10 +61,10 @@ class DataLogin
             return $next($request);
         } catch (QueryException $ex) {
             Log::error('Query error Middleware@DataLogin: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
-            return response()->json(['error' => 'Invalid Credentials'], 400);
+            return response()->json(['error' => ['auth' => 'Invalid Credentials.']], 400);
         } catch (\Exception $ex) {
             Log::error('unknown error Middleware@DataLogin: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
-            return response()->json(['error' => 'login u'], 500);
+            return response()->json(['error' => ['auth' => 'Error en el servidor.']], 500);
         }
     }
 

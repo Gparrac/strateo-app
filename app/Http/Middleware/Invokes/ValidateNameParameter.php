@@ -21,8 +21,7 @@ class ValidateNameParameter
         ]);
         if ($validator->fails()){
             return response()->json([
-                'error' => TRUE,
-                'message' => $validator->errors()
+                'error' => $validator->errors()
             ], 400);
         }
         return $next($request);

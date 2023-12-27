@@ -55,8 +55,8 @@ class FormsServer extends Controller
                 ->join('forms','forms.id','permission_roles.form_id')
                 ->where('permission_roles.role_id', $roleUser)
                 ->where('permission_roles.status','A')
-                    ->where('forms.section_id',$section['id'])->select('forms.id','forms.name','forms.href', 'forms.icon')
-                    ->groupBy('forms.id','forms.name', 'forms.href', 'forms.icon')->get();
+                    ->where('forms.section_id',$section['id'])->select('forms.id','forms.name','forms.href', 'forms.icon','forms.orden')
+                    ->groupBy('forms.id','forms.name', 'forms.href', 'forms.icon', 'forms.orden')->orderBy('forms.orden','asc')->get();
             }
             return response()->json(['message' => 'Read: ', 'data' => $sections], 200);
         } catch (QueryException $ex) {

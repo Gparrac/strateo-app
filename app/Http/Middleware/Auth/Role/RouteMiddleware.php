@@ -28,7 +28,7 @@ class RouteMiddleware
         ];
 
         if (!array_key_exists($removeApiPrefix, $routesForm)) {
-            return response()->json(['error' => 'Path not found'], 404);
+            return response()->json(['error' =>['server' => 'Path not found']], 404);
         }
 
         $formId = $routesForm[$removeApiPrefix];

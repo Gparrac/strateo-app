@@ -48,7 +48,7 @@ class RoleMiddleware
                 return response()->json(['error' => 'Method not allowed'], 400);
             }
 
-            if($validationPermissions) return response()->json(['error' => 'insufficient privileges'], 403);
+            if($validationPermissions) return response()->json(['error' => ['permissions' => 'insufficient privileges']], 403);
 
             return $next($request);
         } catch (QueryException $ex) {
