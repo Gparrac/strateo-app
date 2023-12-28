@@ -50,7 +50,7 @@ class UpdateResource implements CRUD
             //third update
             $third->fill($request->only([
                 'type_document',
-                'identificacion',
+                'identification',
                 'names',
                 'surnames',
                 'address',

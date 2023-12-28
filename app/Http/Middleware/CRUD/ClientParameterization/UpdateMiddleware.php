@@ -5,7 +5,7 @@ namespace App\Http\Middleware\CRUD\ClientParameterization;
 use Illuminate\Http\Request;
 use App\Http\Middleware\CRUD\Interfaces\ValidateData;
 use Illuminate\Support\Facades\Validator;
-use App\Models\Third;
+use App\Models\Client;
 use Illuminate\Validation\Rule;
 
 class UpdateMiddleware implements ValidateData
@@ -15,7 +15,7 @@ class UpdateMiddleware implements ValidateData
         $validator = Validator::make($request->all(), [
             //Third table
             'type_document' => 'required|in:CC,NIT,CE,PASAPORTE',
-            'identification' => ['required','digits_between:7,10', Rule::unique('thirds', 'identification')->ignore(Third::find($request['client_id'])),],
+            'identification' => ['required','digits_between:7,10', Rule::unique('thirds', 'identification')->ignore(Client::find($request['client_id'])->third->id),],
             'names' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'surnames' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'business_name' => 'required_without:names,surnames|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
