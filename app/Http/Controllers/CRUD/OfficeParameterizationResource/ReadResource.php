@@ -19,17 +19,17 @@ class ReadResource implements CRUD, RecordOperations
             return $this->singleRecord($request->input('office_id'));
         } else {
             $this->format = $request->input('format');
-            return $this->allRecords();
+            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'));
         }
     }
 
     public function singleRecord($id)
     {
         try {
-            $office = Office::where('id', $id)
+            $data = Office::where('id', $id)
                 ->firstOrFail(['id', 'name', 'address', 'phone', 'city_id', 'status']);
             // Create a record in the Office table
-            return response()->json(['message' => 'read: ' . $id, 'data' => $office], 200);
+            return response()->json(['message' => 'read: ' . $id, 'data' => $data], 200);
         } catch (QueryException $ex) {
             Log::error('Query error CompanyParameterization@readResource: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'read q'], 500);
@@ -39,18 +39,26 @@ class ReadResource implements CRUD, RecordOperations
         }
     }
 
-    public function allRecords($ids = null)
+    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null)
     {
         try {
             if ($this->format == 'short') {
-                $office = Office::select('id', 'name')->get();
+                $data = Office::select('id', 'name')->get();
             } else {
-                $office = Office::select('id', 'name', 'address', 'phone', 'status', 'city_id')
-                    ->with('city:id,name')
-                    ->paginate(20);
+                $data = Office::select('id', 'name', 'address', 'phone', 'status', 'city_id','updated_at')
+                    ->with('city:id,name');
+                //filter query with keyword 🚨
+                if ($typeKeyword && $keyword) {
+                    $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
+                }
+                //append shorters to query
+                foreach ($sorters as $key => $shorter) {
+                    $data = $data->orderBy($shorter['key'], $shorter['order']);
+                }
+                $data = $data->paginate($pagination);
             }
 
-            return response()->json(['message' => 'Read', 'data' => $office], 200);
+            return response()->json(['message' => 'Read', 'data' => $data], 200);
         } catch (QueryException $ex) {
             Log::error('Query error CompanyParameterization@readResource: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'read q'], 500);

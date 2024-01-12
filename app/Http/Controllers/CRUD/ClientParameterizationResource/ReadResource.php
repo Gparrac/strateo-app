@@ -14,23 +14,24 @@ class ReadResource implements CRUD, RecordOperations
 {
     public function resource(Request $request)
     {
-        if($request->has('client_id')){
+        if ($request->has('client_id')) {
             return $this->singleRecord($request->input('client_id'));
-        }else{
-            return $this->allRecords();
+        } else {
+            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'));
         }
     }
 
-    public function singleRecord($id){
+    public function singleRecord($id)
+    {
         try {
-            $client = Client::with(['third' => function ($query){
-                $query->select('id','type_document','identification','code_ciiu_id','verification_id','names','surnames','business_name','address','mobile','email','email2','postal_code','city_id');
+            $data = Client::with(['third' => function ($query) {
+                $query->select('id', 'type_document', 'identification', 'code_ciiu_id', 'verification_id', 'names', 'surnames', 'business_name', 'address', 'mobile', 'email', 'email2', 'postal_code', 'city_id');
                 $query->with('ciiu:id,code,description');
             }])
                 ->where('clients.id', $id)
                 ->first();
 
-            return response()->json(['message' => 'read: '.$id, 'data' => $client], 200);
+            return response()->json(['message' => 'read: ' . $id, 'data' => $data], 200);
         } catch (QueryException $ex) {
             Log::error('Query error ClientResource@readResource:singleRecord: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'read q'], 500);
@@ -40,13 +41,21 @@ class ReadResource implements CRUD, RecordOperations
         }
     }
 
-    public function allRecords($ids = null){
+    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null)
+    {
         try {
-        $clients = Client::select('id','status', 'legal_representative_name', 'legal_representative_id', 'third_id')
-                ->with('third:id,identification,email')
-                ->paginate(20);
-
-        return response()->json(['message' => 'read', 'data' => $clients], 200);
+            $data = Client::select('id', 'status', 'legal_representative_name', 'legal_representative_id', 'third_id', 'updated_at')
+                ->with('third:id,identification,email');
+            //filter query with keyword 🚨
+            if ($typeKeyword && $keyword) {
+                $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
+            }
+            //append shorters to query
+            foreach ($sorters as $key => $shorter) {
+                $data = $data->orderBy($shorter['key'], $shorter['order']);
+            }
+            $data = $data->paginate($pagination);
+            return response()->json(['message' => 'read', 'data' => $data], 200);
         } catch (QueryException $ex) {
             Log::error('Query error ClientResource@readResource:allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'read q'], 500);
