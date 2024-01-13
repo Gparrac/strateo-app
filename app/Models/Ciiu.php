@@ -18,4 +18,7 @@ class Ciiu extends Model
     public function thirds(){
         return $this->hasMany(Third::class,'code_ciiu_id');
     }
+    public function secondaryThirds(){
+        return $this->belongsToMany(Third::class, 'code_ciiu_thirds', 'code_ciiu_id', 'thirds_id');
+    }
 }

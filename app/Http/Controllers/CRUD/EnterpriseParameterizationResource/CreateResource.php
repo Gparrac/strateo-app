@@ -31,17 +31,24 @@ class CreateResource implements CRUD
                 'email' => $request->input('email'),
                 'postal_code' => $request->input('postal_code'),
                 'city_id' => $request->input('city_id'),
-                'users_id' => $userId
+                'users_id' => $userId,
+                'code_ciiu_id' => $request->input('code_ciiu_id')
             ];
 
             // Check if 'email2' is present in the request before adding it to the array
             if ($request->has('email2')) {
                 $thirdData['email2'] = $request->input('email2');
             }
-
             // Create a record in the Third table
             $third = Third::create($thirdData);
 
+            if($request->has('secondary_ciiu_ids')){
+                $third->secondaryCiius()->attach($request['secondary_ciiu_ids'],[
+                    'status' => 'A',
+                    'users_id' => $userId,
+                    'users_update_id' => $userId,
+                ]);
+            }
             // Create a record in the Company table
             $company = Company::create([
                 'path_logo' => $request->file('path_logo')->store('logos'),

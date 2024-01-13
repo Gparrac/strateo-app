@@ -19,6 +19,8 @@ class UpdateResource implements CRUD
     {
         DB::beginTransaction();
         try {
+            Log::info('entrando');
+            $userId = Auth::id();
             $company = Company::first();
             // Find Third with third_id in company
             $third = Third::findOrFail($company->third_id);
@@ -37,11 +39,29 @@ class UpdateResource implements CRUD
                 'postal_code',
                 'city_id',
                 'code_ciiu_id',
-            ]) + ['users_update_id' => Auth::id(), 'verification_id' => $verificationId])->save();
+            ]) + ['users_update_id' => $userId, 'verification_id' => $verificationId])->save();
 
             //Since the path_logo attribute has a CAST, the data must be manually assigned if it exists
             if($request->hasFile('path_logo')){
                 $company->path_logo = $request->file('path_logo')->store('logos');
+            }
+            //secondary ciiu ids
+            DB::table('code_ciiu_thirds')->where('thirds_id',$third['id'])->update(['status' => 'I']);
+            if($request->has('secondary_ciiu_ids')){
+                foreach ($request['secondary_ciiu_ids'] as $key => $value) {
+                    $codes = DB::table('code_ciiu_thirds')->where('thirds_id',$third['id'])->where('code_ciiu_id', $value);
+                    if($codes->count() == 0){
+                        $third->secondaryCiius()->attach($value,[
+                            'status' => 'A',
+                            'users_id' => $userId,
+                            'users_update_id' => $userId
+                        ]);
+                    }else{
+                        $codes->update([
+                            'status' => 'A'
+                        ]);
+                    }
+                }
             }
 
             $company->fill($request->only([

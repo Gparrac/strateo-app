@@ -19,11 +19,17 @@ class ReadResource implements CRUD
             $company = Company::firstOrFail(['path_logo', 'header', 'footer', 'third_id']);
 
             $third = Third::select('id', 'type_document', 'identification', 'verification_id',
-            'names', 'surnames', 'business_name', 'address', 'mobile', 'email', 'email2', 
+            'names', 'surnames', 'business_name', 'address', 'mobile', 'email', 'email2',
             'postal_code', 'city_id', 'code_ciiu_id')
             ->with('ciiu:id,code,description')
+            ->with(['secondaryCiius' => function($query){
+                $query->where('status','A');
+            }])
             ->findOrFail($company->third_id);
-
+            $third->secondaryCiius->map(function ($item) {
+                unset($item->pivot);
+                return $item;
+            });
             $data = array_merge($third->toArray(), $company->toArray());
 
             return response()->json(['message' => 'read', 'data' => $data], 200);

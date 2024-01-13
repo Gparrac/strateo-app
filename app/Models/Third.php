@@ -55,4 +55,8 @@ class Third extends Model
     {
         return $this->belongsTo(Ciiu::class,'code_ciiu_id');
     }
+    public function secondaryCiius(): BelongsToMany
+    {
+        return $this->belongsToMany(Ciiu::class, 'code_ciiu_thirds', 'thirds_id', 'code_ciiu_id')->withPivot('status');
+    }
 }
