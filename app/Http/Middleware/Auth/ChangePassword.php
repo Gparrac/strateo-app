@@ -30,12 +30,12 @@ class ChangePassword
             }
             $user = Auth::user();
             if (!$user || !password_verify($request->input('old_password'), $user->password)) {
-                return response()->json(['error' => ['auth' => 'Invalid Credentials.']], 400);
+                return response()->json(['error' => ['auth' => 'Credenciales invalidas.']], 400);
             }
             return $next($request);
         } catch (QueryException $ex) {
             Log::error('Query error Middleware@DataChangePassword: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
-            return response()->json(['error' => ['auth' => 'Invalid Credentials.']], 400);
+            return response()->json(['error' => ['auth' => 'Credenciales invalidas.']], 400);
         } catch (\Exception $ex) {
             Log::error('unknown error Middleware@DataChangePassword: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['error' => ['auth' => 'Error en el servidor']], 500);

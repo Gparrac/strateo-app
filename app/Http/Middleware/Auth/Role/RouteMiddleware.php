@@ -24,7 +24,9 @@ class RouteMiddleware
             'role-parameterization' => 3,
             'user-parameterization' => 5,
             'office-parameterization' => 6,
-            'check-enterprise' => 2
+            'check-enterprise' => 2,
+            'service-parameterization' => 59,
+            'field-parameterization' => 60
         ];
 
         if (!array_key_exists($removeApiPrefix, $routesForm)) {

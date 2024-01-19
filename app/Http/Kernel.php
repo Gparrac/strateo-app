@@ -80,6 +80,8 @@ class Kernel extends HttpKernel
         'user.parameterization' => \App\Http\Middleware\CRUD\UserParameterization\UserParameterization::class,
         'role.parameterization' => \App\Http\Middleware\CRUD\RoleParameterization\RoleParameterization::class,
         'client.parameterization' => \App\Http\Middleware\CRUD\ClientParameterization\ClientParameterization::class,
+        'service.parameterization' => \App\Http\Middleware\CRUD\ServiceParameterization\ServiceParameterization::class,
+        'field.parameterization' => \App\Http\Middleware\CRUD\FieldParameterization\FieldParameterization::class,
         //INVOKES
         'validate.name.invoke' => \App\Http\Middleware\Invokes\ValidateNameParameter::class,
     ];

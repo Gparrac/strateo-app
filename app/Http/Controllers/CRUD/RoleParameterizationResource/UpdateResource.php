@@ -19,7 +19,7 @@ class UpdateResource implements CRUD
         DB::beginTransaction();
         try {
             $userId = Auth::id(); //meanwhile implement auth module
-            $adminRole = $request['role_id'] == 1 ?  true : false;
+            $adminRole =false;// $request['role_id'] == 1 ?  true : false;
 
             Role::find($request['role_id'])->update([
                 'name' =>  $request['name'],
