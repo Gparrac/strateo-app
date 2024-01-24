@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Middleware\CRUD\ServiceParameterization;
+namespace App\Http\Middleware\CRUD\SupplierParameterization;
 
 use Illuminate\Http\Request;
 use App\Http\Middleware\CRUD\Interfaces\ValidateData;
@@ -12,8 +12,8 @@ class DeleteMiddleware implements ValidateData
     {
         $validator = Validator::make($request->all(), [
             //Third table
-            'services_id' => 'required|array|not_in:1',
-            'services_id.*' => 'integer|exists:services,id',
+            'suppliers_id' => 'required|array|not_in:1',
+            'suppliers_id.*' => 'integer|exists:suppliers,id',
 
         ]);
 

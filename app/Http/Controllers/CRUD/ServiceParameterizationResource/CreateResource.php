@@ -20,23 +20,23 @@ class CreateResource implements CRUD
         try {
             $userId = auth()->id();
             // Create body to create third record
-            $serviceData = [
-                'name' => $request->input('name'),
-                'description' => $request->input('description'),
-                'status' => $request->input('status'),
-                'users_id' => $userId ,
-            ];
-            Log::info('pasando 1');
-            // Create a record in the Third table
-            $service = Service::create($serviceData);
-            Log::info('pasando 2');
-            foreach ($request['fields'] as $value) {
-                $service->fields()->attach($value['field_id'], [
-                    'required' => $value['required'],
-                    'users_id' => $userId,
-                    'status' => 'A'
-                ]);
-            }
+            // $serviceData = [
+            //     'name' => $request->input('name'),
+            //     'description' => $request->input('description'),
+            //     'status' => $request->input('status'),
+            //     'users_id' => $userId ,
+            // ];
+            // Log::info('pasando 1');
+            // // Create a record in the Third table
+            // $service = Service::create($serviceData);
+            // Log::info('pasando 2');
+            // foreach ($request['fields'] as $value) {
+            //     $service->fields()->attach($value['field_id'], [
+            //         'required' => $value['required'],
+            //         'users_id' => $userId,
+            //         'status' => 'A'
+            //     ]);
+            // }
 
 
             DB::commit();

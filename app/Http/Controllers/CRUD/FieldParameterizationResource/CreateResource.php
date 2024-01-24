@@ -23,8 +23,8 @@ class CreateResource implements CRUD
             // Create body to create third record
             $fieldData = [
                 'name' => $request->input('name'),
-                'type' => $request->input('description'),
-                'length' => $request->input('status'),
+                'type' => $request->input('type'),
+                'length' => $request->input('length'),
                 'status' => $request->input('status'),
                 'users_id' => $userId
             ];

@@ -37,7 +37,7 @@ class UpdateResource implements CRUD
                 $query = DB::table('fields_services')->where('services_id',$service['id'])->where('fields_id',$value['field_id']);
                 if ($query->count() == 0) {
 
-                    $service->permissions()->attach($value['field_id'], [
+                    $service->fields()->attach($value['field_id'], [
                         'status' => 'A',
                         'required' => $value['required'],
                         'users_id' => $userId

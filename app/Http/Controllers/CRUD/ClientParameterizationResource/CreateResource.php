@@ -46,12 +46,12 @@ class CreateResource implements CRUD
                 'commercial_registry' => $request->input('commercial_registry'),
                 'commercial_registry_file' => $request->file('commercial_registry_file')
                         ->storeAs(
-                            'commercial', 
+                            'commercial',
                             FileFormat::formatName($request->file('commercial_registry_file')->getClientOriginalName(),
                             $request->file('commercial_registry_file')->guessExtension())),
                 'rut_file' => $request->file('rut_file')
                         ->storeAs(
-                            'rut', 
+                            'rut',
                             FileFormat::formatName($request->file('rut_file')->getClientOriginalName(),
                             $request->file('rut_file')->guessExtension())),
                 'legal_representative_name' => $request->input('legal_representative_name'),

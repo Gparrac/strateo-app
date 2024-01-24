@@ -10,7 +10,7 @@ use App\Http\Controllers\CRUD\SupplierParameterizationResource\UpdateResource;
 use App\Http\Controllers\CRUD\SupplierParameterizationResource\DeleteResource;
 use Illuminate\Support\Facades\Log;
 
-class ServiceParameterization extends Controller
+class SupplierParameterization extends Controller
 {
     /**
      * Handle the incoming request.
