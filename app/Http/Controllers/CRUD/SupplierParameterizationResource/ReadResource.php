@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Client;
 use App\Models\Service;
+use App\Models\Supplier;
+use Illuminate\Support\Facades\DB;
 
 class ReadResource implements CRUD, RecordOperations
 {
@@ -25,10 +27,12 @@ class ReadResource implements CRUD, RecordOperations
     public function singleRecord($id)
     {
         try {
-            $data = Service::with(['fields' => function ($query) {
-                $query->select('id', 'name', 'type', 'length', 'status');
+            $data = Supplier::with(['fields' => function ($query) {
+                $query->select('fields.id', 'fields.name', 'fields.type', 'fields.length', 'fields.status');
+            }, 'servies' => function ($query) {
+                $query->wherePivot('status', 'A')->select('services.id', 'services.name', 'services.description');
             }])
-            ->where('service.id', $id)
+                ->where('service.id', $id)
                 ->first();
 
             return response()->json(['message' => 'read: ' . $id, 'data' => $data], 200);
@@ -44,9 +48,18 @@ class ReadResource implements CRUD, RecordOperations
     public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null)
     {
         try {
-            $data = Service::with('fields:id,name,type,length,status');
+            $data = Supplier::with(['third' =>
+            function ($query) {
+
+                $query->select(['id', DB::raw('IFNULL(names, business_name) as supplier'), 'type_document', 'identification']);
+            }])->withCount(['services','fields']);
             //filter query with keyword 🚨
             if ($typeKeyword && $keyword) {
+                if ($typeKeyword == 'name') {
+                    $data = $data->whereHas('third', function ($query) use ($keyword) {
+                        $query->where('supplier', 'LIKE', '%' . $keyword . '%');
+                    });
+                }
                 $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
             }
             //append shorters to query
