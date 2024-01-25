@@ -26,7 +26,7 @@ class ReadResource implements CRUD, RecordOperations
     {
         try {
             $data = Service::with(['fields' => function ($query) {
-                $query->select('fields.id', 'fields.name', 'type', 'length', 'fields.status');
+                $query->where('fields_services.status', '=', 'A')->select('fields.id', 'fields.name', 'type', 'length', 'fields.status');
             }])
             ->where('services.id', $id)
                 ->first();
@@ -44,7 +44,9 @@ class ReadResource implements CRUD, RecordOperations
     public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null)
     {
         try {
-            $data = Service::with('fields:id,name,type,length,status')->withCount('fields')->withCount('suppliers');
+            $data = Service::with('fields:id,name,type,length,status')->withCount(['fields' => function($query){
+                $query->where('fields_services.status', '=', 'A');
+            }])->withCount('suppliers');
             //filter query with keyword 🚨
             if ($typeKeyword && $keyword) {
                 $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');

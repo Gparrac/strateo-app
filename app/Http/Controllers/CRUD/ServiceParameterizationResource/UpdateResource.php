@@ -13,6 +13,7 @@ use App\Models\Client;
 use App\Models\User;
 use App\Http\Utils\FileFormat;
 use App\Models\Service;
+use Exception;
 
 class UpdateResource implements CRUD
 {
@@ -33,6 +34,8 @@ class UpdateResource implements CRUD
                 Log::info($service['id']);
                 DB::table('fields_services')->where('services_id',$service['id'])->update(['status'=> 'I']);
             Log::info('pasando2');
+            Log::info($request['fields']);
+
             foreach ($request['fields'] as $value) {
                 $query = DB::table('fields_services')->where('services_id',$service['id'])->where('fields_id',$value['field_id']);
                 if ($query->count() == 0) {
