@@ -17,8 +17,8 @@ class ReadResource implements CRUD, RecordOperations
 {
     public function resource(Request $request)
     {
-        if ($request->has('service_id')) {
-            return $this->singleRecord($request->input('service_id'));
+        if ($request->has('supplier_id')) {
+            return $this->singleRecord($request->input('supplier_id'));
         } else {
             return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'));
         }
@@ -28,13 +28,37 @@ class ReadResource implements CRUD, RecordOperations
     {
         try {
             $data = Supplier::with(['fields' => function ($query) {
-                $query->select('fields.id', 'fields.name', 'fields.type', 'fields.length', 'fields.status');
-            }, 'servies' => function ($query) {
+                $query->select('fields.id', 'fields.name', 'fields.type', 'fields.length');
+            }, 'services' => function ($query) {
                 $query->wherePivot('status', 'A')->select('services.id', 'services.name', 'services.description');
+            }, 'third' => function ($query) {
+                $query->with(['secondaryCiius:id,code,description', 'ciiu:id,code,description']);
+                $query->select('id', 'type_document', 'identification', 'code_ciiu_id', 'verification_id', 'names', 'surnames', 'business_name', 'address', 'mobile', 'email', 'email2', 'postal_code', 'city_id');
             }])
-                ->where('service.id', $id)
+                ->where('suppliers.id', $id)
+                ->select('suppliers.id','suppliers.status', 'suppliers.note', 'suppliers.note', 'suppliers.third_id', 'suppliers.commercial_registry', 'suppliers.commercial_registry_file', 'suppliers.rut_file')
                 ->first();
+            $data->services->map(function ($service) use ($data) {
 
+                $service['fields'] = Service::find($service['id'])->fields()
+                    ->select('fields.id', 'fields.name', 'fields.type', 'fields.length', DB::raw('null as data'))
+                    ->get()->map(function ($field) use ($data) {
+                        $data['fields']->map(function ($dfield, $key) use ($field, $data) {
+                            if ($field['id'] == $dfield['id']) {
+
+                                ($field['type']['id'] == 'F') ? $field['pathFile'] = $dfield->pivot['path_info'] : $field['data'] = $dfield->pivot['path_info'];
+                                unset($data['fields'][$key]);
+                            }
+                            return $dfield;
+                        });
+                        $field['required'] = $field->pivot['required'];
+                        unset($field->pivot);
+                        return $field;
+                    });
+                unset($service->pivot);
+                return $data;
+            });
+            unset($data->fields);
             return response()->json(['message' => 'read: ' . $id, 'data' => $data], 200);
         } catch (QueryException $ex) {
             Log::error('Query error ClientResource@readResource:singleRecord: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
@@ -52,7 +76,7 @@ class ReadResource implements CRUD, RecordOperations
             function ($query) {
 
                 $query->select(['id', DB::raw('IFNULL(names, business_name) as supplier'), 'type_document', 'identification']);
-            }])->withCount(['services','fields']);
+            }])->withCount(['services', 'fields']);
             //filter query with keyword 🚨
             if ($typeKeyword && $keyword) {
                 if ($typeKeyword == 'name') {

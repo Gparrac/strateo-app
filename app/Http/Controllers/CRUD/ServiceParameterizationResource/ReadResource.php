@@ -13,11 +13,13 @@ use App\Models\Service;
 
 class ReadResource implements CRUD, RecordOperations
 {
+    private $format;
     public function resource(Request $request)
     {
         if ($request->has('service_id')) {
             return $this->singleRecord($request->input('service_id'));
         } else {
+            $this->format = $request->input('format');
             return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'));
         }
     }
@@ -44,18 +46,35 @@ class ReadResource implements CRUD, RecordOperations
     public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null)
     {
         try {
-            $data = Service::with('fields:id,name,type,length,status')->withCount(['fields' => function($query){
-                $query->where('fields_services.status', '=', 'A');
-            }])->withCount('suppliers');
+            $data = new Service();
             //filter query with keyword 🚨
             if ($typeKeyword && $keyword) {
                 $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
             }
-            //append shorters to query
-            foreach ($sorters as $key => $shorter) {
-                $data = $data->orderBy($shorter['key'], $shorter['order']);
+            if ($this->format == 'short') {
+                $data = $data->with(['fields' => function($query){
+                    $query->select('fields.id','fields.name','fields.type', 'fields.length');
+                    $query->where('fields_services.status', '=', 'A');
+                }])->select('services.id','services.name','services.description')->take(10)->get();
+
+                $data->map(function ($service) {
+                    $service->fields->each(function ($field) {
+                        $field['data'] = null;
+                        $field['required'] = $field['pivot']['required'];
+                        unset($field->pivot);
+                    });
+                    return $service;
+                });
+            } else {
+                $data = $data->with('fields:id,name,type,length,status')->withCount(['fields' => function($query){
+                    $query->where('fields_services.status', '=', 'A');
+                }])->withCount('suppliers');
+                //append shorters to query
+                foreach ($sorters as $shorter) {
+                    $data = $data->orderBy($shorter['key'], $shorter['order']);
+                }
+                $data = $data->paginate($pagination);
             }
-            $data = $data->paginate($pagination);
             return response()->json(['message' => 'read', 'data' => $data], 200);
         } catch (QueryException $ex) {
             Log::error('Query error ClientResource@readResource:allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());

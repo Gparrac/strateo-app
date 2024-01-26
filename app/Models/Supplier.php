@@ -12,7 +12,7 @@ class Supplier extends Model
     use HasFactory;
     protected $fillable = ['commercial_registry', 'commercial_registry_file','rut_file', 'note', 'status', 'third_id', 'users_id', 'users_update_id'];
     public function fields() : BelongsToMany {
-        return $this->belongsToMany(Field::class, 'suppliers_fields', 'suppliers_id', 'fields_id')->withPivot(['status','path_info']);
+        return $this->belongsToMany(Field::class, 'suppliers_fields', 'suppliers_id', 'fields_id')->withPivot(['path_info']);
     }
     public function services() : BelongsToMany {
         return $this->belongsToMany(Service::class, 'suppliers_services', 'suppliers_id', 'services_id')->withPivot(['status']);
