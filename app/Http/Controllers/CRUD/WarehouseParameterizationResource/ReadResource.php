@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\CRUD\MeasureParameterizationResource;
+namespace App\Http\Controllers\CRUD\WarehouseParameterizationResource;
 
 use App\Http\Controllers\CRUD\Interfaces\CRUD;
 use App\Http\Controllers\CRUD\Interfaces\RecordOperations;
@@ -24,7 +24,12 @@ class ReadResource implements CRUD, RecordOperations
     public function singleRecord($id)
     {
         try {
-            $data = Warehouse::findOrFail($id);
+            $data = Warehouse::with(['third' => function ($query) {
+                $query->select('id', 'type_document', 'identification', 'code_ciiu_id', 'verification_id', 'names', 'surnames', 'business_name', 'address', 'mobile', 'email', 'email2', 'postal_code', 'city_id');
+                $query->with('ciiu:id,code,description');
+            }])
+                ->where('clients.id', $id)
+                ->first();
 
             return response()->json(['message' => 'read: ' . $id, 'data' => $data], 200);
         } catch (QueryException $ex) {
@@ -39,7 +44,8 @@ class ReadResource implements CRUD, RecordOperations
     public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null)
     {
         try {
-            $data = Warehouse::select('id', 'name', 'type', 'symbol', 'status');
+            $data = Warehouse::select('id', 'note', 'status', 'city_id')->with('city:id,name');
+            
             //filter query with keyword 🚨
             if ($typeKeyword && $keyword) {
                 $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');

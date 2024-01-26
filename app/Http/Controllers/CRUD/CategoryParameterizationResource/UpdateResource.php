@@ -18,6 +18,36 @@ class UpdateResource implements CRUD
         try {
             $userId = Auth::id();
 
+            $category = Category::findOrFail($request->input('category_id'));
+            // Create a record in the category table
+            $category->fill($request->only([
+                'name' => $request->input('name'),
+                'code' => $request->input('code'),
+                'status' => $request->input('status'),
+            ]) + ['users_update_id' => $userId])->save();
+
+            // Obtén los IDs de productos que se deben mantener y los nuevos IDs del request
+            $currentProductIds = $category->products()->pluck('products.id')->toArray();
+            $newProductIds = $request->input('products_ids', []);
+
+            // Atributos adicionales solo para los nuevos registros
+            $newAttributes = [
+                'status' => 'A',
+                'users_id' => $userId,
+            ];
+
+            // Realizar el attach solo para los nuevos registros
+            $category->products()->attach($newProductIds, $newAttributes);
+
+            // Actualizar el estado ('status') de las relaciones desvinculadas en la tabla pivot
+            $category->products()->whereIn('products.id', $detachIds)->each(function ($product) {
+                // Solo actualizar 'status', sin afectar 'users_id'
+                $product->pivot->update([
+                    'status' => 'I',
+                    'users_update_id' => $userId
+                ]);
+            });
+
             DB::commit();
             return response()->json(['message' => 'Successful']);
         } catch (QueryException $ex) {

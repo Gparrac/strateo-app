@@ -30,7 +30,7 @@ class Product extends Model
 
     public function category(): BelongsToMany
     {
-        return $this->belongsToMany(Category::class);
+        return $this->belongsToMany(Category::class)->withPivot(['users_id', 'users_update_id', 'status']);
     }
 
     public function measure(): BelongsTo

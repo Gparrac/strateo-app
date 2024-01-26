@@ -11,6 +11,10 @@ use App\Http\Controllers\CRUD\UserParameterization;
 use App\Http\Controllers\CRUD\ServiceParameterization;
 use App\Http\Controllers\CRUD\FieldParameterization;
 use App\Http\Controllers\CRUD\SupplierParameterization;
+use App\Http\Controllers\CRUD\WarehouseParameterization;
+use App\Http\Controllers\CRUD\MeasureParameterization;
+use App\Http\Controllers\CRUD\BrandParameterization;
+use App\Http\Controllers\CRUD\CategoryParameterization;
 
 Route::group(['middleware' => ['auth:api','role.user']], function() {
     Route::match(['get', 'post', 'put', 'delete'],'/enterprise-parameterization', EnterpriseParameterization::class)->middleware('enterprise.parameterization');
@@ -22,4 +26,9 @@ Route::group(['middleware' => ['auth:api','role.user']], function() {
     Route::match(['get', 'post', 'put', 'delete'],'/field-parameterization', FieldParameterization::class)->middleware('field.parameterization');
     Route::match(['get', 'post', 'put', 'delete'],'/supplier-parameterization', SupplierParameterization::class)->middleware('supplier.parameterization');
     Route::match(['get', 'post', 'put', 'delete'],'/role-parameterization', RoleParameterization::class)->middleware('role.parameterization');
+
+    Route::match(['get', 'post', 'put', 'delete'],'/warehouse-parameterization', WarehouseParameterization::class)->middleware('warehouse.parameterization');
+    Route::match(['get', 'post', 'put', 'delete'],'/measure-parameterization', MeasureParameterization::class)->middleware('measure.parameterization');
+    Route::match(['get', 'post', 'put', 'delete'],'/brand-parameterization', BrandParameterization::class)->middleware('brand.parameterization');
+    Route::match(['get', 'post', 'put', 'delete'],'/category-parameterization', CategoryParameterization::class)->middleware('category.parameterization');
 });

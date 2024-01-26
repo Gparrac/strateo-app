@@ -15,8 +15,18 @@ class CreateResource implements CRUD
     {
         DB::beginTransaction();
         try {
-            $userId = auth()->id();
-            
+            $category = Category::create([
+                'name' => $request->input('name'),
+                'code' => $request->input('code'),
+                'status' => $request->input('status'),
+                'users_id' => $userId,
+            ]);
+
+            $category->products()->attach($request->input('products_ids'), [
+                'status' => 'A',
+                'users_id' => auth()->id()
+            ]);
+
             DB::commit();
             return response()->json(['message' => 'Successful']);
         } catch (QueryException $ex) {
