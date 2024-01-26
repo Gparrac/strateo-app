@@ -16,6 +16,7 @@ class UpdateMiddleware implements ValidateData
 {
     public function validate(Request $request)
     {
+        Log::info('entrando middle');
         $validator = Validator::make($request->all(), [
             //--------------------- new attributes
             'supplier_id' => 'required|exists:suppliers,id',
@@ -44,7 +45,6 @@ class UpdateMiddleware implements ValidateData
             'services.*.service_id' => 'required|exists:services,id',
             'services.*.fields' => 'required|array',
             'services.*.fields.*.field_id' => 'required|exists:fields,id',
-            'services.*.fields.*.content' => 'required'
             //--------------------- others
         ]);
 
@@ -63,7 +63,7 @@ class UpdateMiddleware implements ValidateData
                 $typeField = $fieldQuery->type['id'];
                 $serviceRealeted = $fieldQuery->services()->where('services.id', $service['service_id'])->first();
 
-                if ($serviceRealeted['pivot']['required'] == 1) array_push($contentRules, 'required');
+                if ($serviceRealeted['pivot']['required'] == 1 && $typeField != 'F') array_push($contentRules, 'required');
                 $recordServices[$skey]['fields'][$fkey]['type'] = $typeField;
 
                 switch ($typeField) {
@@ -77,8 +77,7 @@ class UpdateMiddleware implements ValidateData
                         array_push($contentRules, 'integer');
                         break;
                     case 'F':
-                        Log::info('entrando');
-                        array_push($contentRules, 'file', 'mimes:pdf,docx', 'max:2048');
+                        array_push($contentRules,'nullable','file', 'mimes:pdf,docx', 'max:2048');
                         break;
                     default:
                         # code...

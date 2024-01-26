@@ -4,6 +4,7 @@ namespace App\Http\Controllers\CRUD\SupplierParameterizationResource;
 
 use App\Http\Controllers\CRUD\Interfaces\CRUD;
 use App\Http\Utils\FileFormat;
+use App\Models\Field;
 use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
@@ -18,7 +19,7 @@ class UpdateResource implements CRUD
     public function resource(Request $request)
     {
         DB::beginTransaction();
-        Log::info('pasando1');
+        Log::info('pasando1 controller');
         try {
             $userId = auth()->id();
             // request data to update
@@ -68,6 +69,25 @@ class UpdateResource implements CRUD
                 'city_id',
                 'code_ciiu_id',
             ]) + ['users_update_id' => $userId])->save();
+            //secondary ciiu thirds
+            DB::table('code_ciiu_thirds')->where('thirds_id',$third['id'])->update(['status' => 'I']);
+            if($request->has('secondary_ciiu_ids')){
+                foreach ($request['secondary_ciiu_ids'] as $key => $value) {
+                    $codes = DB::table('code_ciiu_thirds')->where('thirds_id',$third['id'])->where('code_ciiu_id', $value);
+                    if($codes->count() == 0){
+                        $third->secondaryCiius()->attach($value,[
+                            'status' => 'A',
+                            'users_id' => $userId,
+                            'users_update_id' => $userId
+                        ]);
+                    }else{
+                        $codes->update([
+                            'status' => 'A'
+                        ]);
+                    }
+                }
+            }
+
             // update services and related fields
             DB::table('suppliers_services')->where('suppliers_id', $supplier['id'])->update(['status' => 'I', 'users_update_id' => $userId]);
             foreach ($request['services'] as $svalue => $service) {
@@ -84,8 +104,11 @@ class UpdateResource implements CRUD
                     ]);
                 }
                 foreach ($service['fields'] as $fvalue => $field) {
-                    $content = $field['content'];
+
                     if ($field['type'] == 'F') {
+                        if(!array_key_exists('content',$field)){
+                            $content = Field::find($field['field_id'])->suppliers()->where('suppliers_id',$supplier['id'])->first()->pivot['path_info'];
+                        }else{
                         //if update service and its a file then it's gonna create other file and not replace
                         $pathFileRequest = 'services.' . $svalue . '.fields.' . $fvalue . '.content';
                         $urlFile = $urlFile . '/services/' . $service['service_id'] . '/fields/';
@@ -97,6 +120,9 @@ class UpdateResource implements CRUD
                                     $request->file($pathFileRequest)->guessExtension()
                                 )
                             );
+                        }
+                    }else{
+                        $content = $field['content'];
                     }
                     $queryFields = DB::table('suppliers_fields')->where('suppliers_id', $supplier['id'])->where('fields_id', $field['field_id']);
                     if ($query->count() == 0) {

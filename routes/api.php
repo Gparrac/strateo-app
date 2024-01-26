@@ -26,7 +26,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('/test', function (Request $request) {
-    $fieldQuery =  Field::find(3);
-    $service = $fieldQuery->services()->where('services.id', 2)->first();
+
+    $service = Field::find(3)->suppliers()->where('suppliers_id',14)->get();//->first()->pivot['path_info'];
     return $service;
 });

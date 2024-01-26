@@ -52,6 +52,14 @@ class CreateResource implements CRUD
             // Create a record in the Third table
             $third = Third::create($thirdData);
             $supplierData['third_id'] = $third['id'];
+            if($request->has('secondary_ciiu_ids')){
+                $third->secondaryCiius()->attach($request['secondary_ciiu_ids'],[
+                    'status' => 'A',
+                    'users_id' => $userId,
+                    'users_update_id' => $userId,
+                ]);
+            }
+            //write dawn in suppliers table
             $supplier = Supplier::create($supplierData);
             $urlFile = 'supplier/'.$supplier['id'];
             $supplier->update([
