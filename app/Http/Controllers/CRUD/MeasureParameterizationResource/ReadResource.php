@@ -24,7 +24,7 @@ class ReadResource implements CRUD, RecordOperations
     public function singleRecord($id)
     {
         try {
-            $data = Measure::findOrFail($id);
+            $data = Measure::where('id', $id)->select('id', 'type', 'name', 'symbol', 'status')->first();
 
             return response()->json(['message' => 'read: ' . $id, 'data' => $data], 200);
         } catch (QueryException $ex) {

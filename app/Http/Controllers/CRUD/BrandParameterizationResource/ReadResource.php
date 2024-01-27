@@ -24,7 +24,7 @@ class ReadResource implements CRUD, RecordOperations
     public function singleRecord($id)
     {
         try {
-            $data = Brand::findOrFail($id);
+            $data = Brand::where('id', $id)->select('id', 'name', 'code', 'status')->first();
 
             return response()->json(['message' => 'read: ' . $id, 'data' => $data], 200);
         } catch (QueryException $ex) {

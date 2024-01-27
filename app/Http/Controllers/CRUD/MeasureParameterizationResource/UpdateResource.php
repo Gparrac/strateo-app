@@ -14,7 +14,6 @@ class UpdateResource implements CRUD
 {
     public function resource(Request $request)
     {
-        DB::beginTransaction();
         try {
             $userId = Auth::id();
             $measure = Measure::where('id', $request->input('measure_id'))->firstOrFail();
