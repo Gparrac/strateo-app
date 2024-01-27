@@ -83,6 +83,10 @@ class Kernel extends HttpKernel
         'service.parameterization' => \App\Http\Middleware\CRUD\ServiceParameterization\ServiceParameterization::class,
         'field.parameterization' => \App\Http\Middleware\CRUD\FieldParameterization\FieldParameterization::class,
         'supplier.parameterization' => \App\Http\Middleware\CRUD\SupplierParameterization\SupplierParameterization::class,
+        'warehouse.parameterization' => \App\Http\Middleware\CRUD\WarehouseParameterization\WarehouseParameterization::class,
+        'measure.parameterization' => \App\Http\Middleware\CRUD\MeasureParameterization\MeasureParameterization::class,
+        'brand.parameterization' => \App\Http\Middleware\CRUD\BrandParameterization\BrandParameterization::class,
+        'category.parameterization' => \App\Http\Middleware\CRUD\CategoryParameterization\CategoryParameterization::class,
         //INVOKES
         'validate.name.invoke' => \App\Http\Middleware\Invokes\ValidateNameParameter::class,
     ];

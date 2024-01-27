@@ -59,4 +59,8 @@ class Third extends Model
     {
         return $this->belongsToMany(Ciiu::class, 'code_ciiu_thirds', 'thirds_id', 'code_ciiu_id')->withPivot('status');
     }
+    public function warehouse(): HasOne
+    {
+        return $this->hasOne(Warehouse::class); 
+    }
 }
