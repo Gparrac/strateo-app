@@ -14,7 +14,7 @@ class FileCast implements CastsAttributes
      */
     public function get(Model $model, string $key, mixed $value, array $attributes): mixed
     {
-        return config('app.files_url').'/uploads/'.$value;
+        return $value ? config('app.files_url').'/uploads/'.$value : $value;
     }
 
     /**
