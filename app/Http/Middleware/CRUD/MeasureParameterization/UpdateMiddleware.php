@@ -16,7 +16,7 @@ class UpdateMiddleware implements ValidateData
             'measure_id' => 'required|exists:measures,id',
             'type' =>'required|in:F,T,A,I',
             'name' => 'required|string|min:3|max:50',
-            'symbol' => 'required|string|max:3',
+            'symbol' => 'required|string|max:3|unique:measures,symbol',
             'status' => 'required|in:A,I',
         ]);
 

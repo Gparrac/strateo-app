@@ -5,6 +5,7 @@ namespace App\Http\Middleware\CRUD\MeasureParameterization;
 use Illuminate\Http\Request;
 use App\Http\Middleware\CRUD\Interfaces\ValidateData;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Validator;
 
 class CreateMiddleware implements ValidateData
 {
@@ -13,7 +14,7 @@ class CreateMiddleware implements ValidateData
         $validator = Validator::make($request->all(), [
             'type' =>'required|in:F,T,A,I',
             'name' => 'required|string|min:3|max:50',
-            'symbol' => 'required|string|max:3',
+            'symbol' => 'required|string|max:3|unique:measures,symbol',
             'status' => 'required|in:A,I',
         ]);
 
