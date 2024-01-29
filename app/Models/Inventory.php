@@ -10,8 +10,13 @@ class Inventory extends Model
 {
     use HasFactory;
     protected $fillable = ['id', 'stock','status', 'product_id', 'warehouse_id', 'users_id', 'users_update_id'];
-    // public function products() : BelongsTo
-    // {
-    //     return $this->belongsTo(Product::class);
-    // }
+    public function product() : BelongsTo
+    {
+        return $this->belongsTo(Product::class);
+    }
+    public function warehouse() : BelongsTo
+    {
+        return $this->belongsTo(Warehouse::class);
+    }
+
 }

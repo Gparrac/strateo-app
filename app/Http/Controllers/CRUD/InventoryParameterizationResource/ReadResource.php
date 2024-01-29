@@ -1,0 +1,94 @@
+<?php
+
+namespace App\Http\Controllers\CRUD\InventoryParameterizationResource;
+
+use App\Http\Controllers\CRUD\Interfaces\CRUD;
+use App\Http\Controllers\CRUD\Interfaces\RecordOperations;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+use App\Models\Client;
+use App\Models\InventoryTrade;
+use App\Models\Service;
+use Illuminate\Support\Facades\DB;
+
+class ReadResource implements CRUD, RecordOperations
+{
+    private $format;
+    public function resource(Request $request)
+    {
+        if ($request->has('service_id')) {
+            return $this->singleRecord($request->input('service_id'));
+        } else {
+            $this->format = $request->input('format');
+            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'));
+        }
+    }
+
+    public function singleRecord($id)
+    {
+        try {
+            $data = Service::with(['fields' => function ($query) {
+                $query->where('fields_services.status', '=', 'A')->select('fields.id', 'fields.name', 'type', 'length', 'fields.status');
+            }])
+            ->where('services.id', $id)
+                ->first();
+
+            return response()->json(['message' => 'read: ' . $id, 'data' => $data], 200);
+        } catch (QueryException $ex) {
+            Log::error('Query error ClientResource@readResource:singleRecord: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
+            return response()->json(['message' => 'read q'], 500);
+        } catch (\Exception $ex) {
+            Log::error('unknown error ClientResource@readResource:singleRecord: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
+            return response()->json(['message' => 'read u'], 500);
+        }
+    }
+
+    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null)
+    {
+        try {
+            $data = InventoryTrade::with(['provider' => function($query){
+                $query->select('id','commercial_registry','third_id');
+                $query->with('third:id, names');
+            }],['inventories' => function($query){
+                $query->select('inventory_id','inventoy_trades_id',DB::raw('sum(amount) as total_cost'));
+            }])->withCount('inventories');
+            //filter query with keyword 🚨
+            if ($typeKeyword && $keyword) {
+                $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
+            }
+            if ($this->format == 'short') {
+                $data = $data->with(['fields' => function($query){
+                    $query->select('fields.id','fields.name','fields.type', 'fields.length');
+                    $query->where('fields_services.status', '=', 'A');
+                }])->select('services.id','services.name','services.description')->take(10)->get();
+
+                $data->map(function ($service) {
+                    $service->fields->each(function ($field) {
+                        $field['data'] = null;
+                        $field['required'] = $field['pivot']['required'];
+                        unset($field->pivot);
+                    });
+                    return $service;
+                });
+            } else {
+                $data = $data->with('fields:id,name,type,length,status')->withCount(['fields' => function($query){
+                    $query->where('fields_services.status', '=', 'A');
+                }])->withCount('suppliers');
+                //append shorters to query
+                foreach ($sorters as $shorter) {
+                    $data = $data->orderBy($shorter['key'], $shorter['order']);
+                }
+                $data = $data->paginate($pagination);
+            }
+            return response()->json(['message' => 'read', 'data' => $data], 200);
+        } catch (QueryException $ex) {
+            Log::error('Query error ClientResource@readResource:allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
+            return response()->json(['message' => 'read q'], 500);
+        } catch (\Exception $ex) {
+            Log::error('unknown error ClientResource@readResource:allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
+            return response()->json(['message' => 'read u'], 500);
+        }
+    }
+}

@@ -28,10 +28,12 @@ class RouteMiddleware
             'service-parameterization' => 59,
             'field-parameterization' => 60,
             'supplier-parameterization' => 61,
-            'warehouse-parameterization' => 64,
+            'warehouse-parameterization' => 62,
             'measure-parameterization' => 63,
-            'brand-parameterization' => 62,
+            'brand-parameterization' => 64,
             'category-parameterization' => 65,
+            'inventory-parameterization' => 66,
+
         ];
 
         if (!array_key_exists($removeApiPrefix, $routesForm)) {

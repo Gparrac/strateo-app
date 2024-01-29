@@ -4,8 +4,10 @@ namespace App\Http\Controllers\CRUD\ClientParameterizationResource;
 
 use App\Http\Controllers\CRUD\Interfaces\CRUD;
 use App\Http\Controllers\CRUD\Interfaces\RecordOperations;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use App\Models\Client;
+use Illuminate\Support\Facades\Log;
 
 class DeleteResource implements CRUD, RecordOperations
 {
@@ -37,7 +39,7 @@ class DeleteResource implements CRUD, RecordOperations
         }
     }
 
-    public function allRecords($ids = null){
+    public function allRecords($ids = null, $pagination=5, $sorters = [], $keyword =null, $typeKeyword = null){
         try {
             $idsArray = json_decode($ids, true);
             $userId = auth()->id();

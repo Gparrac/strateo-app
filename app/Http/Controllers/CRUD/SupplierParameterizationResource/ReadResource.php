@@ -15,11 +15,13 @@ use Illuminate\Support\Facades\DB;
 
 class ReadResource implements CRUD, RecordOperations
 {
+    private $format;
     public function resource(Request $request)
     {
         if ($request->has('supplier_id')) {
             return $this->singleRecord($request->input('supplier_id'));
         } else {
+            $this->format = $request->input('format');
             return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'));
         }
     }
@@ -74,23 +76,33 @@ class ReadResource implements CRUD, RecordOperations
         try {
             $data = Supplier::with(['third' =>
             function ($query) {
-
                 $query->select(['id', DB::raw('IFNULL(names, business_name) as supplier'), 'type_document', 'identification']);
             }])->withCount(['services', 'fields']);
             //filter query with keyword 🚨
             if ($typeKeyword && $keyword) {
                 if ($typeKeyword == 'name') {
                     $data = $data->whereHas('third', function ($query) use ($keyword) {
-                        $query->where('supplier', 'LIKE', '%' . $keyword . '%');
+                        $query->where('names', 'LIKE', '%' . $keyword . '%');
+                        $query->orWhere('names', 'LIKE', '%' . $keyword . '%');
                     });
+                }else{
+                    $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
                 }
-                $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
             }
-            //append shorters to query
-            foreach ($sorters as $key => $shorter) {
-                $data = $data->orderBy($shorter['key'], $shorter['order']);
+            if($this->format == 'short'){
+                $data = $data->select('suppliers.id', 'suppliers.commercial_registry','suppliers.third_id')->take(10)->get()->map(function($supplier){
+                    $supplier['supplier'] = $supplier['third']['supplier'];
+                    unset($supplier['third']);
+                    return $supplier;
+                });
+
+            }else{
+                //append shorters to query
+                foreach ($sorters as  $shorter) {
+                    $data = $data->orderBy($shorter['key'], $shorter['order']);
+                }
+                $data = $data->paginate($pagination);
             }
-            $data = $data->paginate($pagination);
             return response()->json(['message' => 'read', 'data' => $data], 200);
         } catch (QueryException $ex) {
             Log::error('Query error ClientResource@readResource:allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());

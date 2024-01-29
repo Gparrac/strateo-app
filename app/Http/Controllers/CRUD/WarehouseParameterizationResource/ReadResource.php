@@ -12,11 +12,13 @@ use App\Models\Warehouse;
 
 class ReadResource implements CRUD, RecordOperations
 {
+    private $format;
     public function resource(Request $request)
     {
         if ($request->has('warehouse_id')) {
             return $this->singleRecord($request->input('warehouse_id'));
         } else {
+            $this->format = $request->input('format');
             return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'));
         }
     }
@@ -44,17 +46,23 @@ class ReadResource implements CRUD, RecordOperations
     public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null)
     {
         try {
-            $data = Warehouse::select('id', 'note', 'status', 'city_id')->with('city:id,name');
-            
+            $data = Warehouse::select('id', 'note', 'status','address', 'city_id')->with('city:id,name');
+
             //filter query with keyword 🚨
             if ($typeKeyword && $keyword) {
                 $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
             }
-            //append shorters to query
-            foreach ($sorters as $key => $shorter) {
-                $data = $data->orderBy($shorter['key'], $shorter['order']);
+            if($this->format == 'short'){
+                $data = $data->take(10)->get();
+
+            }else{
+                //append shorters to query
+                foreach ($sorters as $shorter) {
+                    $data = $data->orderBy($shorter['key'], $shorter['order']);
+                }
+                $data = $data->paginate($pagination);
             }
-            $data = $data->paginate($pagination);
+
             return response()->json(['message' => 'read', 'data' => $data], 200);
         } catch (QueryException $ex) {
             Log::error('Query error WarehouseResource@readResource:allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());

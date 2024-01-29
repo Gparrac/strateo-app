@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\CRUD\ServiceParameterizationResource;
+namespace App\Http\Controllers\CRUD\InventoryParameterizationResource;
 
 use App\Http\Controllers\CRUD\Interfaces\CRUD;
 use Illuminate\Http\Request;
@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Third;
 use App\Models\Client;
 use App\Http\Utils\FileFormat;
+use App\Models\Inventory;
+use App\Models\InventoryTrade;
 use App\Models\Service;
 
 class CreateResource implements CRUD
@@ -19,25 +21,25 @@ class CreateResource implements CRUD
         DB::beginTransaction();
         try {
             $userId = auth()->id();
-            // Create body to create third record
-            $serviceData = [
-                'name' => $request->input('name'),
-                'description' => $request->input('description'),
-                'status' => $request->input('status'),
-                'users_id' => $userId ,
-            ];
-
-            // Create a record in the Third table
-            $service = Service::create($serviceData);
-            foreach ($request['fields'] as $value) {
-                $service->fields()->attach($value['field_id'], [
-                    'required' => $value['required'],
+            $inventoryTrade = InventoryTrade::create([
+                    'transaction_type' => $request->input('transaction_type'),
+                    'purpose' => $request->input('purpose'),
+                    'note' => $request->input('note'),
+                    'transaction_date' => $request->input('date'),
+                    'supplier_id' => $request->input('supplier_id'),
                     'users_id' => $userId,
-                    'status' => 'A'
+                    'further_discount' => $request['further_discount']
+                ]);
+            foreach ($request['products'] as $value) {
+                $inventoryTrade->inventory()->attach($value['inventory_id'], [
+                    'cost' => $value['cost'],
+                    'amount' => $value['amount'],
+                    'iva' => $value['iva'],
+                    'ico' => $value['ico'],
+                    'discount' => $value['discount'],
+                    'users_id' => $userId,  $userId
                 ]);
             }
-
-
             DB::commit();
             return response()->json(['message' => 'Successful']);
         } catch (QueryException $ex) {

@@ -16,7 +16,8 @@ class Warehouse extends Model
         'city_id',
         'status',
         'users_id',
-        'users_update_id'
+        'users_update_id',
+        'address'
     ];
 
     public function third(): BelongsTo
