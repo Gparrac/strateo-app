@@ -52,9 +52,10 @@ class CreateResource implements CRUD
             }
             
             Warehouse::create([
-                'note' => $request->input('capacity'),
+                'note' => $request->input('note'),
                 'third_id' => $third->id,
                 'city_id' => $request->input('city_id'),
+                'address' => $request->input('address_warehouse'),
                 'status' => $request->input('status'),
                 'users_id' => $userId,
             ]);

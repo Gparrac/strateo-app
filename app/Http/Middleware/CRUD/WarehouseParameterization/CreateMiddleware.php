@@ -31,6 +31,7 @@ class CreateMiddleware implements ValidateData
             //Warehouse Table
             'note' => 'required|string|min:3|max:50',
             'city_warehouse_id' => 'required|exists:cities,id',
+            'address_warehouse' => 'required|string',
             'status' => 'required|in:A,I',
         ]);
 
