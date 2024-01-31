@@ -26,11 +26,14 @@ class ReadResource implements CRUD, RecordOperations
     public function singleRecord($id)
     {
         try {
-            $data = Warehouse::with(['third' => function ($query) {
-                $query->select('id', 'type_document', 'identification', 'code_ciiu_id', 'verification_id', 'names', 'surnames', 'business_name', 'address', 'mobile', 'email', 'email2', 'postal_code', 'city_id');
-                $query->with('ciiu:id,code,description');
-            }])
-                ->where('clients.id', $id)
+            $data = Warehouse::where('id', $id)
+                ->with(['third' => function ($query) {
+                    $query->select('id', 'type_document', 'identification', 'code_ciiu_id', 'verification_id', 'names', 'surnames', 'business_name', 'address', 'mobile', 'email', 'email2', 'postal_code', 'city_id');
+                    $query->with(['ciiu:id,code,description', 
+                    'secondaryCiius' => function($query){
+                        $query->where('status', 'A')->select('code_ciiu_thirds.id','code','description');
+                    }]);
+                }])
                 ->first();
 
             return response()->json(['message' => 'read: ' . $id, 'data' => $data], 200);
@@ -46,7 +49,8 @@ class ReadResource implements CRUD, RecordOperations
     public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null)
     {
         try {
-            $data = Warehouse::select('id', 'note', 'status','address', 'city_id')->with('city:id,name');
+            $data = Warehouse::select('id', 'note', 'status', 'city_id', 'address', 'updated_at')
+            ->with('city:id,name');
 
             //filter query with keyword 🚨
             if ($typeKeyword && $keyword) {

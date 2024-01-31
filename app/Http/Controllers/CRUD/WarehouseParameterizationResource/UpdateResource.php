@@ -11,9 +11,12 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Warehouse;
 use App\Models\Third;
 use App\Http\Utils\CastVerificationNit;
+use App\Http\Traits\DynamicUpdater;
 
 class UpdateResource implements CRUD
 {
+    use DynamicUpdater;
+
     public function resource(Request $request)
     {
         DB::beginTransaction();
@@ -22,6 +25,7 @@ class UpdateResource implements CRUD
             $warehouse = Warehouse::where('id', $request->input('warehouse_id'))->firstOrFail();
 
             $third = Third::findOrFail($warehouse->third_id);
+
             // Create a record in the Third table
             $verificationId = CastVerificationNit::calculate($request['identification']);
             $third->fill($request->only([
@@ -40,36 +44,24 @@ class UpdateResource implements CRUD
             ]) + ['users_update_id' => $userId, 'verification_id' => $verificationId])->save();
 
             //secondary ciiu ids
-            DB::table('code_ciiu_thirds')->where('thirds_id',$third['id'])->update(['status' => 'I']);
-            if($request->has('secondary_ciiu_ids')){
-                foreach ($request['secondary_ciiu_ids'] as $key => $value) {
-                    $codes = DB::table('code_ciiu_thirds')->where('thirds_id',$third['id'])->where('code_ciiu_id', $value);
-                    if($codes->count() == 0){
-                        $third->secondaryCiius()->attach($value,[
-                            'status' => 'A',
-                            'users_id' => $userId,
-                            'users_update_id' => $userId
-                        ]);
-                    }else{
-                        $codes->update([
-                            'status' => 'A'
-                        ]);
-                    }
-                }
-            }
+            $this->dynamicUpdate($request, $third, $userId);
 
             $warehouse->fill([
                 'note' => $request->input('note'),
                 'city_id' => $request->input('city_warehouse_id'),
                 'status' => $request->input('status'),
                 'users_update_id' => $userId,
+                'address' => $request->input('address_warehouse'),
             ])->save();
 
+            DB::commit();
             return response()->json(['message' => 'Successful']);
         } catch (QueryException $ex) {
+            DB::rollback();
             Log::error('Query error WarehouseResource@update: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'update q'], 500);
         } catch (\Exception $ex) {
+            DB::rollback();
             Log::error('unknown error WarehouseResource@update: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'update u'], 500);
         }
