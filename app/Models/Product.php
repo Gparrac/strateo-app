@@ -17,7 +17,6 @@ class Product extends Model
         'name',
         'description',
         'quantity',
-        'measures_id',
         'categories_id',
         'product_code',
         'barcode',
@@ -25,12 +24,17 @@ class Product extends Model
         'photo2',
         'photo3',
         'users_id',
-        'users_update_id'
+        'type_content',
+        'users_update_id',
+        'brand_id',
+        'measure_id',
+        'status',
+        'size'
     ];
 
-    public function category(): BelongsToMany
+    public function categories(): BelongsToMany
     {
-        return $this->belongsToMany(Category::class)->withPivot(['users_id', 'users_update_id', 'status']);
+        return $this->belongsToMany(Category::class,'categories_products','product_id','category_id')->withPivot(['users_id', 'users_update_id', 'status']);
     }
 
     public function measure(): BelongsTo
@@ -41,5 +45,25 @@ class Product extends Model
     public function brand(): BelongsTo
     {
         return $this->belongsTo(Brand::class);
+    }
+    public function childrenProducts(): BelongsToMany
+    {
+        return $this->belongsToMany(Product::class,'products_products','parent_product_id', 'child_product_id')->withPivot(['amount']);
+    }
+    public function getTypeAttribute(){
+        $types =[
+            'SE' => ['name' => 'Servicio',  'id' => 'SE'],
+            'PR' => ['name' => 'Producto',  'id' => 'PR'],
+            'PL' => ['name' => 'Lugar',  'id' => 'PL'],
+        ];
+        return $types[$this->attributes['type']] ?? ['name' => 'Desconocido'];
+    }
+    public function getTypeContentAttribute(){
+        $types =[
+            '0' => ['name' => 'Insumo',  'id' => '0'],
+            '1' => ['name' => 'Consumible',  'id' => '1'],
+            '2' => ['name' => 'Venta',  'id' => '2'],
+        ];
+        return $types[$this->attributes['type_content']] ?? ['name' => 'Desconocido', 'id' => 'nn'];
     }
 }

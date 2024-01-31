@@ -10,9 +10,9 @@ class ReadMiddleware implements ValidateData
 {
     public function validate(Request $request)
     {
-        if($request->has('brand_id')){
+        if($request->has('product_id')){
             $validator = Validator::make($request->all(), [
-                'brand_id' => 'numeric|exists:brands,id'
+                'product_id' => 'numeric|exists:products,id'
             ]);
         }else{
             $validator = Validator::make($request->all(), [
@@ -29,7 +29,7 @@ class ReadMiddleware implements ValidateData
         if ($validator->fails()){
             return ['error' => TRUE, 'message' => $validator->errors()];
         }
-        
+
         return ['error' => FALSE];
     }
 }
