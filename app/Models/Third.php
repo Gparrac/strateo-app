@@ -61,6 +61,6 @@ class Third extends Model
     }
     public function warehouse(): HasOne
     {
-        return $this->hasOne(Warehouse::class); 
+        return $this->hasOne(Warehouse::class);
     }
 }

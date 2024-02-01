@@ -14,11 +14,26 @@ class InventoryTrade extends Model
 
     public function inventories() : BelongsToMany
     {
-        return $this->belongsToMany(Inventory::class, 'inventories_inventory_trades', 'inventory_trade_id', 'inventory_id')->withPivot(['cost','amount','iva','ico','discount']);
+        return $this->belongsToMany(Inventory::class, 'inventories_inventory_trades', 'inventory_trade_id', 'inventory_id')->withPivot(['cost','amount']);
     }
     public function supplier() : BelongsTo
     {
         return $this->belongsTo(Supplier::class);
     }
-
+    public function getTransactionTypeAttribute(){
+        $types =[
+            'E' => ['name' => 'Entrada', 'icon' => 'mdi-logout', 'id' => 'E'],
+            'D' => ['name' => 'Salida', 'icon' => 'mdi-logout', 'id' => 'D'],
+        ];
+        return $types[$this->attributes['transaction_type']] ?? ['name' => 'Desconocido', 'icon' => 'icono-desconocido'];
+    }
+    public function getPurposeAttribute(){
+        $types =[
+            'IB' => ['name' => 'Balance inicial',  'id' => 'IB'],
+            'D' => ['name' => 'Donación',  'id' => 'D'],
+            'A' => ['name' => 'Ajuste', 'id' => 'A'],
+            'S' => ['name' => 'Alfanumerico', 'id' => 'S'],
+        ];
+        return $types[$this->attributes['purpose']] ?? ['name' => 'Desconocido', 'icon' => 'icono-desconocido'];
+    }
 }

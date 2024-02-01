@@ -29,7 +29,7 @@ class ReadResource implements CRUD, RecordOperations
             $data = Warehouse::where('id', $id)
                 ->with(['third' => function ($query) {
                     $query->select('id', 'type_document', 'identification', 'code_ciiu_id', 'verification_id', 'names', 'surnames', 'business_name', 'address', 'mobile', 'email', 'email2', 'postal_code', 'city_id');
-                    $query->with(['ciiu:id,code,description', 
+                    $query->with(['ciiu:id,code,description',
                     'secondaryCiius' => function($query){
                         $query->where('status', 'A')->select('code_ciiu_thirds.id','code','description');
                     }]);
@@ -57,7 +57,7 @@ class ReadResource implements CRUD, RecordOperations
                 $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
             }
             if($this->format == 'short'){
-                $data = $data->take(10)->get();
+                $data = $data->where('status','A')->select('warehouses.id','warehouses.address','warehouses.city_id')->take(10)->get();
 
             }else{
                 //append shorters to query

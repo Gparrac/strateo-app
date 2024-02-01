@@ -12,6 +12,7 @@ use App\Models\Client;
 use App\Http\Utils\FileFormat;
 use App\Models\Inventory;
 use App\Models\InventoryTrade;
+use App\Models\Product;
 use App\Models\Service;
 
 class CreateResource implements CRUD
@@ -21,6 +22,8 @@ class CreateResource implements CRUD
         DB::beginTransaction();
         try {
             $userId = auth()->id();
+            Log::info('date');
+            Log::info($request->input('date'));
             $inventoryTrade = InventoryTrade::create([
                     'transaction_type' => $request->input('transaction_type'),
                     'purpose' => $request->input('purpose'),
@@ -28,17 +31,34 @@ class CreateResource implements CRUD
                     'transaction_date' => $request->input('date'),
                     'supplier_id' => $request->input('supplier_id'),
                     'users_id' => $userId,
-                    'further_discount' => $request['further_discount']
+                    'status' => 'A'
                 ]);
             foreach ($request['products'] as $value) {
-                $inventoryTrade->inventory()->attach($value['inventory_id'], [
-                    'cost' => $value['cost'],
-                    'amount' => $value['amount'],
-                    'iva' => $value['iva'],
-                    'ico' => $value['ico'],
-                    'discount' => $value['discount'],
-                    'users_id' => $userId,  $userId
+            if(Inventory::where('product_id', $value['product_id'])->where('warehouse_id',$request['warehouse_id'])->get()->count() == 0){
+                $inventory = Inventory::create([
+                    'stock' => $value['amount'],
+                    'product_id' => $value['product_id'],
+                    'warehouse_id' => $request['warehouse_id'],
+                    'status' => 'A',
+                    'users_id' => $userId
                 ]);
+
+            }else{
+                $inventory = Inventory::where('product_id', $value['product_id'])
+                    ->where('warehouse_id',$request['warehouse_id'])
+                    ->first();
+                $inventory->update([
+                    'stock' => $inventory['stock'] + $value['amount'],
+                    'status' => 'A',
+                    'users_update_id' => $userId
+                ]);
+            }
+            $inventoryTrade->inventories()->attach($inventory['id'], [
+                'cost' => $value['cost'],
+                'amount' => $value['amount'],
+                'users_id' => $userId,
+                'status' => 'A'
+            ]);
             }
             DB::commit();
             return response()->json(['message' => 'Successful']);

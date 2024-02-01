@@ -15,17 +15,16 @@ class CreateMiddleware implements ValidateData
             //--------------------- trade attributes
             'transaction_type' => 'required|in:E,D',
             'purpose' => ['required', new InventoryPurposeValidationRule],
-            'status' => 'required|in:A,I',
-            'note' =>'required|string|min:3|max:3000',
+            // 'status' => 'required|in:A,I',
+            'note' => 'required|string|min:3|max:3000',
             'date' => 'required|date_format:Y-m-d H:i:s',
-            'supplier_id' => 'required|exists:supplier,id',
-            'further_discount' => 'required|double|min:0',
+            'supplier_id' => 'required|exists:suppliers,id',
             //--------------------- inventory attributes
             'warehouse_id' => 'required|exists:warehouses,id',
             'products' => 'required|array',
-            'products.*.inventory_id' => 'required|exists:inventory,id',
-            'products.*.cost' => 'required|double|min:0',
-            'products.*.amount' => 'required|integer|min:1'
+            'products.*.product_id' => 'required|exists:products,id',
+            'products.*.cost' => 'required|numeric|min:0',
+            'products.*.amount' => 'required|integer|min:1',
 
         ]);
 
