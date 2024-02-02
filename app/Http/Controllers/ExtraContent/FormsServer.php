@@ -47,8 +47,8 @@ class FormsServer extends Controller
             ->join('forms','forms.id','permission_roles.form_id')
             ->join('sections','forms.section_id','sections.id')
             ->where('permission_roles.role_id', $roleUser)
-            ->where('permission_roles.status','A')->select('sections.id','sections.name')
-            ->groupBy('sections.id','sections.name') // Solo agrupar por sections.id
+            ->where('permission_roles.status','A')->select('sections.id','sections.name','sections.icon')
+            ->groupBy('sections.id','sections.name','sections.icon') // Solo agrupar por sections.id
             ->get();
             foreach ($sections as $key => $section) {
                 $sections[$key]['forms'] = Role::join('permission_roles','roles.id','permission_roles.role_id')

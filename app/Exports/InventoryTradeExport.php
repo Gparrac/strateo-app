@@ -99,8 +99,8 @@ class InventoryTradeExport implements FromCollection,WithHeadings, WithMapping, 
     {
         return [
         'B' => NumberFormat::FORMAT_DATE_DDMMYYYY,
-        'E' => NumberFormat::FORMAT_DATE_DDMMYYYY,
-        'F' => NumberFormat::FORMAT_DATE_DDMMYYYY,
+        'C' => NumberFormat::FORMAT_DATE_DDMMYYYY,
+        'D' => NumberFormat::FORMAT_DATE_DDMMYYYY,
         ];
     }
 }

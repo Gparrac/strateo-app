@@ -36,7 +36,7 @@ class ReadResource implements CRUD, RecordOperations
             }, 'inventories' => function($query){
                 $query->with(['product' => function($query){
                     $query->with(['measure:id,symbol','brand:id,name']);
-                    $query->select('products.id','products.name','products.consecutive','products.product_code','products.brand_id','products.measure_id', 'proudcts.cost as defaultCost');
+                    $query->select('products.id','products.name','products.consecutive','products.product_code','products.brand_id','products.measure_id', 'products.cost as defaultCost');
 
                 },'warehouse' => function($query){
                     $query->with('city:id,name');
@@ -78,6 +78,7 @@ class ReadResource implements CRUD, RecordOperations
             }],['inventories' => function($query){
                 $query->select('inventory_id','inventoy_trades_id', DB::raw('sum(amount) as total_cost'));
             }])->withCount('inventories');
+
             //filter query with keyword 🚨
             if ($typeKeyword && $keyword) {
                 $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
