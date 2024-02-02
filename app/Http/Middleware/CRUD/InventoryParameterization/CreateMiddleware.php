@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware\CRUD\InventoryParameterization;
 
+use App\Rules\InventoryProductAmountValidation;
 use App\Rules\InventoryPurposeValidationRule;
 use Illuminate\Http\Request;
 use App\Http\Middleware\CRUD\Interfaces\ValidateData;
@@ -24,7 +25,7 @@ class CreateMiddleware implements ValidateData
             'products' => 'required|array',
             'products.*.product_id' => 'required|exists:products,id',
             'products.*.cost' => 'required|numeric|min:0',
-            'products.*.amount' => 'required|integer|min:1',
+            'products.*.amount' => ['required','integer','min:1', new InventoryProductAmountValidation],
 
         ]);
 

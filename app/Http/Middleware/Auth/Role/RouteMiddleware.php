@@ -33,7 +33,8 @@ class RouteMiddleware
             'brand-parameterization' => 64,
             'category-parameterization' => 65,
             'inventory-parameterization' => 66,
-            'product-parameterization' => 67,
+            'export-data/inventory-trades'=>66,
+            'product-parameterization' => 67
 
         ];
 

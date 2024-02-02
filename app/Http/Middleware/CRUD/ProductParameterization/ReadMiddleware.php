@@ -21,6 +21,7 @@ class ReadMiddleware implements ValidateData
                 'pagination' => 'numeric|max:100',
                 'keyword' => 'string|max:40',
                 'typeKeyword' => 'string|in:id,name',
+                'warehouseFilter' => 'exists:warehouses,id',
                 'sorters' => 'array',
                 'sorters.order' => 'nullable|in:asc,desc',
             ]);

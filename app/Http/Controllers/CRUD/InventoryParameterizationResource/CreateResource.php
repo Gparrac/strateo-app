@@ -47,8 +47,9 @@ class CreateResource implements CRUD
                 $inventory = Inventory::where('product_id', $value['product_id'])
                     ->where('warehouse_id',$request['warehouse_id'])
                     ->first();
+                $fixStock = ($request['transaction_type'] == 'E') ? $inventory['stock'] + $value['amount'] : $inventory['stock'] - $value['amount'];
                 $inventory->update([
-                    'stock' => $inventory['stock'] + $value['amount'],
+                    'stock' => $fixStock,
                     'status' => 'A',
                     'users_update_id' => $userId
                 ]);
