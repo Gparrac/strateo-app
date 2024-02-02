@@ -32,7 +32,7 @@ class Product extends Model
         'status',
         'size'
     ];
-    public function inventory(): HasMany
+    public function inventories(): HasMany
     {
         return $this->hasMany(Inventory::class);
     }
