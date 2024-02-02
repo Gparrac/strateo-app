@@ -27,7 +27,20 @@ class ReadResource implements CRUD, RecordOperations
     public function singleRecord($id)
     {
         try {
-            $data = Category::findOrFail($id);
+            $data = Category::where('id', $id)
+            ->select('id', 'name', 'code', 'status', 'updated_at')
+            ->with(['products' => function($query){
+                $query->select('products.id', 'consecutive', 'name', 'measure_id', 'brand_id', 'product_code')
+                    ->where('categories_products.status', 'A')
+                    ->with([
+                        'brand'=> function($query){
+                            $query->where('status','A')->select('id','name');
+                        },'measure'=> function($query){
+                            $query->where('status','A')->select('id','symbol');
+                        }
+                    ]);
+            }])
+            ->first();
 
             return response()->json(['message' => 'read: ' . $id, 'data' => $data], 200);
         } catch (QueryException $ex) {
@@ -42,7 +55,7 @@ class ReadResource implements CRUD, RecordOperations
     public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null)
     {
         try {
-            $data = new Category();
+            $data = Category::select('id', 'name', 'code', 'status', 'updated_at');
             //filter query with keyword 🚨
             if ($typeKeyword && $keyword) {
                 $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');

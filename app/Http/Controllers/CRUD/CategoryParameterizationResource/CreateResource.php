@@ -8,6 +8,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Models\Category;
+use Illuminate\Support\Facades\Auth;
 
 class CreateResource implements CRUD
 {
@@ -15,6 +16,8 @@ class CreateResource implements CRUD
     {
         DB::beginTransaction();
         try {
+            $userId = Auth::id();
+
             $category = Category::create([
                 'name' => $request->input('name'),
                 'code' => $request->input('code'),

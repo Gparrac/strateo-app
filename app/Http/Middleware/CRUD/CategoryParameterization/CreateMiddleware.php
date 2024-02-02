@@ -5,6 +5,7 @@ namespace App\Http\Middleware\CRUD\CategoryParameterization;
 use Illuminate\Http\Request;
 use App\Http\Middleware\CRUD\Interfaces\ValidateData;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Validator;
 
 class CreateMiddleware implements ValidateData
 {
@@ -12,7 +13,7 @@ class CreateMiddleware implements ValidateData
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|min:3|max:50',
-            'code' => 'required|numeric|max:10',
+            'code' => 'required|string|max:10',
             'status' => 'required|in:A,I',
 
             'products_ids' => 'array',
