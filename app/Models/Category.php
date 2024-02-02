@@ -20,6 +20,6 @@ class Category extends Model
 
     public function products(): BelongsToMany 
     {
-        return $this->belongsToMany(Product::class)->withPivot(['users_id', 'users_update_id', 'status']);
+        return $this->belongsToMany(Product::class, 'categories_products')->withPivot(['users_id', 'users_update_id', 'status']);
     }
 }

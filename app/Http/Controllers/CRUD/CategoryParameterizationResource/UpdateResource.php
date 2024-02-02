@@ -18,35 +18,36 @@ class UpdateResource implements CRUD
         try {
             $userId = Auth::id();
 
-            $category = Category::findOrFail($request->input('category_id'));
+            $category = Category::where('id', $request->input('category_id'))->firstOrFail();
             // Create a record in the category table
-            $category->fill($request->only([
+            $category->update([
                 'name' => $request->input('name'),
                 'code' => $request->input('code'),
                 'status' => $request->input('status'),
-            ]) + ['users_update_id' => $userId])->save();
-
-            // Obtén los IDs de productos que se deben mantener y los nuevos IDs del request
-            $currentProductIds = $category->products()->pluck('products.id')->toArray();
-            $newProductIds = $request->input('products_ids', []);
-
-            // Atributos adicionales solo para los nuevos registros
-            $newAttributes = [
-                'status' => 'A',
-                'users_id' => $userId,
-            ];
-
-            // Realizar el attach solo para los nuevos registros
-            $category->products()->attach($newProductIds, $newAttributes);
-
-            // Actualizar el estado ('status') de las relaciones desvinculadas en la tabla pivot
-            $category->products()->whereIn('products.id', $detachIds)->each(function ($product) {
-                // Solo actualizar 'status', sin afectar 'users_id'
-                $product->pivot->update([
+                'users_update_id' => $userId,
+            ]);
+            
+            //record categories 🚨
+            $category->products()->get()->each(function($rCategory) use ($userId, $category){
+                $category->products()->updateExistingPivot($rCategory,[
                     'status' => 'I',
-                    'users_update_id' => $userId
+                    'users_update_id' => $userId,
                 ]);
             });
+            foreach ($request['products_ids'] ?? [] as $value) {
+                $query = DB::table('categories_products')->where('category_id', $category['id'])->where('product_id',$value);
+                if ($query->count() == 0) {
+                    $category->products()->attach($value, [
+                        'status' => 'A',
+                        'users_id' => $userId,
+                    ]);
+                } else {
+                    $query->update([
+                        'status' => 'A',
+                        'users_update_id' => $userId
+                    ]);
+                }
+            }
 
             DB::commit();
             return response()->json(['message' => 'Successful']);
