@@ -118,10 +118,8 @@ class ReadResource implements CRUD, RecordOperations
             if ($this->format == 'short') {
                 $data = $data->with([
                     'brand:id,name', 'measure:id,symbol',
-                    'categories' => function ($query) {
-                        $query->select('categories.id', 'categories.name');
-                    },
-                ])->select(
+                    'categories:id,name'
+                ])->where('status', 'A')->select(
                     'products.id',
                     'products.size',
                     'products.brand_id',
@@ -132,8 +130,7 @@ class ReadResource implements CRUD, RecordOperations
                     'products.product_code',
                     'products.cost',
                     'products.barcode'
-                )
-                    ->take(10)->get();
+                )->take(10)->get();
 
                 $data->map(function ($product)  {
                     if($this->warehouseFilter){

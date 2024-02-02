@@ -21,7 +21,6 @@ class RoleMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         try {
-            Log::info('temp3');
             $userId = Auth::id();
             $query = Form::join('permission_roles','forms.id','=','permission_roles.form_id')
             ->join('roles','permission_roles.role_id','=','roles.id')

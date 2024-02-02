@@ -75,29 +75,22 @@ class ReadResource implements CRUD, RecordOperations
             $data = InventoryTrade::with(['supplier' => function($query){
                 $query->select('id','commercial_registry','third_id');
                 $query->with('third:id,business_name');
-            }],['inventories' => function($query){
-                $query->select('inventory_id','inventoy_trades_id', DB::raw('sum(amount) as total_cost'));
-            }])->withCount('inventories');
+            },'inventories' => function($query){
+                $query->select('inventory_id','inventory_trade_id');
+            }]);
 
             //filter query with keyword 🚨
             if ($typeKeyword && $keyword) {
                 $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
             }
-            if ($this->format == 'short') {
-                $data = $data->take(10)->get();
 
-                $data->map(function ($service) {
-
-                    return $service;
-                });
-            } else {
 
                 //append shorters to query
                 foreach ($sorters as $shorter) {
                     $data = $data->orderBy($shorter['key'], $shorter['order']);
                 }
-                $data = $data->paginate($pagination);
-            }
+                $data = $this->format == 'short' ? $data->take(10)->get() : $data->paginate($pagination) ;
+
             return response()->json(['message' => 'read', 'data' => $data], 200);
         } catch (QueryException $ex) {
             Log::error('Query error ClientResource@readResource:allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());

@@ -27,7 +27,7 @@ class RouteMiddleware
             'check-enterprise' => 2,
             'service-parameterization' => 59,
             'field-parameterization' => 60,
-            'supplier-parameterization' => 61,
+            'supplier-parameterization' => 58,
             'warehouse-parameterization' => 62,
             'measure-parameterization' => 63,
             'brand-parameterization' => 64,
