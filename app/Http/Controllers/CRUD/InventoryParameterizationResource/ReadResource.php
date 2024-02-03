@@ -89,7 +89,7 @@ class ReadResource implements CRUD, RecordOperations
                 foreach ($sorters as $shorter) {
                     $data = $data->orderBy($shorter['key'], $shorter['order']);
                 }
-                $data = $this->format == 'short' ? $data->take(10)->get() : $data->paginate($pagination) ;
+                $data = $this->format == 'short' ? $data->where('status','A')->take(10)->get() : $data->paginate($pagination) ;
 
             return response()->json(['message' => 'read', 'data' => $data], 200);
         } catch (QueryException $ex) {

@@ -90,7 +90,7 @@ class ReadResource implements CRUD, RecordOperations
                 }
             }
             if($this->format == 'short'){
-                $data = $data->select('suppliers.id', 'suppliers.commercial_registry','suppliers.third_id')->take(10)->get()->map(function($supplier){
+                $data = $data->where('status','A')->select('suppliers.id', 'suppliers.commercial_registry','suppliers.third_id')->take(10)->get()->map(function($supplier){
                     $supplier['supplier'] = $supplier['third']['supplier'];
                     unset($supplier['third']);
                     return $supplier;
