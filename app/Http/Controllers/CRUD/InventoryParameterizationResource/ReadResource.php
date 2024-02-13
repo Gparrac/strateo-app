@@ -16,14 +16,12 @@ use Illuminate\Support\Facades\DB;
 
 class ReadResource implements CRUD, RecordOperations
 {
-    private $format;
     public function resource(Request $request)
     {
         if ($request->has('inventory_trade_id')) {
             return $this->singleRecord($request->input('inventory_trade_id'));
         } else {
-            $this->format = $request->input('format');
-            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'));
+            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'), $request->input('format'));
         }
     }
 
@@ -69,7 +67,7 @@ class ReadResource implements CRUD, RecordOperations
         }
     }
 
-    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null)
+    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null, $format = null)
     {
         try {
             $data = InventoryTrade::with(['supplier' => function($query){
@@ -89,7 +87,7 @@ class ReadResource implements CRUD, RecordOperations
                 foreach ($sorters as $shorter) {
                     $data = $data->orderBy($shorter['key'], $shorter['order']);
                 }
-                $data = $this->format == 'short' ? $data->where('status','A')->take(10)->get() : $data->paginate($pagination) ;
+                $data = $format == 'short' ? $data->where('status','A')->take(10)->get() : $data->paginate($pagination) ;
 
             return response()->json(['message' => 'read', 'data' => $data], 200);
         } catch (QueryException $ex) {

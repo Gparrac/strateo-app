@@ -15,14 +15,12 @@ use Illuminate\Support\Facades\DB;
 
 class ReadResource implements CRUD, RecordOperations
 {
-    private $format;
     public function resource(Request $request)
     {
         if ($request->has('supplier_id')) {
             return $this->singleRecord($request->input('supplier_id'));
         } else {
-            $this->format = $request->input('format');
-            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'));
+            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'), $request->input('format'));
         }
     }
 
@@ -71,7 +69,7 @@ class ReadResource implements CRUD, RecordOperations
         }
     }
 
-    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null)
+    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null, $format = null)
     {
         try {
             $data = Supplier::with(['third' =>
@@ -89,7 +87,7 @@ class ReadResource implements CRUD, RecordOperations
                     $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
                 }
             }
-            if($this->format == 'short'){
+            if($format == 'short'){
                 $data = $data->where('status','A')->select('suppliers.id', 'suppliers.commercial_registry','suppliers.third_id')->take(10)->get()->map(function($supplier){
                     $supplier['supplier'] = $supplier['third']['supplier'];
                     unset($supplier['third']);

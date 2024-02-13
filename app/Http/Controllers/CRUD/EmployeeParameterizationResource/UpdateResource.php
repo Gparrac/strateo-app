@@ -4,6 +4,7 @@ namespace App\Http\Controllers\CRUD\EmployeeParameterizationResource;
 
 use App\Http\Controllers\CRUD\Interfaces\CRUD;
 use App\Http\Utils\FileFormat;
+use App\Models\Employee;
 use App\Models\Field;
 use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
@@ -17,40 +18,38 @@ class UpdateResource implements CRUD
     public function resource(Request $request)
     {
         DB::beginTransaction();
-        Log::info('pasando1 controller');
         try {
             $userId = auth()->id();
             // request data to update
-            $supplier = Supplier::findOrFail($request->input('supplier_id'));
-            $third = Third::findOrFail($supplier['third_id']);
-            $urlFile = 'supplier/' . $supplier['id'];
+            $employee = Employee::findOrFail($request->input('employee_id'));
+            $third = Third::findOrFail($employee['third_id']);
+            $urlFile = 'employees/' . $employee['id'];
             // save suppllier's files
-            if ($request->hasFile('commercial_registry_file')) {
-                $supplier->commercial_registry_file = $request->file('commercial_registry_file')
-                    ->storeAs(
-                        $urlFile,
-                        FileFormat::formatName(
-                            'crf' . $request->file('commercial_registry_file')->getClientOriginalName(),
-                            $request->file('commercial_registry_file')->guessExtension()
-                        )
-                    );
-            }
             if ($request->hasFile('rut_file')) {
-                $supplier->rut_file = $request->file('rut_file')
+                $employee->rut_file = $request->file('rut_file')
                     ->storeAs(
                         $urlFile,
                         FileFormat::formatName(
-                            $request->file('rut_file')->getClientOriginalName(),
+                            'crf' . $request->file('rut_file')->getClientOriginalName(),
                             $request->file('rut_file')->guessExtension()
                         )
                     );
             }
+            if ($request->hasFile('resume_file')) {
+                $employee->resume_file = $request->file('resume_file')
+                    ->storeAs(
+                        $urlFile,
+                        FileFormat::formatName(
+                            $request->file('resume_file')->getClientOriginalName(),
+                            $request->file('resume_file')->guessExtension()
+                        )
+                    );
+            }
             // update supplier and third's records
-            $supplier->fill($request->only([
-                'commercial_registry',
-                'legal_representative_name',
-                'legal_representative_id',
-                'note',
+            $employee->fill($request->only([
+                'type_contract',
+                'hire_date',
+                'end_date_contract',
                 'status',
             ]) + ['users_update_id' => $userId])->save();
             //third update
@@ -65,33 +64,14 @@ class UpdateResource implements CRUD
                 'email2',
                 'postal_code',
                 'city_id',
-                'code_ciiu_id',
             ]) + ['users_update_id' => $userId])->save();
-            //secondary ciiu thirds
-            DB::table('code_ciiu_thirds')->where('thirds_id',$third['id'])->update(['status' => 'I']);
-            if($request->has('secondary_ciiu_ids')){
-                foreach ($request['secondary_ciiu_ids'] as $key => $value) {
-                    $codes = DB::table('code_ciiu_thirds')->where('thirds_id',$third['id'])->where('code_ciiu_id', $value);
-                    if($codes->count() == 0){
-                        $third->secondaryCiius()->attach($value,[
-                            'status' => 'A',
-                            'users_id' => $userId,
-                            'users_update_id' => $userId
-                        ]);
-                    }else{
-                        $codes->update([
-                            'status' => 'A'
-                        ]);
-                    }
-                }
-            }
 
             // update services and related fields
-            DB::table('suppliers_services')->where('suppliers_id', $supplier['id'])->update(['status' => 'I', 'users_update_id' => $userId]);
+            DB::table('services_employees')->where('employee_id', $employee['id'])->update(['status' => 'I', 'users_update_id' => $userId]);
             foreach ($request['services'] as $svalue => $service) {
-                $query = DB::table('suppliers_services')->where('suppliers_id', $supplier['id'])->where('services_id', $service['service_id']);
+                $query = DB::table('services_employees')->where('employee_id', $employee['id'])->where('service_id', $service['service_id']);
                 if ($query->count() == 0) {
-                    $supplier->fields()->attach($service['service_id'], [
+                    $employee->services()->attach($service['service_id'], [
                         'status' => 'A',
                         'users_id' => $userId
                     ]);
@@ -105,7 +85,7 @@ class UpdateResource implements CRUD
 
                     if ($field['type'] == 'F') {
                         if(!array_key_exists('content',$field)){
-                            $content = Field::find($field['field_id'])->suppliers()->where('suppliers_id',$supplier['id'])->first()->pivot['path_info'];
+                            $content = Field::find($field['field_id'])->suppliers()->where('employee_id',$employee['id'])->first()->pivot['path_info'];
                         }else{
                         //if update service and its a file then it's gonna create other file and not replace
                         $pathFileRequest = 'services.' . $svalue . '.fields.' . $fvalue . '.content';
@@ -122,9 +102,9 @@ class UpdateResource implements CRUD
                     }else{
                         $content = $field['content'];
                     }
-                    $queryFields = DB::table('suppliers_fields')->where('suppliers_id', $supplier['id'])->where('fields_id', $field['field_id']);
+                    $queryFields = DB::table('fields_employees')->where('employee_id', $employee['id'])->where('field_id', $field['field_id']);
                     if ($query->count() == 0) {
-                        $supplier->fields()->attach($field['field_id'], [
+                        $employee->fields()->attach($field['field_id'], [
                             'path_info' => $content,
                             'users_id' => $userId
                         ]);

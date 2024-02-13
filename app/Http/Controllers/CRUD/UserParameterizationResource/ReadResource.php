@@ -27,7 +27,7 @@ class ReadResource implements CRUD, RecordOperations
         }, 'role:id,name', 'offices:id,name'])->find($id);
         return response()->json(['message' => 'Read: ' . $id, 'data' => $data], 200);
     }
-    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null)
+    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null, $format = null)
     {
         try {
 
@@ -40,7 +40,7 @@ class ReadResource implements CRUD, RecordOperations
                 $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
             }
             //append shorters to query
-            foreach ($sorters as $key => $shorter) {
+            foreach ($sorters as $shorter) {
                 $data = $data->orderBy($shorter['key'], $shorter['order']);
             }
             $data = $data->paginate($pagination);

@@ -4,10 +4,12 @@ namespace App\Http\Middleware\CRUD\EmployeeParameterization;
 
 use Illuminate\Http\Request;
 use App\Http\Middleware\CRUD\Interfaces\ValidateData;
+use App\Models\Employee;
 use App\Models\Field;
 use App\Models\Service;
 use App\Models\Supplier;
 use App\Models\Third;
+use App\Rules\ServiceFieldSizeValidationRule;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -16,36 +18,32 @@ class UpdateMiddleware implements ValidateData
 {
     public function validate(Request $request)
     {
-        Log::info('entrando middle');
         $validator = Validator::make($request->all(), [
-            //--------------------- new attributes
-            'employee_id' => 'required|exists:suppliers,id',
-            'commercial_registry' => 'required|string|max:50',
-            'commercial_registry_file' => 'file|mimes:pdf,docx|max:2048',
-            'rut_file' => 'file|mimes:pdf,docx|max:2048',
-            'note' => 'required|string',
-            'status' => 'required|in:A,I',
             //--------------------- third attributes
+            'employee_id'=> 'required|exists:employees,id',
             'type_document' => 'required|in:CC,NIT,CE,PASAPORTE',
-            'identification' => ['required', 'numeric', 'digits_between:7,10', Rule::unique('thirds', 'identification')->ignore(Supplier::find($request['supplier_id'])->third->id)],
+            'identification' => ['required','numeric', 'digits_between:7,10', Rule::unique('thirds', 'identification')->ignore(Employee::find($request['employee_id'])->third->id)],
             'names' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'surnames' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
-            'business_name' => 'required_without:names,surnames|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'address' => 'required|string',
             'mobile' => 'required|numeric|digits_between:10,13',
-            'email' => ['required', 'email', Rule::unique('thirds', 'email')->ignore(Supplier::find($request['supplier_id'])->third->id)],
+            'email' => 'required|email|unique:thirds,email',
             'email2' => 'email|different:email',
             'postal_code' => 'required|numeric',
             'city_id' => 'required|exists:cities,id',
-            'code_ciiu_id' => 'required|exists:code_ciiu,id',
-            'secondary_ciiu_ids' => 'array',
-            'secondary_ciiu_ids.*' => 'numeric|exists:code_ciiu,id',
+            // -------------------------enployee attributes
+            'type_contract' => 'required|in:TF,TI,OL,PS,CA,OT',
+            'hire_date' => 'required|date_format:Y-m-d H:i:s',
+            'end_date_contract' => 'required|date_format:Y-m-d H:i:s',
+            'rut_file' => ['required', 'file', 'mimes:pdf', 'max:2048'],
+            'resume_file' => ['required', 'file', 'mimes:pdf,docx', 'max:2048'],
+            'status' => 'required|in:A,I',
             // //--------------------- service attributes
-            'services' => 'required|array',
+            'services' => ['required', 'array'],
             'services.*.service_id' => 'required|exists:services,id',
-            'services.*.fields' => 'required|array',
+            'services.*.fields' => ['required', 'array', new ServiceFieldSizeValidationRule()],
             'services.*.fields.*.field_id' => 'required|exists:fields,id',
-            //--------------------- others
+            'services.*.fields.*.content' => ['required']
         ]);
 
         if ($validator->fails()) {

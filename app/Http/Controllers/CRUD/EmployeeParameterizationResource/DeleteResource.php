@@ -3,10 +3,7 @@
 namespace App\Http\Controllers\CRUD\EmployeeParameterizationResource;
 
 use App\Http\Controllers\CRUD\Interfaces\CRUD;
-use App\Http\Controllers\CRUD\Interfaces\RecordOperations;
 use Illuminate\Http\Request;
-use App\Models\Client;
-use App\Models\Service;
 use App\Models\Supplier;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
@@ -17,8 +14,8 @@ class DeleteResource implements CRUD
     {
         try {
             $userId = auth()->id();
-            Log::info($request['suppliers_id']);
-            Supplier::whereIn('id', $request['suppliers_id'])->update([
+            Log::info($request['employees_id']);
+            Supplier::whereIn('id', $request['employees_id'])->update([
                 'status' => 'I',
                 'users_update_id' => $userId,
             ]);

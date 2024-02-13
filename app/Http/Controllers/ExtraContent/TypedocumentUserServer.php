@@ -11,14 +11,22 @@ class TypedocumentUserServer extends Controller
     /**
      * Handle the incoming request.
      */
-    public function __invoke()
+    public function __invoke(Request $request)
     {
-        $typeDocuments = [
-            ['name' => 'CC', 'label' => 'Cedula de ciudadania'],
-            ['name' => 'CE', 'label' => 'Cedula de extranjeria'],
-            ['name' => 'PASAPORTE', 'label' => 'Pasaporte'],
-            ['name' => 'NIT', 'label' => 'Número de Identificación Tributaria'],
-        ];
+        if($request->input("type") == "person"){
+            $typeDocuments = [
+                ['name' => 'CC', 'label' => 'Cedula de ciudadania'],
+                ['name' => 'CE', 'label' => 'Cedula de extranjeria'],
+                ['name' => 'PASAPORTE', 'label' => 'Pasaporte']
+            ];
+        }else{
+            $typeDocuments = [
+                ['name' => 'CC', 'label' => 'Cedula de ciudadania'],
+                ['name' => 'CE', 'label' => 'Cedula de extranjeria'],
+                ['name' => 'PASAPORTE', 'label' => 'Pasaporte'],
+                ['name' => 'NIT', 'label' => 'Número de Identificación Tributaria'],
+            ];
+        }
         return response()->json(['message' => 'Read: ', 'data' => $typeDocuments], 200);
     }
 }

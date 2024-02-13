@@ -39,7 +39,7 @@ class CreateMiddleware implements ValidateData
             // //--------------------- service attributes
             'services' => ['required', 'array'],
             'services.*.service_id' => 'required|exists:services,id',
-            'services.*.fields' => ['required', 'array', new ServiceFieldSizeValidationRule],
+            'services.*.fields' => ['required', 'array', new ServiceFieldSizeValidationRule()],
             'services.*.fields.*.field_id' => 'required|exists:fields,id',
             'services.*.fields.*.content' => ['required']
             //--------------------- others

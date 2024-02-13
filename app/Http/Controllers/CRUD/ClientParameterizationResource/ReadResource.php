@@ -41,7 +41,7 @@ class ReadResource implements CRUD, RecordOperations
         }
     }
 
-    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null)
+    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null, $format = null)
     {
         try {
             $data = Client::select('id', 'status', 'legal_representative_name', 'legal_representative_id', 'third_id', 'updated_at')
