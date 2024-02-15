@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\FileCast;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,6 +12,10 @@ class Employee extends Model
 {
     use HasFactory;
 
+    protected $casts = [
+        'resume_file' => FileCast::class,
+        'rut_file' => FileCast::class,
+    ];
     protected $fillable = ['type_contract', 'hire_date', 'end_date_contract', 'rut_file', 'resume_file', 'third_id', 'status', 'users_id', 'users_update_id'];
 
     public function services(): BelongsToMany
@@ -19,7 +24,7 @@ class Employee extends Model
     }
     public function fields(): BelongsToMany
     {
-        return $this->belongsToMany(Field::class,'fields_employees','employee_id','field_id');
+        return $this->belongsToMany(Field::class,'fields_employees','employee_id','field_id')->withPivot(['path_info','required']);
     }
     public function third(): BelongsTo
     {

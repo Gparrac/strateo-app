@@ -4,6 +4,7 @@ namespace App\Http\Controllers\CRUD\SupplierParameterizationResource;
 
 use App\Http\Controllers\CRUD\Interfaces\CRUD;
 use App\Http\Controllers\CRUD\Interfaces\RecordOperations;
+use App\Http\Utils\FileFormat;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -46,7 +47,7 @@ class ReadResource implements CRUD, RecordOperations
                         $data['fields']->map(function ($dfield, $key) use ($field, $data) {
                             if ($field['id'] == $dfield['id']) {
 
-                                ($field['type']['id'] == 'F') ? $field['pathFile'] = $dfield->pivot['path_info'] : $field['data'] = $dfield->pivot['path_info'];
+                                ($field['type']['id'] == 'F') ? $field['pathFile'] = FileFormat::downloadPath($dfield->pivot['path_info']) : $field['data'] = $dfield->pivot['path_info'];
                                 unset($data['fields'][$key]);
                             }
                             return $dfield;

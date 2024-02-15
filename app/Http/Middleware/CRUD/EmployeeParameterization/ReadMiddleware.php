@@ -10,9 +10,9 @@ class ReadMiddleware implements ValidateData
 {
     public function validate(Request $request)
     {
-        if($request->has('field_id')){
+        if($request->has('employee_id')){
             $validator = Validator::make($request->all(), [
-                'field_id' => 'numeric|exists:fields,id'
+                'employee_id' => 'numeric|exists:employees,id'
             ]);
         }else{
             $validator = Validator::make($request->all(), [

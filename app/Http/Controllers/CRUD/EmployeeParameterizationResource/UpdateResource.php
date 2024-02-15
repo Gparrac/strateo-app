@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-use App\Models\Supplier;
 use App\Models\Third;
 
 class UpdateResource implements CRUD
@@ -53,6 +52,8 @@ class UpdateResource implements CRUD
                 'status',
             ]) + ['users_update_id' => $userId])->save();
             //third update
+
+
             $third->fill($request->only([
                 'type_document',
                 'identification',
@@ -68,8 +69,10 @@ class UpdateResource implements CRUD
 
             // update services and related fields
             DB::table('services_employees')->where('employee_id', $employee['id'])->update(['status' => 'I', 'users_update_id' => $userId]);
+            Log::info("paso 2");
             foreach ($request['services'] as $svalue => $service) {
                 $query = DB::table('services_employees')->where('employee_id', $employee['id'])->where('service_id', $service['service_id']);
+                Log::info("paso 3");
                 if ($query->count() == 0) {
                     $employee->services()->attach($service['service_id'], [
                         'status' => 'A',
@@ -85,7 +88,8 @@ class UpdateResource implements CRUD
 
                     if ($field['type'] == 'F') {
                         if(!array_key_exists('content',$field)){
-                            $content = Field::find($field['field_id'])->suppliers()->where('employee_id',$employee['id'])->first()->pivot['path_info'];
+                            $content = Field::find($field['field_id'])->employees()->where('employee_id',$employee['id'])->first()->pivot['path_info'];
+                            Log::info("paso 4");
                         }else{
                         //if update service and its a file then it's gonna create other file and not replace
                         $pathFileRequest = 'services.' . $svalue . '.fields.' . $fvalue . '.content';
@@ -103,20 +107,26 @@ class UpdateResource implements CRUD
                         $content = $field['content'];
                     }
                     $queryFields = DB::table('fields_employees')->where('employee_id', $employee['id'])->where('field_id', $field['field_id']);
+                    Log::info("paso 5");
                     if ($query->count() == 0) {
+                        Log::info("paso 6");
                         $employee->fields()->attach($field['field_id'], [
                             'path_info' => $content,
                             'users_id' => $userId
                         ]);
+                        Log::info("paso 7");
                     } else {
                         $queryFields->update([
                             'path_info' => $content,
                             'users_update_id' => $userId
                         ]);
+                        Log::info("paso 8");
                     }
-
+                    Log::info("paso 8.5");
                 }
+                Log::info("paso 9");
             }
+            Log::info("paso 10");
             DB::commit();
             return response()->json(['message' => 'Successful']);
         } catch (QueryException $ex) {

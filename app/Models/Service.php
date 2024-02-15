@@ -27,4 +27,8 @@ class Service extends Model
     {
         return $this->BelongsToMany(Supplier::class, 'suppliers_services', 'services_id', 'suppliers_id')->withPivot(['users_id', 'users_update_id', 'required']);
     }
+    public function employees(): BelongsToMany
+    {
+        return $this->belongsToMany(Employee::class,'services_employees', 'service_id', 'employee_id')->withPivot(['path_info']);
+    }
 }

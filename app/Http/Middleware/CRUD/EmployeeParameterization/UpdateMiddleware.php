@@ -27,7 +27,7 @@ class UpdateMiddleware implements ValidateData
             'surnames' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'address' => 'required|string',
             'mobile' => 'required|numeric|digits_between:10,13',
-            'email' => 'required|email|unique:thirds,email',
+            'email' => ['required', 'email', Rule::unique('thirds', 'email')->ignore(Employee::find($request['employee_id'])->third->id)],
             'email2' => 'email|different:email',
             'postal_code' => 'required|numeric',
             'city_id' => 'required|exists:cities,id',
@@ -35,15 +35,14 @@ class UpdateMiddleware implements ValidateData
             'type_contract' => 'required|in:TF,TI,OL,PS,CA,OT',
             'hire_date' => 'required|date_format:Y-m-d H:i:s',
             'end_date_contract' => 'required|date_format:Y-m-d H:i:s',
-            'rut_file' => ['required', 'file', 'mimes:pdf', 'max:2048'],
-            'resume_file' => ['required', 'file', 'mimes:pdf,docx', 'max:2048'],
+            'rut_file' => ['file', 'mimes:pdf', 'max:2048'],
+            'resume_file' => ['file', 'mimes:pdf,docx', 'max:2048'],
             'status' => 'required|in:A,I',
             // //--------------------- service attributes
             'services' => ['required', 'array'],
             'services.*.service_id' => 'required|exists:services,id',
             'services.*.fields' => ['required', 'array', new ServiceFieldSizeValidationRule()],
             'services.*.fields.*.field_id' => 'required|exists:fields,id',
-            'services.*.fields.*.content' => ['required']
         ]);
 
         if ($validator->fails()) {
@@ -75,7 +74,7 @@ class UpdateMiddleware implements ValidateData
                         array_push($contentRules, 'integer');
                         break;
                     case 'F':
-                        array_push($contentRules,'nullable','file', 'mimes:pdf,docx', 'max:2048');
+                        array_push($contentRules,'nullable', 'file', 'mimes:pdf,docx', 'max:2048');
                         break;
                     default:
                         # code...
@@ -88,7 +87,8 @@ class UpdateMiddleware implements ValidateData
                 $contentRules = [];
             }
         }
-        $request->merge(['services' => $recordServices]);
+
+        $request->merge(['services' => $recordServices, 'email2' => $request['email2'] ?? null]);
 
         return ['error' => FALSE];
     }
