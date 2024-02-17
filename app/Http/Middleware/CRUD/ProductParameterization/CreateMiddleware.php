@@ -13,8 +13,8 @@ class CreateMiddleware implements ValidateData
     public function validate(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'type' =>'required|in:SE,PR,PL',
-            'type_content' => 'sometimes|required_if:type,PR|in:R,C',//insumo, consumible, ventas
+            'type' =>'required|in:T,I',// Tangible, Intangible
+            'type_content' => 'required|in:E,C,L',//Evento, Consumible, Lugar
             'consecutive' => 'required|numeric|unique:products,consecutive',
             'name' => 'required|string|min:3|max:50',
             'description' => 'string|min:3|max:250',
@@ -28,9 +28,13 @@ class CreateMiddleware implements ValidateData
             'photo2' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'photo3' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'status' =>'required|in:A,I',
+            'taxes' => 'array',
+            'taxes.*.tax_id' => 'required|exists:taxes,id',
+            'taxes.*.cost' => 'required|numeric|min:1|max:99999999',
+            'supply' => 'required|boolean',
             //products
             'products' => 'array',
-            'products.*.product_id' => ['required', new ProductSubproductValidation],
+            'products.*.product_id' => ['required', new ProductSubproductValidation(request()->input('type'), request()->input('type_content'))],
             'products.*.amount' => 'required|integer',
             'categories_id' => 'required|array',
             'categories.*' => 'required|exists:categories,id'

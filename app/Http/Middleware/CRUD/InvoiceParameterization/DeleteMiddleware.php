@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Middleware\CRUD\ProductParameterization;
+namespace App\Http\Middleware\CRUD\InvoiceParameterization;
 
 use Illuminate\Http\Request;
 use App\Http\Middleware\CRUD\Interfaces\ValidateData;
@@ -11,8 +11,9 @@ class DeleteMiddleware implements ValidateData
     public function validate(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'product_id' => 'required|array|not_in:1',
-            'product_id.*' => 'integer|exists:product,id',
+            'invoice_ids' => 'required_without:invoice_id|array|not_in:1|distinct',
+            'invoice_ids.*' => 'integer|exists:invoices,id',
+            'invoice_id' => 'required_without:invoice_ids|integer|exists:invoices,id',
         ]);
 
         if ($validator->fails()){

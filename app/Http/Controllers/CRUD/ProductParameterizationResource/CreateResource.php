@@ -16,9 +16,10 @@ class CreateResource implements CRUD
 {
     public function resource(Request $request)
     {
+        Log::info('PASANDO');
+        Log::info($request->supply);
         DB::beginTransaction();
         try {
-            Log::info('entrando product');
             $userId = auth()->id();
             $product = Product::create([
                     'type' => $request->input('type'),
@@ -33,15 +34,27 @@ class CreateResource implements CRUD
                     'status' => $request->input('status'),
                     'type_content' => $request->input('type_content') ?? null,
                     'users_id' => $userId,
-                    'size' => $request['size']
+                    'size' => $request['size'],
+                    'supply' => $request['supply']
                 ]);
+                // filling out taxes
+                if($request->has('taxes')){
+                    foreach ($request['taxes'] as $value) {
+                        $product->taxes()->attach($value['tax_id'], [
+                            'users_id' => $userId,
+                            'cost' => $value['cost'],
+                            'status' => 'A'
+                        ]);
+                    }
+                }
+
                 foreach ($request['categories_id'] as $value) {
                     $product->categories()->attach($value, [
                         'users_id' => $userId,
                         'status' => 'A'
                     ]);
                 }
-                if( $request->has('type0') == 'S'  and $request->has('products') ){
+                if( $request->has('type') == 'I'  and $request->has('products') ){
                     foreach ($request['products'] as $value) {
                         $product->childrenProducts()->attach($value['product_id'], [
                             'amount' => $value['amount'],

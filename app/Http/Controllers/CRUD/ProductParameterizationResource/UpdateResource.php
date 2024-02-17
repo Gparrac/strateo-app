@@ -37,7 +37,8 @@ class UpdateResource implements CRUD
                 'photo3',
                 'status',
                 'size',
-                'type_content'
+                'type_content',
+                'supply'
                 ])+ ['users_update_id' => $userId])->save();
                 //record categories 🚨
                 $product->categories()->get()->each(function($rProduct) use ($userId, $product){
@@ -68,11 +69,8 @@ class UpdateResource implements CRUD
                         'users_update_id' => $userId,
                     ]);
                 });
-                Log::info('out of products');
                 if($request->has('products')){
-                    Log::info('entrando products');
                     foreach ($request['products'] as $value) {
-                        Log::info($value);
                         $query = DB::table('products_products')->where('parent_product_id',$product['id'])->where('child_product_id',$value['product_id']);
                         if ($query->count() == 0) {
                             $product->childrenProducts()->attach($value['product_id'], [

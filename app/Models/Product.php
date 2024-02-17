@@ -30,7 +30,8 @@ class Product extends Model
         'brand_id',
         'measure_id',
         'status',
-        'size'
+        'size',
+        'supply'
     ];
     public function inventories(): HasMany
     {
@@ -57,17 +58,32 @@ class Product extends Model
     }
     public function getTypeAttribute(){
         $types =[
-            'SE' => ['name' => 'Servicio',  'id' => 'SE'],
-            'PR' => ['name' => 'Producto',  'id' => 'PR'],
-            'PL' => ['name' => 'Lugar',  'id' => 'PL'],
+            'T' => ['name' => 'Tangible',  'id' => 'T'],
+            'I' => ['name' => 'Intangible',  'id' => 'I'],
+
         ];
         return $types[$this->attributes['type']] ?? ['name' => 'Desconocido'];
     }
     public function getTypeContentAttribute(){
         $types =[
-            'R' => ['name' => 'Reutilizable',  'id' => 'R'],
-            'C' => ['name' => 'Consumible',  'id' => 'C']
+            'E' => ['name' => 'EVENTO',  'id' => 'E'],
+            'C' => ['name' => 'CONSUMIBLE',  'id' => 'C'],
+            'L' => ['name' => 'LUGAR',  'id' => 'L']
         ];
-        return $types[$this->attributes['type_content']] ?? ['name' => 'Desconocido', 'id' => 'nn'];
+        return $types[$this->attributes['type_content']] ?? ['name' => 'Desconocido'];
     }
+    public function taxes(): BelongsToMany
+    {
+        return $this->belongsToMany(Tax::class,'products_taxes','product_id','tax_id')->withPivot('cost');
+    }
+
+    public function planments(): BelongsToMany
+    {
+        return $this->belongsToMany(Planment::class,'products_planments', 'product_id', 'planment_id')->withPivot(['cost', 'descount', 'amount']);
+    }
+    public function invoices(): BelongsToMany
+    {
+        return $this->belongsToMany(Invoice::class,'products_invoices', 'product_id', 'invoices_id')->withPivot(['cost', 'descount', 'amount']);
+    }
+
 }

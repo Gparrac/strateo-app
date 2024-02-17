@@ -19,6 +19,8 @@ class ReadResource implements CRUD, RecordOperations
 {
     private $warehouseFilter;
     private $types;
+    private $supply;
+    private $typeContent;
     public function resource(Request $request)
     {
         if ($request->has('product_id')) {
@@ -26,6 +28,8 @@ class ReadResource implements CRUD, RecordOperations
         } else {
             $this->types = $request->input('types') ?? null;
             $this->warehouseFilter = $request->input('warehouseFilter') ?? null;
+            $this->typeContent = $request->input('typeContent') ?? null;
+            $this->supply = $request->input('supply') ?? null;
             return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'), $request->input('format'));
         }
     }
@@ -116,11 +120,13 @@ class ReadResource implements CRUD, RecordOperations
                     $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
             }
             if ($format == 'short') {
-                $data = $data->with([
+                $data = $data->with(['taxes:id,name',
                     'brand:id,name', 'measure:id,symbol',
                     'categories:id,name'
                 ])->where('status', 'A');
                 if($this->types) $data = $data->whereIn('type', $this->types);
+                if($this->typeContent)  $data = $data->whereIn('type_content', $this->typeContent);
+                if($this->supply)  $data = $data->where('type_content', $this->supply);
                 $data = $data->select(
                     'products.id',
                     'products.size',
@@ -142,6 +148,10 @@ class ReadResource implements CRUD, RecordOperations
                         $product['defaultCost'] = $product['cost'];
                         $product['stock'] = $inventory !== null ? $inventory['stock'] : 0;
                     }
+                    $product->taxes->each(function ($tax) {
+                        $tax['cost'] = $tax['pivot']['cost'];
+                        unset($tax['pivot']);
+                        });
                     $product->categories->each(function ($category) {
                         unset($category->pivot);
                     });

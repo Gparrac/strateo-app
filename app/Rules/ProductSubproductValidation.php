@@ -13,11 +13,19 @@ class ProductSubproductValidation implements ValidationRule
      *
      * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
      */
+    protected $typeProduct;
+    protected $typeProductContent;
+
+    public function __construct($typeProduct, $typeProductContent)
+    {
+        $this->typeProduct = $typeProduct;
+        $this->typeProductContent = $typeProductContent;
+    }
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $typeProduct = request()->input('type');
-        if($typeProduct == 'SE'){
-            if(!Product::where('id',$value)->where('type','PR')->exists()){
+
+        if($this->typeProduct == 'I' && $this->typeProductContent == 'E'){
+            if(!Product::where('id',$value)->where('supply', true)->exists()){
                 $fail('Uno de los subproductos no cumple con la parametrización');
             }
             return;
