@@ -23,7 +23,7 @@ class Planment extends Model
     }
     public function furtherProducts() : BelongsToMany
     {
-        return $this->belongsToMany(Product::class,'products_invoices','planment_id', 'product_id')->withPivot(['amount','cost','discount']);
+        return $this->belongsToMany(Product::class,'further_products_planments','planment_id', 'product_id')->withPivot(['amount','cost','discount']);
     }
     public function servicesProducts() : BelongsToMany
     {

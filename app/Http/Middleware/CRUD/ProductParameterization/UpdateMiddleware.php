@@ -37,7 +37,11 @@ class UpdateMiddleware implements ValidateData
             'products.*.product_id' => ['required', new ProductSubproductValidation(request()->input('type'), request()->input('type_content'))],
             'products.*.amount' => 'required|integer',
             'categories_id' => 'required|array',
-            'categories.*' => 'required|exists:categories,id'
+            'categories.*' => 'required|exists:categories,id',
+
+            'taxes' => 'array',
+            'taxes.*.tax_id' => 'required|exists:taxes,id',
+            'taxes.*.porcent' => 'required|numeric|min:0|max:100'
         ]);
         if ($validator->fails()) {
             return ['error' => TRUE, 'message' => $validator->errors()];

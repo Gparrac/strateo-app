@@ -30,7 +30,7 @@ class CreateMiddleware implements ValidateData
             'status' =>'required|in:A,I',
             'taxes' => 'array',
             'taxes.*.tax_id' => 'required|exists:taxes,id',
-            'taxes.*.cost' => 'required|numeric|min:1|max:99999999',
+            'taxes.*.porcent' => 'required|numeric|min:0|max:100',
             'supply' => 'required|boolean',
             //products
             'products' => 'array',

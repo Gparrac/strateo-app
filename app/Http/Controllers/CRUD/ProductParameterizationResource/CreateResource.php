@@ -16,8 +16,6 @@ class CreateResource implements CRUD
 {
     public function resource(Request $request)
     {
-        Log::info('PASANDO');
-        Log::info($request->supply);
         DB::beginTransaction();
         try {
             $userId = auth()->id();
@@ -42,7 +40,7 @@ class CreateResource implements CRUD
                     foreach ($request['taxes'] as $value) {
                         $product->taxes()->attach($value['tax_id'], [
                             'users_id' => $userId,
-                            'cost' => $value['cost'],
+                            'porcent' => $value['porcent'],
                             'status' => 'A'
                         ]);
                     }

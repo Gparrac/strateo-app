@@ -38,6 +38,7 @@ class ReadResource implements CRUD, RecordOperations
     {
         try {
             $data = Product::with([
+
                 'brand' => function ($query) {
                     $query->where('status', 'A')->select('id', 'name');
                 }, 'measure' => function ($query) {
@@ -54,7 +55,7 @@ class ReadResource implements CRUD, RecordOperations
                         },
                         'categories' => function ($query) {
                             $query->where('categories.status', 'A')->select('categories.id', 'categories.name');
-                        }
+                        },
                     ]);
                     $query->select(
                         'products.id',
@@ -68,7 +69,8 @@ class ReadResource implements CRUD, RecordOperations
                         'products.barcode',
                         'products.size'
                     );
-                }
+                },
+                'taxes:id,name,acronym'
             ])->where('products.id', $id)
                 ->select(
                     'products.id',
@@ -90,6 +92,10 @@ class ReadResource implements CRUD, RecordOperations
                 unset($category['pivot']);
                 return $category;
             });
+            $data->taxes->each(function ($tax) {
+                $tax['porcent'] = $tax['pivot']['porcent'];
+                unset($tax['pivot']);
+                });
             $data['childrenProducts']->map(function ($product) {
                 $product['amount'] = $product['pivot']['amount'];
                 unset($product['pivot']);
@@ -120,7 +126,7 @@ class ReadResource implements CRUD, RecordOperations
                     $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
             }
             if ($format == 'short') {
-                $data = $data->with(['taxes:id,name',
+                $data = $data->with(['taxes:id,name,acronym',
                     'brand:id,name', 'measure:id,symbol',
                     'categories:id,name'
                 ])->where('status', 'A');
@@ -149,7 +155,7 @@ class ReadResource implements CRUD, RecordOperations
                         $product['stock'] = $inventory !== null ? $inventory['stock'] : 0;
                     }
                     $product->taxes->each(function ($tax) {
-                        $tax['cost'] = $tax['pivot']['cost'];
+                        $tax['porcent'] = $tax['pivot']['porcent'];
                         unset($tax['pivot']);
                         });
                     $product->categories->each(function ($category) {

@@ -9,8 +9,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use App\Models\InventoryTrade;
-use PhpParser\Node\Stmt\Foreach_;
+
 
 class UpdateResource implements CRUD
 {
@@ -69,6 +68,32 @@ class UpdateResource implements CRUD
                         'users_update_id' => $userId,
                     ]);
                 });
+                $product->taxes()->get()->each(function($rProduct) use ($userId, $product){
+                    $product->taxes()->updateExistingPivot($rProduct,[
+                        'status' => 'I',
+                        'users_update_id' => $userId,
+                    ]);
+                });
+                // filling out taxes
+                if($request->has('taxes')){
+                    foreach ($request['taxes'] as $value) {
+                        $query = DB::table('products_taxes')->where('product_id',$product['id'])->where('tax_id',$value['tax_id']);
+                        if ($query->count() == 0) {
+                            $product->taxes()->attach($value['tax_id'], [
+                                'status' => 'A',
+                                'users_id' => $userId,
+                                'porcent' => $value['porcent']
+                            ]);
+                        } else {
+                            $query->update([
+                                'status' => 'A',
+                                'porcent' => $value['porcent'],
+                                'users_update_id' => $userId
+                            ]);
+                        }
+                    }
+                }
+
                 if($request->has('products')){
                     foreach ($request['products'] as $value) {
                         $query = DB::table('products_products')->where('parent_product_id',$product['id'])->where('child_product_id',$value['product_id']);

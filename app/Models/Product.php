@@ -74,13 +74,14 @@ class Product extends Model
     }
     public function taxes(): BelongsToMany
     {
-        return $this->belongsToMany(Tax::class,'products_taxes','product_id','tax_id')->withPivot('cost');
+        return $this->belongsToMany(Tax::class,'products_taxes','product_id','tax_id')->withPivot('porcent');
     }
 
     public function planments(): BelongsToMany
     {
         return $this->belongsToMany(Planment::class,'products_planments', 'product_id', 'planment_id')->withPivot(['cost', 'descount', 'amount']);
     }
+
     public function invoices(): BelongsToMany
     {
         return $this->belongsToMany(Invoice::class,'products_invoices', 'product_id', 'invoices_id')->withPivot(['cost', 'descount', 'amount']);

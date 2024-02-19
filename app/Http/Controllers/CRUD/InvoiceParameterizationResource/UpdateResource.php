@@ -12,6 +12,8 @@ use App\Models\Warehouse;
 use App\Models\Third;
 use App\Http\Utils\CastVerificationNit;
 use App\Http\Traits\DynamicUpdater;
+use App\Models\Invoice;
+use App\Models\Planment;
 
 class UpdateResource implements CRUD
 {
@@ -22,37 +24,57 @@ class UpdateResource implements CRUD
         DB::beginTransaction();
         try {
             $userId = Auth::id();
-            $warehouse = Warehouse::where('id', $request->input('warehouse_id'))->firstOrFail();
+            // -----------------------saving third ----------------------------
+            $invoice = Invoice::findOrFail($request->input('invoice_id'));
+            //Save the new files
+            $invoice->fill($request->only([
+                'client_id',
+                'note',
+                'seller_id',
+                'further_discount',
+            ]) + ['users_update_id' => $userId])->save();
+            if ($request->input('state_type') == 'P') {
+                //saving products to invoice type products list
+                DB::table('products_invoices')->where('invoice_id', $invoice['id'])->update(['status' => 'I']);
+                if ($request->has('products')) {
+                    foreach ($request['products'] as $product) {
+                        $pinvoices = DB::table('products_invoices')->where('product_id', $product['product_id'])->where('invoice_id', $invoice['id']);
+                        if ($pinvoices->count() == 0) {
+                            $invoice->products()->attach($product['product_id'], [
+                                'amount' => $product['amount'],
+                                'cost' => $product['cost'],
+                                'discount' => $product['discount'],
+                                'status' => 'A',
+                                'warehouse_id' => $product['warehouse_id'],
+                                'users_id' => $userId
+                            ]);
+                        } else {
+                            $pinvoices->update([
+                                'amount' => $product['amount'],
+                                'cost' => $product['cost'],
+                                'discount' => $product['discount'],
+                                'status' => 'A',
+                                'warehouse_id' => $product['warehouse_id'],
+                                'users_id' => $userId,
+                                'users_update_id' => $userId
+                            ]);
+                        }
+                        //updating product's invoices
+                        DB::table('products_taxes')->where('product_invoice_id', $pinvoices)->delete();
+                        foreach ($product['taxes'] as $tax) {
+                            DB::table('products_taxes')->insert([
+                                'tax_id' => $tax['tax_id'],
+                                'product_invoice_id' => $pinvoices,
+                                'porcent' => $tax['porcent'],
+                                'users_id' => $userId,
+                            ]);
+                        }
+                    }
+                }
+            } else {
+                $planment = $invoice->planment;
+            }
 
-            $third = Third::findOrFail($warehouse->third_id);
-
-            // Create a record in the Third table
-            $verificationId = CastVerificationNit::calculate($request['identification']);
-            $third->fill($request->only([
-                'type_document',
-                'identificacion',
-                'names',
-                'surnames',
-                'business_name',
-                'address',
-                'mobile',
-                'email',
-                'email2',
-                'postal_code',
-                'city_id',
-                'code_ciiu_id',
-            ]) + ['users_update_id' => $userId, 'verification_id' => $verificationId])->save();
-
-            //secondary ciiu ids
-            $this->dynamicUpdate($request, $third, $userId);
-
-            $warehouse->fill([
-                'note' => $request->input('note'),
-                'city_id' => $request->input('city_warehouse_id'),
-                'status' => $request->input('status'),
-                'users_update_id' => $userId,
-                'address' => $request->input('address_warehouse'),
-            ])->save();
 
             DB::commit();
             return response()->json(['message' => 'Successful']);
@@ -64,6 +86,36 @@ class UpdateResource implements CRUD
             DB::rollback();
             Log::error('unknown error WarehouseResource@update: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'update u'], 500);
+        }
+    }
+    public function validateState(Planment $planment, Request $request)
+    {
+        if ($planment->state == 'QUO') {
+            if ($request['stage'] == 'CON') {
+                //validate existency of pay off
+            } else { //cancel
+                //just change stage
+            }
+        } elseif ($planment->state == 'CON') {
+            if ($request['stage'] == 'QUO') {
+                //delete payment
+            } elseif ($request['stage'] == 'REA') {
+                // discount inventory and lock employees to set aside
+            } else { //cancel
+                //return  inventory and unlock employees  to change stage
+            }
+        } elseif ($request['stage'] == 'REA') {
+            if ($request['stage'] == 'CON') {
+                //return inventory and unlock employees schedule
+            } elseif ($request['stage'] == 'FIN') {
+                // return inventory and unlock employees
+            } else { //cancel
+                //return inventory and unlock employees schedule
+            }
+        } else {
+            if ($request['stage'] == 'QUO') {
+                //unlock inventory and employees schedule
+            }
         }
     }
 }
