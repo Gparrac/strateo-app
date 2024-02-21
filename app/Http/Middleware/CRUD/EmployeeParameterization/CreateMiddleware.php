@@ -14,36 +14,16 @@ use Monolog\Handler\PushoverHandler;
 
 class CreateMiddleware implements ValidateData
 {
+    protected $rules ;
     public function validate(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        if($request->has("type_connection")){
+            $this->typeConnectionValidation($request['type_connection']);
+        }else{
+            $this->createValidation();
 
-            //--------------------- third attributes
-            'type_document' => 'required|in:CC,NIT,CE,PASAPORTE',
-            'identification' => 'required|numeric|digits_between:7,10|unique:thirds,identification',
-            'names' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
-            'surnames' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
-            'address' => 'required|string',
-            'mobile' => 'required|numeric|digits_between:10,13',
-            'email' => 'required|email|unique:thirds,email',
-            'email2' => 'email|different:email',
-            'postal_code' => 'required|numeric',
-            'city_id' => 'required|exists:cities,id',
-            // -------------------------enployee attributes
-            'type_contract' => 'required|in:TF,TI,OL,PS,CA,OT',
-            'hire_date' => 'required|date_format:Y-m-d H:i:s',
-            'end_date_contract' => 'required|date_format:Y-m-d H:i:s',
-            'rut_file' => ['required', 'file', 'mimes:pdf', 'max:2048'],
-            'resume_file' => ['required', 'file', 'mimes:pdf,docx', 'max:2048'],
-            'status' => 'required|in:A,I',
-            // //--------------------- service attributes
-            'services' => ['required', 'array'],
-            'services.*.service_id' => 'required|exists:services,id',
-            'services.*.fields' => ['required', 'array', new ServiceFieldSizeValidationRule()],
-            'services.*.fields.*.field_id' => 'required|exists:fields,id',
-            'services.*.fields.*.content' => ['required']
-            //--------------------- others
-        ]);
+        }
+        $validator = Validator::make($request->all(), $this->rules);
 
         if ($validator->fails()) {
             return ['error' => TRUE, 'message' => $validator->errors()];
@@ -91,5 +71,37 @@ class CreateMiddleware implements ValidateData
 
 
         return ['error' => FALSE];
+    }
+    public function createValidation(){
+        $this->rules = [
+            'type_document' => 'required|in:CC,NIT,CE,PASAPORTE',
+            'identification' => 'required|numeric|digits_between:7,10|unique:thirds,identification',
+            'names' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
+            'surnames' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
+            'address' => 'required|string',
+            'mobile' => 'required|numeric|digits_between:10,13',
+            'email' => 'required|email|unique:thirds,email',
+            'email2' => 'email|different:email',
+            'postal_code' => 'required|numeric',
+            'city_id' => 'required|exists:cities,id',
+            // -------------------------enployee attributes
+            'type_contract' => 'required|in:TF,TI,OL,PS,CA,OT',
+            'hire_date' => 'required|date_format:Y-m-d H:i:s',
+            'end_date_contract' => 'required|date_format:Y-m-d H:i:s',
+            'rut_file' => ['required', 'file', 'mimes:pdf', 'max:2048'],
+            'resume_file' => ['required', 'file', 'mimes:pdf,docx', 'max:2048'],
+            'status' => 'required|in:A,I',
+            // //--------------------- service attributes
+            'services' => ['required', 'array'],
+            'services.*.service_id' => 'required|exists:services,id',
+            'services.*.fields' => ['required', 'array', new ServiceFieldSizeValidationRule()],
+            'services.*.fields.*.field_id' => 'required|exists:fields,id',
+            'services.*.fields.*.content' => ['required']
+        ];
+    }
+    public function typeConnectionValidation($typeConnection){
+        $this->rules = [
+
+        ];
     }
 }

@@ -12,6 +12,7 @@ use App\Models\Warehouse;
 use App\Models\Third;
 use App\Http\Utils\CastVerificationNit;
 use App\Http\Traits\DynamicUpdater;
+use App\Models\Inventory;
 use App\Models\Invoice;
 use App\Models\Planment;
 
@@ -34,45 +35,8 @@ class UpdateResource implements CRUD
                 'further_discount',
             ]) + ['users_update_id' => $userId])->save();
             if ($request->input('state_type') == 'P') {
-                //saving products to invoice type products list
-                DB::table('products_invoices')->where('invoice_id', $invoice['id'])->update(['status' => 'I']);
-                if ($request->has('products')) {
-                    foreach ($request['products'] as $product) {
-                        $pinvoices = DB::table('products_invoices')->where('product_id', $product['product_id'])->where('invoice_id', $invoice['id']);
-                        if ($pinvoices->count() == 0) {
-                            $invoice->products()->attach($product['product_id'], [
-                                'amount' => $product['amount'],
-                                'cost' => $product['cost'],
-                                'discount' => $product['discount'],
-                                'status' => 'A',
-                                'warehouse_id' => $product['warehouse_id'],
-                                'users_id' => $userId
-                            ]);
-                        } else {
-                            $pinvoices->update([
-                                'amount' => $product['amount'],
-                                'cost' => $product['cost'],
-                                'discount' => $product['discount'],
-                                'status' => 'A',
-                                'warehouse_id' => $product['warehouse_id'],
-                                'users_id' => $userId,
-                                'users_update_id' => $userId
-                            ]);
-                        }
-                        //updating product's invoices
-                        DB::table('products_taxes')->where('product_invoice_id', $pinvoices)->delete();
-                        foreach ($product['taxes'] as $tax) {
-                            DB::table('products_taxes')->insert([
-                                'tax_id' => $tax['tax_id'],
-                                'product_invoice_id' => $pinvoices,
-                                'porcent' => $tax['porcent'],
-                                'users_id' => $userId,
-                            ]);
-                        }
-                    }
-                }
+                $this->purchaseByProduct($request, $invoice, $userId);
             } else {
-                $planment = $invoice->planment;
             }
 
 
@@ -88,34 +52,71 @@ class UpdateResource implements CRUD
             return response()->json(['message' => 'update u'], 500);
         }
     }
-    public function validateState(Planment $planment, Request $request)
+    protected function purchaseByProduct(Request $request, $invoice, $userId)
     {
-        if ($planment->state == 'QUO') {
-            if ($request['stage'] == 'CON') {
-                //validate existency of pay off
-            } else { //cancel
-                //just change stage
+        DB::table('products_invoices')->where('invoice_id', $invoice['id'])->update(['status' => 'I']);
+
+        foreach ($request['products'] as $product) {
+            $pinvoices = DB::table('products_invoices')->where('product_id', $product['product_id'])->where('invoice_id', $invoice['id']);
+            if ($pinvoices->count() == 0) {
+                $invoice->products()->attach($product['product_id'], [
+                    'amount' => $product['amount'],
+                    'cost' => $product['cost'],
+                    'discount' => $product['discount'],
+                    'status' => 'A',
+                    'warehouse_id' => $product['warehouse_id'],
+                    'users_id' => $userId
+                ]);
+            } else {
+                $pinvoices->update([
+                    'amount' => $product['amount'],
+                    'cost' => $product['cost'],
+                    'discount' => $product['discount'],
+                    'status' => 'A',
+                    'warehouse_id' => $product['warehouse_id'],
+                    'users_id' => $userId,
+                    'users_update_id' => $userId
+                ]);
             }
-        } elseif ($planment->state == 'CON') {
-            if ($request['stage'] == 'QUO') {
-                //delete payment
-            } elseif ($request['stage'] == 'REA') {
-                // discount inventory and lock employees to set aside
-            } else { //cancel
-                //return  inventory and unlock employees  to change stage
+            //updating product's invoices
+            DB::table('products_taxes')->where('product_invoice_id', $pinvoices)->delete();
+            foreach ($product['taxes'] as $tax) {
+                DB::table('products_taxes')->insert([
+                    'tax_id' => $tax['tax_id'],
+                    'product_invoice_id' => $pinvoices,
+                    'porcent' => $tax['porcent'],
+                    'users_id' => $userId,
+                ]);
             }
-        } elseif ($request['stage'] == 'REA') {
-            if ($request['stage'] == 'CON') {
-                //return inventory and unlock employees schedule
-            } elseif ($request['stage'] == 'FIN') {
-                // return inventory and unlock employees
-            } else { //cancel
-                //return inventory and unlock employees schedule
+        }
+    }
+    protected function purchaseByEvent(Request $request, $invoice, $userId)
+    {
+        $planment = $invoice->planment;
+
+        $planment->fill($request->only([
+            'start_date',
+            'end_date',
+            'stage',
+            'status',
+            'pay_off'
+        ]) + ['users_update_id' => $userId])->save();
+        if (in_array($planment->stage, ['CON', 'REA', 'FIN'])) {
+            //updating products' stock for returning
+            $savedProducts = DB::table('products_planments')
+                ->join('products_planments_products', 'products_planments_products.prodcut_activity_id', 'products_planments.id')
+                ->where('planment_id', $planment['id'])->select('products_planments_products.id', 'products_planments_products.warehouse_id as product_id', 'products_planments_products.warehouse_id as warehouse_id', 'products_planments_products.amount ')->get();
+            foreach ($savedProducts as $savedProduct) {
+                $product = Inventory::where('product_id', $savedProduct['product_id'])->where('warehouse_id', $savedProduct['warehouse_id'])->first();
+                $product->update([
+                    'stock' => $savedProduct['amount'] + $product['stock'],
+                    'users_update_id' => $userId
+                ]);
+                DB::table('products_planments_products')
+                    ->where('id', $savedProduct['id'])->delete();
+
             }
-        } else {
-            if ($request['stage'] == 'QUO') {
-                //unlock inventory and employees schedule
-            }
+
         }
     }
 }

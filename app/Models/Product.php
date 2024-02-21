@@ -33,6 +33,22 @@ class Product extends Model
         'size',
         'supply'
     ];
+    public function getTypeAttribute(){
+        $types =[
+            'T' => ['name' => 'Tangible',  'id' => 'T'],
+            'I' => ['name' => 'Intangible',  'id' => 'I'],
+
+        ];
+        return $types[$this->attributes['type']] ?? ['name' => 'Desconocido'];
+    }
+    public function getTypeContentAttribute(){
+        $types =[
+            'E' => ['name' => 'EVENTO',  'id' => 'E'],
+            'C' => ['name' => 'CONSUMIBLE',  'id' => 'C'],
+            'L' => ['name' => 'LUGAR',  'id' => 'L']
+        ];
+        return $types[$this->attributes['type_content']] ?? ['name' => 'Desconocido'];
+    }
     public function inventories(): HasMany
     {
         return $this->hasMany(Inventory::class);
@@ -56,22 +72,7 @@ class Product extends Model
     {
         return $this->belongsToMany(Product::class,'products_products','parent_product_id', 'child_product_id')->withPivot(['amount']);
     }
-    public function getTypeAttribute(){
-        $types =[
-            'T' => ['name' => 'Tangible',  'id' => 'T'],
-            'I' => ['name' => 'Intangible',  'id' => 'I'],
 
-        ];
-        return $types[$this->attributes['type']] ?? ['name' => 'Desconocido'];
-    }
-    public function getTypeContentAttribute(){
-        $types =[
-            'E' => ['name' => 'EVENTO',  'id' => 'E'],
-            'C' => ['name' => 'CONSUMIBLE',  'id' => 'C'],
-            'L' => ['name' => 'LUGAR',  'id' => 'L']
-        ];
-        return $types[$this->attributes['type_content']] ?? ['name' => 'Desconocido'];
-    }
     public function taxes(): BelongsToMany
     {
         return $this->belongsToMany(Tax::class,'products_taxes','product_id','tax_id')->withPivot('porcent');

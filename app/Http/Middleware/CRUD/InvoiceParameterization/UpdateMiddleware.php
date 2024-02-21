@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware\CRUD\InvoiceParameterization;
 
+use App\Rules\InvoicePlanmentStageValidationRule;
 use App\Rules\InvoiceProductWarehouseValidatiorRule;
 use Illuminate\Http\Request;
 use App\Http\Middleware\CRUD\Interfaces\ValidateData;
@@ -47,8 +48,12 @@ class UpdateMiddleware implements ValidateData
             // -- planments table
             'start_date' => 'required_if:state_type,E|date_format:Y-m-d H:i:s',
             'end_date' => ['required_if:state_type,E', 'date_format:Y-m-d H:i:s', new ProductGreatestDateValidation($request->input('start_date'))],
-            'pay_off' => 'required_if:state_type,Enumeric|min:1|max:99999999',
-            'stage' => 'required|in:QUI,CON,REA,COM,CAN',
+            'pay_off' => 'required_if:state_type,E|numeric|min:1|max:99999999',
+            'stage' => ['required_if:state_type,E', new InvoicePlanmentStageValidationRule($request)],
+
+            'employees' => ['array'],
+            'employees.*.employee_id' => 'required|exists:employees,id',
+            'employees.*.salary' => 'required|numeric|min:|max:99999999',
 
             // -- plan weather puchase type is e
             'further_products' => 'required_if:state_type,E|array',
