@@ -62,7 +62,7 @@ class CreateResource implements CRUD
             'type_content' => $request->input('type_content') ?? null,
             'users_id' => $userId,
             'size' => $request['size'],
-            'supply' => $request['supply']
+            'tracing' => $request->input('type') == 'T' ? $request['tracing'] : false
         ]);
         // filling out taxes
         if($request->has('taxes')){
@@ -92,19 +92,21 @@ class CreateResource implements CRUD
     }
     }
     protected function createFurtherEvent($userId, Request $request){
+        $planment = Invoice::find($request['invoice_id'])->planment;
         foreach ($request['products'] as $product) {
-            Planment::find('planment_id')->furtherProducts()->attach($product['product_id'], [
+            $planment->furtherProducts()->attach($product['product_id'], [
                 'amount' => $product['amount'],
                 'status' => 'A',
                 'discount' => $product['discount'],
                 'cost' => $product['cost'],
                 'user_id' => $userId,
                 'warehouse_id' => $product['warehouse_id'] ?? null,
+                'tracing' =>  $product['tracing'],
             ]);
             foreach ($product['taxes'] as $tax) {
                 DB::table('products_taxes')->insert([
                     'tax_id' => $tax['tax_id'],
-                    'further_product_planment_id' => $request['planment_id'],
+                    'further_product_planment_id' => $planment['id'],
                     'porcent' => $tax['porcent'],
                     'users_id' => $userId
                 ]);
@@ -120,7 +122,8 @@ class CreateResource implements CRUD
                 'discount' => $product['discount'],
                 'status' => 'A',
                 'warehouse_id' => $product['warehouse_id'],
-                'users_id' => $userId
+                'users_id' => $userId,
+                'tracing' => $request['tracing']
             ]);
             $pivotId = DB::table('products_invoices')->where('product_id', $product['product_id'])->where('invoice_id', $request['invoice_id'])->first()->id;
             foreach ($product['taxes'] as $tax) {
@@ -134,10 +137,11 @@ class CreateResource implements CRUD
         }
     }
     protected function createProductEvent($userId, Request $request){
+        $planment = Invoice::find($request['invoice_id'])->planment;
         foreach ($request['products'] as $event) {
 
             $productPlanment = ProductPlanment::create([
-                'planment_id' => $request['planment_id'],
+                'planment_id' => $planment['id'],
                 'product_id' => $event['product_id'],
                 'cost' => $request['cost'],
                 'discount' => $event['discount'],
@@ -147,7 +151,7 @@ class CreateResource implements CRUD
             foreach ($request['taxes'] as $tax) {
                 DB::table('products_taxes')->insert([
                     'tax_id' => $tax['tax_id'],
-                    'product_planment_id' => $request['planment_id'],
+                    'product_planment_id' => $productPlanment['id'],
                     'porcent' => $tax['porcent'],
                     'users_id' => $userId
                 ]);
@@ -159,6 +163,7 @@ class CreateResource implements CRUD
                     'amount' => $cProduct['amount'],
                     'user_id' => $userId,
                     'warehouse_id' => $cProduct['warehouse_id'] ?? null,
+                    'tracing' => $cProduct['tracing']
                 ]);
             }
 

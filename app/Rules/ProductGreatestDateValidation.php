@@ -4,6 +4,7 @@ namespace App\Rules;
 
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Support\Facades\Log;
 
 class ProductGreatestDateValidation implements ValidationRule
 {
@@ -22,8 +23,7 @@ class ProductGreatestDateValidation implements ValidationRule
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-
-        if (strtotime($value) > strtotime($this->startDate)){
+        if (strtotime($value) < strtotime($this->startDate)){
             $fail("La fecha de finalización debe ser mayor a la fecha de inicio del evento.");
         }
     }

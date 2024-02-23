@@ -21,9 +21,6 @@ class Product extends Model
         'categories_id',
         'product_code',
         'barcode',
-        'photo1',
-        'photo2',
-        'photo3',
         'users_id',
         'type_content',
         'users_update_id',
@@ -31,7 +28,8 @@ class Product extends Model
         'measure_id',
         'status',
         'size',
-        'supply'
+        'supply',
+        'tracing'
     ];
     public function getTypeAttribute(){
         $types =[

@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class ProductPlanment extends Model
 {
     use HasFactory;
-
+    protected $table = "products_planments";
     protected $fillable = ['product_id', 'planment_id', 'cost', 'discount', 'status', 'users_id', 'users_udate_id'];
 
     public function eventProduct() : BelongsTo

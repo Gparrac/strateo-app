@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware\CRUD\ProductParameterization;
 
+use App\Rules\InvoiceProductValidationRule;
 use Illuminate\Http\Request;
 use App\Http\Middleware\CRUD\Interfaces\ValidateData;
 use App\Rules\ProductSubproductValidation;
@@ -46,7 +47,7 @@ class CreateMiddleware implements ValidateData
             'taxes' => 'array',
             'taxes.*.tax_id' => 'required|exists:taxes,id',
             'taxes.*.porcent' => 'required|numeric|min:0|max:100',
-            'supply' => 'required|boolean',
+            'tracing' => 'required_if:type,T|boolean',
             //products
             'products' => 'array',
             'products.*.product_id' => ['required', new ProductSubproductValidation(request()->input('type'), request()->input('type_content'))],
@@ -57,29 +58,27 @@ class CreateMiddleware implements ValidateData
     }
     protected function typeConnectionValidation($typeConnection){
         $this->rules = [
+            'type_connection' => 'required|in:I,F,E',
             'products' => 'required|array',
-            'products.*.product_id' => 'required|exists:products,id',
-            'products.*.cost' => 'required_if:state_type,P|numeric|min:1|max:99999999',
-            'products.*.discount' => 'numeric|min:1|max:99999999',
+            'products.*.product_id' => ['required','exists:products,id', new InvoiceProductValidationRule($typeConnection)],
+            'products.*.cost' => 'required|numeric|min:1|max:99999999',
+            'products.*.discount' => 'required|numeric|min:1|max:99999999',
             'products.*.amount' => 'numeric|min:1|max:9999',
             'products.*.taxes' => 'array',
             'products.*.taxes.*.tax_id' => 'required|exists:taxes,id',
             'products.*.taxes.*.porcent' => 'required|numeric|min:1|max:99',
         ];
-        if ($typeConnection == 'F') {
-            $this->rules['products.*.warehouse_id'] = 'required_if:state_type,P|exists:warehouses,id';
-            $this->rules['planment_id'] = 'required|exists:planments,id';
-        }
-        if ($typeConnection == 'I') {
-            $this->rules['products.*.warehouse_id'] = 'required_if:state_type,P|exists:warehouses,id';
-            $this->rules['invoice_id'] = 'required|exists:planments,id';
+        if ($typeConnection == 'F' || $typeConnection = 'I') {
+            $this->rules['products.*.warehouse_id'] = 'required_if:sale_type,P|exists:warehouses,id';
+            $this->rules['sub_products.*.tracing'] = 'required|boolean';
         }
         if ($typeConnection == 'E') {
             $this->rules = array_merge($this->rules, [
-                'planment_id' => 'required|exists:planments,id',
                 'sub_products' => 'required|array',
                 'sub_products.*.product_id' => 'required|exists:products,id',
                 'sub_products.*.amount' => 'numeric|min:1|max:9999',
+                'sub_products.*.tracing' => 'required|boolean'
+
             ]);
         }
     }

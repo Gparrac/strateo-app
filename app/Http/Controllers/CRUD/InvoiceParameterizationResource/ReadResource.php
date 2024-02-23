@@ -4,6 +4,7 @@ namespace App\Http\Controllers\CRUD\InvoiceParameterizationResource;
 
 use App\Http\Controllers\CRUD\Interfaces\CRUD;
 use App\Http\Controllers\CRUD\Interfaces\RecordOperations;
+use App\Models\Invoice;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -48,8 +49,10 @@ class ReadResource implements CRUD, RecordOperations
     public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null, $format = null)
     {
         try {
-            $data = Warehouse::select('id', 'note', 'status', 'city_id', 'address', 'updated_at')
-            ->with('city:id,name');
+            $data = Invoice::with(['seller:id,name', 'client' => function($query){
+                $query->with('third:id,identification,names,surnames,type_document')->select('id', 'third_id');
+            },'planment:id,invoice_id,stage,pay_off,start_date,end_date'])->select('id', 'seller_id', 'client_id', 'sale_type', 'date', 'updated_at');
+
 
             //filter query with keyword 🚨
             if ($typeKeyword && $keyword) {

@@ -31,14 +31,21 @@ class CreateResource implements CRUD
                 'seller_id' => $request['seller_id'],
                 'further_discount' => $request['further_discount'],
                 'status' => 'A',
-                'users_id' => $userId
+                'users_id' => $userId,
+                'sale_type' => $request['sale_type']
             ]);
-            //checking type of state
-            if ($request->input('state_type') == 'P') {
-                $this->purchaseByProduct($request, $invoice, $userId);
-            } else {
-                $this->purchaseByEvent($request, $invoice, $userId);
+            if($request->sale_type == 'E') {
+                Planment::create([
+                   'start_date' => $request['start_date'],
+                   'end_date' => $request['end_date'],
+                   'pay_off' => $request['pay_off'],
+                   'users_id' => $userId,
+                   'stage' => $request['pay_off'] == 0 ? 'QUO' : 'CON',
+                   'status' => 'A',
+                   'invoice_id' => $invoice['id']
+                ]);
             }
+            //checking type of state
             DB::commit();
             return response()->json(['message' => 'Successful']);
         } catch (QueryException $ex) {
@@ -51,42 +58,5 @@ class CreateResource implements CRUD
             return response()->json(['message' => 'create u'], 500);
         }
     }
-    protected function purchaseByProduct(Request $request, $invoice, $userId)
-    {
-        //saving products to invoice type products list
-        foreach ($request['products'] as $product) {
-            $invoice->products()->attach($product['product_id'], [
-                'amount' => $product['amount'],
-                'cost' => $product['cost'],
-                'discount' => $product['discount'],
-                'status' => 'A',
-                'warehouse_id' => $product['warehouse_id'],
-                'users_id' => $userId
-            ]);
-            $pivotId = DB::table('products_invoices')->where('product_id', $product['product_id'])->where('invoice_id', $invoice['id'])->first()->id;
-            foreach ($product['taxes'] as $tax) {
-                DB::table('products_taxes')->insert([
-                    'tax_id' => $tax['tax_id'],
-                    'product_invoice_id' => $pivotId,
-                    'porcent' => $tax['porcent'],
-                    'users_id' => $userId,
-                ]);
-            }
-        }
-    }
-    protected function purchaseByEvent(Request $request, $invoice, $userId)
-    {
-        //saving products to invoice type events list
-        $planment = Planment::create([
-            'start_date' => $request['start_date'],
-            'end_date' => $request['end_date'],
-            'stage' => $request['pay_off'] > 0 ? 'CON' : 'REA',
-            'status' => $request['status'],
-            'pay_off' => $request['pay_off'],
-            'invoice_id' => $invoice['id'],
-            'users_id' => $userId
-        ]);
 
-
-    }
 }

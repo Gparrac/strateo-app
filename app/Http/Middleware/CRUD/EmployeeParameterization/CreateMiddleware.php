@@ -17,12 +17,13 @@ class CreateMiddleware implements ValidateData
     protected $rules ;
     public function validate(Request $request)
     {
-        if($request->has("type_connection")){
-            $this->typeConnectionValidation($request['type_connection']);
+        $typeRequest = $request->has("type_connection");
+        if($typeRequest){
+            $this->typeConnectionValidation();
         }else{
             $this->createValidation();
-
         }
+
         $validator = Validator::make($request->all(), $this->rules);
 
         if ($validator->fails()) {
@@ -99,9 +100,13 @@ class CreateMiddleware implements ValidateData
             'services.*.fields.*.content' => ['required']
         ];
     }
-    public function typeConnectionValidation($typeConnection){
+    public function typeConnectionValidation(){
         $this->rules = [
-
+            'planment_id' => 'required|exists:planments,id',
+            'employees' => ['array'],
+            'employees.*.employee_id' => ['required','exists:employees,id'],
+            'employees.*.salary' => 'required|numeric|min:|max:99999999'
         ];
     }
+
 }
