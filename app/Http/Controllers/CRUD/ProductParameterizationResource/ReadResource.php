@@ -149,9 +149,9 @@ class ReadResource implements CRUD, RecordOperations
                 )->take(10)->get();
 
                 $data->map(function ($product)  {
+                    $product['defaultCost'] = $product['cost'];
                     if($this->warehouseFilter){
                         $inventory = Inventory::where('product_id', $product['id'])->where('warehouse_id', $this->warehouseFilter)->first();
-                        $product['defaultCost'] = $product['cost'];
                         $product['stock'] = $inventory !== null ? $inventory['stock'] : 0;
                     }
                     $product->taxes->each(function ($tax) {

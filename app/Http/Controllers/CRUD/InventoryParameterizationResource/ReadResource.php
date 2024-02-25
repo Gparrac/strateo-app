@@ -18,6 +18,8 @@ class ReadResource implements CRUD, RecordOperations
 {
     public function resource(Request $request)
     {
+        if($request->has('product_id') && $request->has('warehouse_id'))
+            return $this->getInventory($request->input('product_id'), $request->input('warehouse_id'));
         if ($request->has('inventory_trade_id')) {
             return $this->singleRecord($request->input('inventory_trade_id'));
         } else {
@@ -94,6 +96,16 @@ class ReadResource implements CRUD, RecordOperations
             Log::error('Query error ClientResource@readResource:allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'read q'], 500);
         } catch (\Exception $ex) {
+            Log::error('unknown error ClientResource@readResource:allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
+            return response()->json(['message' => 'read u'], 500);
+        }
+    }
+    protected function getInventory($productId, $warehouseId){
+        try{
+            $data = Inventory::where('product_id', $productId)->where('warehouse_id', $warehouseId)->first();
+            Log::info($data ?? 'no entra');
+            return response()->json(['message' => 'read', 'data' => $data ?? 0], 200);
+        }catch (\Exception $ex) {
             Log::error('unknown error ClientResource@readResource:allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'read u'], 500);
         }

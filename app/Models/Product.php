@@ -73,7 +73,7 @@ class Product extends Model
 
     public function taxes(): BelongsToMany
     {
-        return $this->belongsToMany(Tax::class,'products_taxes','product_id','tax_id')->withPivot('porcent');
+        return $this->belongsToMany(Tax::class,'products_taxes','product_id','tax_id')->withPivot('percent');
     }
 
     public function planments(): BelongsToMany

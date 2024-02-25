@@ -19,6 +19,7 @@ use App\Http\Controllers\CRUD\EmployeeParameterization;
 use App\Http\Controllers\CRUD\InventoryParameterization;
 use App\Http\Controllers\CRUD\InvoiceParameterization;
 use App\Http\Controllers\CRUD\ProductParameterization;
+use App\Http\Controllers\CRUD\TaxParameterization;
 use App\Http\Controllers\ExportContent\InventoryController;
 
 
@@ -41,6 +42,7 @@ Route::group(['middleware' => ['auth:api','role.user']], function() {
     Route::match(['get', 'post', 'put', 'delete'],'/product-parameterization', ProductParameterization::class)->middleware('product.parameterization');
     Route::match(['get', 'post', 'put', 'delete'],'/employee-parameterization', EmployeeParameterization::class)->middleware('employee.parameterization');
     Route::match(['get', 'post', 'put', 'delete'],'/invoice-parameterization', InvoiceParameterization::class)->middleware('invoice.parameterization');
+    Route::match(['get', 'post', 'put', 'delete'],'/tax-parameterization', TaxParameterization::class)->middleware('tax.parameterization');
 
     Route::prefix('export-data')->group(function () {
         Route::get('/inventory-trades', InventoryController::class);

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Middleware\CRUD\ProductParameterization;
+namespace App\Http\Middleware\CRUD\TaxParameterization;
 
 use Illuminate\Http\Request;
 use App\Http\Middleware\CRUD\Interfaces\ValidateData;
@@ -10,9 +10,9 @@ class ReadMiddleware implements ValidateData
 {
     public function validate(Request $request)
     {
-        if($request->has('product_id')){
+        if($request->has('tax_id')){
             $validator = Validator::make($request->all(), [
-                'product_id' => 'numeric|exists:products,id'
+                'tax_id' => 'numeric|exists:taxes,id'
             ]);
         }else{
             $validator = Validator::make($request->all(), [
@@ -20,12 +20,9 @@ class ReadMiddleware implements ValidateData
                 'page' => 'numeric|min:0',
                 'pagination' => 'numeric|max:100',
                 'keyword' => 'string|max:40',
-                'typeKeyword' => 'string|in:id,name',
-                'warehouseFilter' => 'exists:warehouses,id',
+                'typeKeyword' => 'string|in:acronym,name,id',
                 'sorters' => 'array',
                 'sorters.order' => 'nullable|in:asc,desc',
-                'types' => 'array',
-                'types.*' => 'required|in:T,I'
             ]);
         }
 
