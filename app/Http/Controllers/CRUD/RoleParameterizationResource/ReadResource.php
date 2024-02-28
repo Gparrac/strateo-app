@@ -14,14 +14,12 @@ use Illuminate\Support\Facades\Log;
 class ReadResource implements CRUD, RecordOperations
 {
 
-    private $format;
     public function resource(Request $request)
     {
         if ($request->has('role_id')) {
             return $this->singleRecord($request->input('role_id'));
         } else {
-            $this->format = $request->input('format');
-            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'));
+            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'), $request->input('format'));
         }
     }
 
@@ -48,10 +46,10 @@ class ReadResource implements CRUD, RecordOperations
         return response()->json(['message' => 'Read: ' . $id, 'data' => $role], 200);
     }
 
-    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null)
+    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null, $format = null)
     {
         try {
-            if ($this->format == 'short') {
+            if ($format == 'short') {
                 $data = Role::select('id', 'name')->get();
             } else {
 

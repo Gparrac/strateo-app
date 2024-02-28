@@ -12,7 +12,7 @@ class Supplier extends Model
 {
     protected $casts = [
         'commercial_registry_file' => FileCast::class,
-        'rut_file' => FileCast::class,
+        'rut_file' => FileCast::class
     ];
     use HasFactory;
     protected $fillable = ['commercial_registry', 'commercial_registry_file','rut_file', 'note', 'status', 'third_id', 'users_id', 'users_update_id'];

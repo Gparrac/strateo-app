@@ -27,7 +27,7 @@ class CreateResource implements CRUD
             $inventoryTrade = InventoryTrade::create([
                     'transaction_type' => $request->input('transaction_type'),
                     'purpose' => $request->input('purpose'),
-                    'note' => $request->input('note'),
+                    'note' => $request->input('note') ?? null,
                     'transaction_date' => $request->input('date'),
                     'supplier_id' => $request->input('supplier_id'),
                     'users_id' => $userId,

@@ -24,6 +24,8 @@ class ReadMiddleware implements ValidateData
                 'warehouseFilter' => 'exists:warehouses,id',
                 'sorters' => 'array',
                 'sorters.order' => 'nullable|in:asc,desc',
+                'types' => 'array',
+                'types.*' => 'required|in:T,I'
             ]);
         }
 

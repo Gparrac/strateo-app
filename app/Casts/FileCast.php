@@ -2,6 +2,7 @@
 
 namespace App\Casts;
 
+use App\Http\Utils\FileFormat;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Model;
 
@@ -14,7 +15,7 @@ class FileCast implements CastsAttributes
      */
     public function get(Model $model, string $key, mixed $value, array $attributes): mixed
     {
-        return $value ? config('app.files_url').'/uploads/'.$value : $value;
+        return $value ? FileFormat::downloadPath($value) : $value;
     }
 
     /**

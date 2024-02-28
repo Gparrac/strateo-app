@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Log;
 
 class Third extends Model
 {
@@ -30,7 +31,11 @@ class Third extends Model
         'users_id',
         'users_update_id'
     ];
-
+    public function getNamesAttribute()
+    {
+        $fullname = $this->attributes['names'] . ' '.  ($this->attributes['surnames'] ?? '');
+        return $this->attributes['business_name'] ?? $fullname;
+    }
     //Relationship
     public function user(): HasOne
     {

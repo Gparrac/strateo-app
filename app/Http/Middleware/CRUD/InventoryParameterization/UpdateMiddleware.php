@@ -13,7 +13,7 @@ class UpdateMiddleware implements ValidateData
         $validator = Validator::make($request->all(), [
             //--------------------- trade attributes
             'inventory_trade_id' => 'required|exists:inventory_trades,id',
-            'note' =>'required|string|min:3|max:3000',
+            'note' =>'string|min:3|max:3000',
             'date' => 'required|date_format:Y-m-d H:i:s',
             'supplier_id' => 'required|exists:suppliers,id',
             //--------------------- inventory attributes

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\CRUD;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\CRUD\ProductParameterizationResource\ConnectResource;
 use App\Http\Controllers\CRUD\ProductParameterizationResource\CreateResource;
 use App\Http\Controllers\CRUD\ProductParameterizationResource\ReadResource;
 use App\Http\Controllers\CRUD\ProductParameterizationResource\UpdateResource;

@@ -16,14 +16,14 @@ use Illuminate\Support\Facades\DB;
 
 class ReadResource implements CRUD, RecordOperations
 {
-    private $format;
     public function resource(Request $request)
     {
+        if($request->has('product_id') && $request->has('warehouse_id'))
+            return $this->getInventory($request->input('product_id'), $request->input('warehouse_id'));
         if ($request->has('inventory_trade_id')) {
             return $this->singleRecord($request->input('inventory_trade_id'));
         } else {
-            $this->format = $request->input('format');
-            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'));
+            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'), $request->input('format'));
         }
     }
 
@@ -69,7 +69,7 @@ class ReadResource implements CRUD, RecordOperations
         }
     }
 
-    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null)
+    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null, $format = null)
     {
         try {
             $data = InventoryTrade::with(['supplier' => function($query){
@@ -89,13 +89,23 @@ class ReadResource implements CRUD, RecordOperations
                 foreach ($sorters as $shorter) {
                     $data = $data->orderBy($shorter['key'], $shorter['order']);
                 }
-                $data = $this->format == 'short' ? $data->take(10)->get() : $data->paginate($pagination) ;
+                $data = $format == 'short' ? $data->where('status','A')->take(10)->get() : $data->paginate($pagination) ;
 
             return response()->json(['message' => 'read', 'data' => $data], 200);
         } catch (QueryException $ex) {
             Log::error('Query error ClientResource@readResource:allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'read q'], 500);
         } catch (\Exception $ex) {
+            Log::error('unknown error ClientResource@readResource:allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
+            return response()->json(['message' => 'read u'], 500);
+        }
+    }
+    protected function getInventory($productId, $warehouseId){
+        try{
+            $data = Inventory::where('product_id', $productId)->where('warehouse_id', $warehouseId)->first();
+            Log::info($data ?? 'no entra');
+            return response()->json(['message' => 'read', 'data' => $data ?? 0], 200);
+        }catch (\Exception $ex) {
             Log::error('unknown error ClientResource@readResource:allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'read u'], 500);
         }

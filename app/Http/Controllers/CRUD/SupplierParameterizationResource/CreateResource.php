@@ -26,7 +26,7 @@ class CreateResource implements CRUD
             $thirdData = [
                 'type_document' => $request->input('type_document'),
                 'identification' => $request->input('identification'),
-                'verification_id' => $request['tupe_document'] == 'NIT' ? CastVerificationNit::calculate($request['identification']) : NULL ,
+                'verification_id' => $request['type_document'] == 'NIT' ? CastVerificationNit::calculate($request['identification']) : NULL ,
                 'names' => $request->input('names') ?? null,
                 'surnames' => $request->input('surnames') ?? null,
                 'business_name' => $request->input('business_name') ?? null,
@@ -55,8 +55,7 @@ class CreateResource implements CRUD
             if($request->has('secondary_ciiu_ids')){
                 $third->secondaryCiius()->attach($request['secondary_ciiu_ids'],[
                     'status' => 'A',
-                    'users_id' => $userId,
-                    'users_update_id' => $userId,
+                    'users_id' => $userId
                 ]);
             }
             //write dawn in suppliers table
@@ -78,9 +77,6 @@ class CreateResource implements CRUD
                     $content = $field['content'];
                     if ($field['type'] == 'F'){
                         $pathFileRequest = 'services.'.$svalue.'.fields.'.$fvalue.'.content';
-                        Log::info('controller');
-                        Log::info($pathFileRequest);
-
                         $urlFile = $urlFile.'/services/'.$service['service_id'].'/fields/';
                         $content = $request->file($pathFileRequest)
                         ->storeAs(

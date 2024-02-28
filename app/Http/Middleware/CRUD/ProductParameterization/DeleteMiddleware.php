@@ -11,8 +11,8 @@ class DeleteMiddleware implements ValidateData
     public function validate(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'brand_id' => 'required|array|not_in:1',
-            'brand_id.*' => 'integer|exists:categories,id',
+            'product_id' => 'required|array|not_in:1',
+            'product_id.*' => 'integer|exists:product,id',
         ]);
 
         if ($validator->fails()){

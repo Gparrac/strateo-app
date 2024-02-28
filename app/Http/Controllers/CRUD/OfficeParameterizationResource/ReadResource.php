@@ -12,14 +12,12 @@ use App\Models\Office;
 
 class ReadResource implements CRUD, RecordOperations
 {
-    private $format;
     public function resource(Request $request)
     {
         if ($request->has('office_id')) {
             return $this->singleRecord($request->input('office_id'));
         } else {
-            $this->format = $request->input('format');
-            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'));
+            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'), $request->input('format'));
         }
     }
 
@@ -39,10 +37,10 @@ class ReadResource implements CRUD, RecordOperations
         }
     }
 
-    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null)
+    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null, $format = null)
     {
         try {
-            if ($this->format == 'short') {
+            if ($format == 'shorter') {
                 $data = Office::select('id', 'name')->get();
             } else {
                 $data = Office::select('id', 'name', 'address', 'phone', 'status', 'city_id','updated_at')

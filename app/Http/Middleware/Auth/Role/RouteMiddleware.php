@@ -35,6 +35,9 @@ class RouteMiddleware
             'inventory-parameterization' => 66,
             'export-data/inventory-trades'=>66,
             'product-parameterization' => 67,
+            'employee-parameterization'=> 69,
+            'invoice-parameterization' => 71,
+            'tax-parameterization' => 72
         ];
 
         if (!array_key_exists($removeApiPrefix, $routesForm)) {

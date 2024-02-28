@@ -17,16 +17,20 @@ use Illuminate\Support\Facades\DB;
 
 class ReadResource implements CRUD, RecordOperations
 {
-    private $format;
     private $warehouseFilter;
+    private $types;
+    private $supply;
+    private $typeContent;
     public function resource(Request $request)
     {
         if ($request->has('product_id')) {
             return $this->singleRecord($request->input('product_id'));
         } else {
-            $this->format = $request->input('format');
+            $this->types = $request->input('types') ?? null;
             $this->warehouseFilter = $request->input('warehouseFilter') ?? null;
-            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'));
+            $this->typeContent = $request->input('typeContent') ?? null;
+            $this->supply = $request->input('supply') ?? null;
+            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'), $request->input('format'));
         }
     }
 
@@ -41,7 +45,7 @@ class ReadResource implements CRUD, RecordOperations
                 },
                 'categories' => function ($query) {
                     $query->select('categories.id', 'categories.name');
-                }, 'childrenProducts' => function ($query) {
+                }, 'subproducts' => function ($query) {
                     $query->with([
                         'brand' => function ($query) {
                             $query->where('brands.status', 'A')->select('id', 'name');
@@ -50,7 +54,7 @@ class ReadResource implements CRUD, RecordOperations
                         },
                         'categories' => function ($query) {
                             $query->where('categories.status', 'A')->select('categories.id', 'categories.name');
-                        }
+                        },
                     ]);
                     $query->select(
                         'products.id',
@@ -64,7 +68,8 @@ class ReadResource implements CRUD, RecordOperations
                         'products.barcode',
                         'products.size'
                     );
-                }
+                },
+                'taxes:id,name,acronym'
             ])->where('products.id', $id)
                 ->select(
                     'products.id',
@@ -86,7 +91,11 @@ class ReadResource implements CRUD, RecordOperations
                 unset($category['pivot']);
                 return $category;
             });
-            $data['childrenProducts']->map(function ($product) {
+            $data->taxes->each(function ($tax) {
+                $tax['porcent'] = $tax['pivot']['porcent'];
+                unset($tax['pivot']);
+                });
+            $data['subproducts']->map(function ($product) {
                 $product['amount'] = $product['pivot']['amount'];
                 unset($product['pivot']);
                 $product['categories']->map(function ($category) {
@@ -107,7 +116,7 @@ class ReadResource implements CRUD, RecordOperations
         }
     }
 
-    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null)
+    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null, $format = null)
     {
         try {
             $data = new Product();
@@ -115,37 +124,84 @@ class ReadResource implements CRUD, RecordOperations
             if ($typeKeyword && $keyword) {
                     $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
             }
-            if ($this->format == 'short') {
-                $data = $data->with([
+            if ($format == 'short') {
+                $data = $data->with(['taxes:id,name,acronym',
                     'brand:id,name', 'measure:id,symbol',
-                    'categories:id,name'
-                ])->where('status', 'A')->select(
+                    'categories:id,name',
+                    'subproducts' => function ($query) {
+                        $query->with([
+                            'brand' => function ($query) {
+                                $query->where('brands.status', 'A')->select('id', 'name');
+                            }, 'measure' => function ($query) {
+                                $query->where('measures.status', 'A')->select('id', 'symbol');
+                            },
+                            'categories' => function ($query) {
+                                $query->where('categories.status', 'A')->select('categories.id', 'categories.name');
+                            },
+                        ]);
+                        $query->select(
+                            'products.id',
+                            'products.consecutive',
+                            'products.name',
+                            'products.description',
+                            'products.brand_id',
+                            'products.product_code',
+                            'products.barcode',
+                            'products.type_content',
+                            'products.type',
+                            'products.tracing',
+                            'products.size',
+                            'products.measure_id',
+                            'products.brand_id',
+
+                        );
+                    }])->where('status', 'A');
+                if($this->types) $data = $data->whereIn('type', $this->types);
+                if($this->typeContent)  $data = $data->whereIn('type_content', $this->typeContent);
+                if($this->supply)  $data = $data->where('type_content', $this->supply);
+                $data = $data->select(
                     'products.id',
                     'products.size',
                     'products.brand_id',
                     'products.measure_id',
                     'products.id',
                     'products.name',
+                    'products.description',
                     'products.consecutive',
                     'products.product_code',
                     'products.cost',
-                    'products.barcode'
+                    'products.barcode',
+                    'products.type',
+                    'products.type_content'
                 )->take(10)->get();
 
                 $data->map(function ($product)  {
+                    $product['defaultCost'] = $product['cost'];
                     if($this->warehouseFilter){
                         $inventory = Inventory::where('product_id', $product['id'])->where('warehouse_id', $this->warehouseFilter)->first();
-                        $product['defaultCost'] = $product['cost'];
                         $product['stock'] = $inventory !== null ? $inventory['stock'] : 0;
                     }
+                    $product->taxes->each(function ($tax) {
+                        $tax['porcent'] = $tax['pivot']['porcent'];
+                        unset($tax['pivot']);
+                        });
                     $product->categories->each(function ($category) {
                         unset($category->pivot);
+                    });
+                    $product->subproducts->each(function ($product) {
+                        $product['amount'] = $product['pivot']['amount'];
+                        $product['default_amount'] = $product['amount'];
+                        unset($product['pivot']);
+                        $product['categories']->map(function ($category) {
+                            unset($category['pivot']);
+                            return $category;
+                        });
                     });
                     return $product;
                 });
             } else {
 
-                $data = $data->with(['brand:id,name', 'measure:id,symbol'])->withCount('categories')->withCount('childrenProducts');
+                $data = $data->with(['brand:id,name', 'measure:id,symbol'])->withCount('categories')->withCount('subproducts');
                 //append shorters to query
                 foreach ($sorters as $shorter) {
                     $data = $data->orderBy($shorter['key'], $shorter['order']);

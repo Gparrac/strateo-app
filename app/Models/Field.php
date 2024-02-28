@@ -19,6 +19,10 @@ class Field extends Model
     {
         return $this->belongsToMany(Supplier::class,'suppliers_fields', 'fields_id', 'suppliers_id')->withPivot(['path_info']);
     }
+    public function employees(): BelongsToMany
+    {
+        return $this->belongsToMany(Employee::class,'fields_employees', 'field_id', 'employee_id')->withPivot(['path_info']);
+    }
     public function getTypeAttribute(){
         $types =[
             'F' => ['name' => 'Archivo', 'icon' => 'mdi-file-send', 'id' => 'F'],

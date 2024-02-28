@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class InventoryTrade extends Model
 {
     use HasFactory;
-    protected $fillable = ['status', 'note', 'transaction_date', 'supplier_id', 'users_id', 'users_update_id', 'transaction_type', 'purpose','further_discount'];
+    protected $fillable = ['status', 'note', 'transaction_date', 'supplier_id', 'users_id', 'users_update_id', 'transaction_type', 'purpose','further_discount','purchase_order_id', 'invoice_id'];
 
     public function inventories() : BelongsToMany
     {
@@ -35,5 +35,13 @@ class InventoryTrade extends Model
             'S' => ['name' => 'Alfanumerico', 'id' => 'S'],
         ];
         return $types[$this->attributes['purpose']] ?? ['name' => 'Desconocido', 'icon' => 'icono-desconocido'];
+    }
+    public function purchaseOrder() : BelongsTo
+    {
+        return $this->belongsTo(PurchaseOrder::class);
+    }
+    public function invoice() : BelongsTo
+    {
+        return $this->belongsTo(PurchaseOrder::class);
     }
 }
