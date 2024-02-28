@@ -4,44 +4,35 @@ namespace App\Http\Controllers\CRUD\TaxParameterizationResource;
 
 use App\Http\Controllers\CRUD\Interfaces\CRUD;
 use App\Http\Controllers\CRUD\Interfaces\RecordOperations;
-use App\Models\Tax;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-use App\Models\Warehouse;
+use App\Models\Tax;
 
 class ReadResource implements CRUD, RecordOperations
 {
+    private $format;
     public function resource(Request $request)
     {
-        if ($request->has('warehouse_id')) {
-            return $this->singleRecord($request->input('warehouse_id'));
+        if ($request->has('tax_id')) {
+            return $this->singleRecord($request->input('tax_id'));
         } else {
-
-            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'), $request->input('format'));
+            $this->format = $request->input('format');
+            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'));
         }
     }
 
     public function singleRecord($id)
     {
         try {
-            $data = Warehouse::where('id', $id)
-                ->with(['third' => function ($query) {
-                    $query->select('id', 'type_document', 'identification', 'code_ciiu_id', 'verification_id', 'names', 'surnames', 'business_name', 'address', 'mobile', 'email', 'email2', 'postal_code', 'city_id');
-                    $query->with(['ciiu:id,code,description',
-                    'secondaryCiius' => function($query){
-                        $query->where('status', 'A')->select('code_ciiu_thirds.id','code','description');
-                    }]);
-                }])
-                ->first();
-
+            $data = Tax::where('id', $id)->select('id', 'name', 'acronym', 'status', 'default_percent')->first();
             return response()->json(['message' => 'read: ' . $id, 'data' => $data], 200);
         } catch (QueryException $ex) {
-            Log::error('Query error WarehouseResource@readResource:singleRecord: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
+            Log::error('Query error TaxResource@read:singleRecord: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'read q'], 500);
         } catch (\Exception $ex) {
-            Log::error('unknown error WarehouseResource@readResource:singleRecord: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
+            Log::error('unknown error TaxResource@read:singleRecord: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'read u'], 500);
         }
     }

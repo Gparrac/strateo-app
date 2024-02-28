@@ -20,7 +20,7 @@ class ReadMiddleware implements ValidateData
                 'page' => 'numeric|min:0',
                 'pagination' => 'numeric|max:100',
                 'keyword' => 'string|max:40',
-                'typeKeyword' => 'string|in:acronym,name,id',
+                'typeKeyword' => 'string|in:id,name',
                 'sorters' => 'array',
                 'sorters.order' => 'nullable|in:asc,desc',
             ]);
