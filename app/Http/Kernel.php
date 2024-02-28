@@ -89,6 +89,7 @@ class Kernel extends HttpKernel
         'category.parameterization' => \App\Http\Middleware\CRUD\CategoryParameterization\CategoryParameterization::class,
         'inventory.parameterization' => \App\Http\Middleware\CRUD\InventoryParameterization\InventoryParameterization::class,
         'product.parameterization' => \App\Http\Middleware\CRUD\ProductParameterization\ProductParameterization::class,
+        'tax.parameterization' => \App\Http\Middleware\CRUD\TaxParameterization\TaxParameterization::class,
         //INVOKES
         'validate.name.invoke' => \App\Http\Middleware\Invokes\ValidateNameParameter::class,
     ];
