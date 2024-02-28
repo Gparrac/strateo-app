@@ -66,7 +66,7 @@ class Product extends Model
     {
         return $this->belongsTo(Brand::class);
     }
-    public function childrenProducts(): BelongsToMany
+    public function subproducts(): BelongsToMany
     {
         return $this->belongsToMany(Product::class,'products_products','parent_product_id', 'child_product_id')->withPivot(['amount']);
     }

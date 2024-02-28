@@ -93,9 +93,9 @@ class UpdateResource implements CRUD
             }
         }
         //record children products 🚨
-        $product->childrenProducts()
+        $product->subproducts()
             ->get()->each(function ($rProduct) use ($userId, $product) {
-                $product->childrenProducts()->updateExistingPivot($rProduct, [
+                $product->subproducts()->updateExistingPivot($rProduct, [
                     'status' => 'I',
                     'users_update_id' => $userId,
                 ]);
@@ -130,7 +130,7 @@ class UpdateResource implements CRUD
             foreach ($request['products'] as $value) {
                 $query = DB::table('products_products')->where('parent_product_id', $product['id'])->where('child_product_id', $value['product_id']);
                 if ($query->count() == 0) {
-                    $product->childrenProducts()->attach($value['product_id'], [
+                    $product->subproducts()->attach($value['product_id'], [
                         'status' => 'A',
                         'users_id' => $userId,
                         'amount' => $value['amount']

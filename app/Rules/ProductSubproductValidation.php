@@ -25,7 +25,7 @@ class ProductSubproductValidation implements ValidationRule
     {
 
         if($this->typeProduct == 'I' && $this->typeProductContent == 'E'){
-            if(!Product::where('id',$value)->whereDoesntHave('childrenProducts')->exists()){
+            if(!Product::where('id',$value)->whereDoesntHave('subproducts')->exists()){
                 $fail('Uno de los subproductos no cumple con la parametrización');
             }
             return;

@@ -24,6 +24,7 @@ class CreateMiddleware implements ValidateData
             'seller_id' => 'required|exists:users,id',
             'further_discount' => 'required|numeric',
             'sale_type' => 'required|in:P,E',
+            'date' => 'required|date_format:Y-m-d H:i:s',
             'note' => 'string',
             // -- planments table
             'start_date' => 'required_if:sale_type,E|date_format:Y-m-d H:i:s',

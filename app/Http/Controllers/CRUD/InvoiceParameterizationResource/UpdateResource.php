@@ -32,6 +32,7 @@ class UpdateResource implements CRUD
                 'client_id',
                 'note',
                 'seller_id',
+                'date',
                 'further_discount',
             ]) + ['users_update_id' => $userId])->save();
             if ($request->input('state_type') == 'E') {

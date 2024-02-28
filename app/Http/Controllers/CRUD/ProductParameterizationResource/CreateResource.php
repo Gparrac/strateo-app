@@ -83,7 +83,7 @@ class CreateResource implements CRUD
         }
         if( $request->has('type') == 'I'  and $request->has('products') ){
             foreach ($request['products'] as $value) {
-                $product->childrenProducts()->attach($value['product_id'], [
+                $product->subproducts()->attach($value['product_id'], [
                     'amount' => $value['amount'],
                     'users_id' => $userId,
                     'status' => 'A'

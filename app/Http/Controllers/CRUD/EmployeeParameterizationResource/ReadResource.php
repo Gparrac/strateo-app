@@ -74,24 +74,27 @@ class ReadResource implements CRUD, RecordOperations
         try {
             $data = Employee::with(['third' =>
             function ($query) {
-                $query->select(['id', DB::raw('IFNULL(names, business_name) as employee'), 'type_document', 'identification']);
+                $query->select(['id', 'names','surnames','business_name', 'type_document', 'identification']);
             }])->withCount(['services', 'fields']);
             //filter query with keyword 🚨
             if ($typeKeyword && $keyword) {
                 if ($typeKeyword == 'name') {
                     $data = $data->whereHas('third', function ($query) use ($keyword) {
                         $query->where('names', 'LIKE', '%' . $keyword . '%');
-                        $query->orWhere('names', 'LIKE', '%' . $keyword . '%');
+                        $query->orWhere('surnames', 'LIKE', '%' . $keyword . '%');
+                        $query->orWhere('identification', 'LIKE', '%' . $keyword . '%');
                     });
                 }else{
                     $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
                 }
             }
             if($format == 'short'){
-                $data = $data->where('status','A')->select('employees.id', 'employees.commercial_registry','employees.third_id')->take(10)->get()->map(function($supplier){
-                    $supplier['supplier'] = $supplier['third']['supplier'];
-                    unset($supplier['third']);
-                    return $supplier;
+                $data = $data->where('status','A')->take(10)->get()->map(function($query){
+                    return [
+                        'id' => $query->id,
+                        'full_name' => $query->third->names,
+                        'identification' => $query->third->type_document . ': ' . $query->third->identification
+                    ];
                 });
 
             }else{

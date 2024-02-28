@@ -74,7 +74,7 @@ class UpdateMiddleware implements ValidateData
             'products.*.amount' => 'required|numeric|min:1|max:9999',
             'products.*.taxes' => 'array',
             'products.*.taxes.*.tax_id' => 'required|exists:taxes,id',
-            'products.*.taxes.*.porcent' => 'required|numeric|min:1|max:99',
+            'products.*.taxes.*.percent' => 'required|numeric|min:1|max:99',
             'invoice_id' => 'required|exists:invoices,id'
         ];
         if ($typeConnection == 'F' || $typeConnection = 'I') {

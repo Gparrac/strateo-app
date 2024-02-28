@@ -32,7 +32,8 @@ class CreateResource implements CRUD
                 'further_discount' => $request['further_discount'],
                 'status' => 'A',
                 'users_id' => $userId,
-                'sale_type' => $request['sale_type']
+                'sale_type' => $request['sale_type'],
+                'date' => $request['date']
             ]);
             if($request->sale_type == 'E') {
                 Planment::create([
@@ -47,7 +48,7 @@ class CreateResource implements CRUD
             }
             //checking type of state
             DB::commit();
-            return response()->json(['message' => 'Successful']);
+            return response()->json(['message' => 'Successful', 'data' => $invoice->id]);
         } catch (QueryException $ex) {
             DB::rollback();
             Log::error('Query error WarehouseResource@create: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());

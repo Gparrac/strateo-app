@@ -12,7 +12,8 @@ class ReadMiddleware implements ValidateData
     {
         if($request->has('invoice_id')){
             $validator = Validator::make($request->all(), [
-                'invoice_id' => 'numeric|exists:invoices,id'
+                'invoice_id' => 'numeric|exists:invoices,id',
+                'attribute_key' => 'size:1'
             ]);
         }else{
             $validator = Validator::make($request->all(), [
