@@ -6,6 +6,7 @@ use App\Http\Controllers\CRUD\Interfaces\CRUD;
 use App\Http\Utils\FileFormat;
 use App\Models\Employee;
 use App\Models\Field;
+use App\Models\Invoice;
 use App\Models\Planment;
 use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
@@ -22,7 +23,7 @@ class UpdateResource implements CRUD
             $userId = auth()->id();
             // request data to update
             if($request->has('type_connection')){
-
+                $this->updateEmployeePlanment($request, $userId);
             }else{
                 $this->updateResource($request,$userId);
             }
@@ -149,13 +150,18 @@ class UpdateResource implements CRUD
 
     }
     protected function updateEmployeePlanment(REquest $request, $userId){
-        $savedEmployees = Planment::find($request['planment_id'])->employees()->pluck('id')->toArray();
-        Planment::find($request['planment_id'])->products()->detach($savedEmployees);
+        $planment = Invoice::find($request['invoice_id'])->planment;
+        Log::info('entrando');
+        Log::info($planment);
+        $savedEmployees = Planment::find($planment->id)->employees()->pluck('employees.id')->toArray();
+        Log::info($savedEmployees);
+        Planment::find($planment->id)->employees()->detach($savedEmployees);
+
         foreach ($request['employees'] as $employee) {
-            Planment::find('planment_id')->employees()->attach($employee['employee_id'], [
+            Planment::find($planment->id)->employees()->attach($employee['employee_id'], [
                 'salary' => $employee['salary'],
                 'users_id' => $userId,
-                'A'
+                'status' => 'A'
             ]);
 
         }

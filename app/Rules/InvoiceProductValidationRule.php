@@ -32,18 +32,18 @@ class InvoiceProductValidationRule implements ValidationRule
         $product = Product::find($value);
         switch ($this->typeConnection) {
             case 'I':
-                if ($product->type['id'] != 'T' || $invoice->sale_type != 'I') {
+                if ($product->type['id'] != 'T' || $invoice->sale_type['id'] != 'I') {
                     $fail('El producto :attribute no es apto para este tipo de orden.');
                 }
                 break;
             case 'F':
-                if ($product->type['id'] != 'T' || $invoice->sale_type != 'E') {
+                if ($product->type['id'] != 'T' || $invoice->sale_type['id'] != 'E') {
                     $fail('El producto :attribute no es apto para este tipo de orden.');
                 }
 
                 break;
             case 'E':
-                if ($product->type['id'] != 'I' || $invoice->sale_type != 'E') {
+                if ($product->type['id'] != 'I' || $invoice->sale_type['id'] != 'E') {
                     $fail('El producto :attribute no es apto para este tipo de orden.');
                 }
                 break;

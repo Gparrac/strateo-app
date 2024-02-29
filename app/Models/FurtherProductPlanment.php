@@ -25,4 +25,8 @@ class FurtherProductPlanment extends Model
     {
         return $this->belongsToMany(Tax::class,'products_taxes','further_product_planment_id','tax_id')->withPivot('percent');
     }
+    public function warehouse() : BelongsTo
+    {
+        return $this->belongsTo(Warehouse::class);
+    }
 }

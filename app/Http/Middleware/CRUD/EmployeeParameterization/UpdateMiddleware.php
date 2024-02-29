@@ -104,7 +104,7 @@ class UpdateMiddleware implements ValidateData
     }
     public function typeConnectionValidation(){
         $this->rules = [
-            'planment_id' => 'required|exists:planments,id',
+            'invoice_id' => 'required|exists:invoices,id',
             'employees' => ['array'],
             'employees.*.employee_id' => ['required','exists:employees,id'],
             'employees.*.salary' => 'required|numeric|min:0|max:99999999'

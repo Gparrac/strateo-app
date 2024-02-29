@@ -11,11 +11,11 @@ class ProductPlanment extends Model
 {
     use HasFactory;
     protected $table = "products_planments";
-    protected $fillable = ['product_id', 'planment_id', 'cost', 'discount', 'status', 'users_id', 'users_udate_id'];
+    protected $fillable = ['product_id', 'planment_id', 'cost', 'discount', 'status', 'users_id', 'users_udate_id', 'amount'];
 
     public function eventProduct() : BelongsTo
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Product::class, 'product_id');
     }
     public function planment() : BelongsTo
     {
@@ -23,6 +23,10 @@ class ProductPlanment extends Model
     }
     public function subproducts() : BelongsToMany
     {
-        return $this->belongsToMany(Product::class, 'products_planments_products', 'product_activity_id', 'product_id')->withPivot(['amount']);
+        return $this->belongsToMany(Product::class, 'products_planments_products', 'product_activity_id', 'product_id')->withPivot(['amount','warehouse_id']);
+    }
+    public function taxes() : BelongsToMany
+    {
+        return $this->belongsToMany(Tax::class,'products_taxes','product_planment_id', 'tax_id')->withPivot(['percent']);
     }
 }

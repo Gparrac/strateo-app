@@ -60,7 +60,7 @@ class UpdateMiddleware implements ValidateData
             'categories.*' => 'required|exists:categories,id',
             'taxes' => 'array',
             'taxes.*.tax_id' => 'required|exists:taxes,id',
-            'taxes.*.porcent' => 'required|numeric|min:0|max:100',
+            'taxes.*.percent' => 'required|numeric|min:0|max:100',
             'tracing' => 'required_if:type,T|boolean',
         ];
     }
@@ -70,7 +70,7 @@ class UpdateMiddleware implements ValidateData
             'products' => 'required|array',
             'products.*.product_id' => ['required','exists:products,id', new InvoiceProductValidationRule($typeConnection)],
             'products.*.cost' => 'required|numeric|min:1|max:99999999',
-            'products.*.discount' => 'required|numeric|min:1|max:99999999',
+            'products.*.discount' => 'numeric|min:1|max:99999999',
             'products.*.amount' => 'required|numeric|min:1|max:9999',
             'products.*.taxes' => 'array',
             'products.*.taxes.*.tax_id' => 'required|exists:taxes,id',
