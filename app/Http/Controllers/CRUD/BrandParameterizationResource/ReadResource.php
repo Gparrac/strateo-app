@@ -12,7 +12,6 @@ use App\Models\Brand;
 
 class ReadResource implements CRUD, RecordOperations
 {
-
     public function resource(Request $request)
     {
         if ($request->has('brand_id')) {

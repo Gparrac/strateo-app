@@ -38,7 +38,6 @@ class ReadResource implements CRUD, RecordOperations
     {
         try {
             $data = Product::with([
-
                 'brand' => function ($query) {
                     $query->where('status', 'A')->select('id', 'name');
                 }, 'measure' => function ($query) {
