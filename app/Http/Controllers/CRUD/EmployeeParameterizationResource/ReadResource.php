@@ -92,7 +92,7 @@ class ReadResource implements CRUD, RecordOperations
                 $data = $data->where('status','A')->take(10)->get()->map(function($query){
                     return [
                         'id' => $query->id,
-                        'full_name' => $query->third->names,
+                        'fullname' => $query->third->names,
                         'identification' => $query->third->type_document . ': ' . $query->third->identification
                     ];
                 });

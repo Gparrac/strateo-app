@@ -75,7 +75,6 @@ class CreateMiddleware implements ValidateData
                         array_push($contentRules, 'integer');
                         break;
                     case 'F':
-                        Log::info('entrando');
                         array_push($contentRules, 'file', 'mimes:pdf,docx', 'max:2048');
                         break;
                     default:

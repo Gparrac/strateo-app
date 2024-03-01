@@ -22,8 +22,6 @@ class CreateResource implements CRUD
         DB::beginTransaction();
         try {
             $userId = auth()->id();
-            Log::info('date');
-            Log::info($request->input('date'));
             $inventoryTrade = InventoryTrade::create([
                     'transaction_type' => $request->input('transaction_type'),
                     'purpose' => $request->input('purpose'),

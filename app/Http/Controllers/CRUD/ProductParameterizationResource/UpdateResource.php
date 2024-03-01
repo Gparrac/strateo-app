@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\CRUD\ProductParameterizationResource;
 
 use App\Http\Controllers\CRUD\Interfaces\CRUD;
+use App\Models\FurtherProductPlanment;
 use App\Models\Inventory;
 use App\Models\Invoice;
 use App\Models\Planment;
@@ -113,12 +114,12 @@ class UpdateResource implements CRUD
                     $product->taxes()->attach($value['tax_id'], [
                         'status' => 'A',
                         'users_id' => $userId,
-                        'porcent' => $value['porcent']
+                        'percent' => $value['percent']
                     ]);
                 } else {
                     $query->update([
                         'status' => 'A',
-                        'porcent' => $value['porcent'],
+                        'percent' => $value['percent'],
                         'users_update_id' => $userId
                     ]);
                 }
@@ -146,23 +147,27 @@ class UpdateResource implements CRUD
     }
     protected function updateFurtherEvent($userId, Request $request){
         $planment = Invoice::find($request['invoice_id'])->planment;
-        $currentlyProducts = $planment->furtherProducts()->pluck('id')->toArray();
-        $planment->furtherProducts()->detach($currentlyProducts);
+
+        $currentlyProducts = Planment::find($planment->id)->furtherProducts()->pluck('further_products_planments.id')->toArray();
+
+        Planment::find($planment->id)->furtherProducts()->detach($currentlyProducts);
+
         foreach ($request['products'] as $product) {
-            $planment->furtherProducts()->attach($product['product_id'], [
+            Planment::find($planment->id)->furtherProducts()->attach($product['product_id'], [
                 'amount' => $product['amount'],
                 'status' => 'A',
-                'discount' => $product['discount'],
+                'discount' => $product['discount'] ?? 0,
                 'cost' => $product['cost'],
                 'users_id' => $userId,
                 'warehouse_id' => $product['warehouse_id'] ?? null,
                 'tracing' =>  $product['tracing'],
             ]);
+            $pivotId = FurtherProductPlanment::where('planment_id', $planment['id'], $product['product_id'])->first()->id;
             foreach ($product['taxes'] as $tax) {
                 DB::table('products_taxes')->insert([
                     'tax_id' => $tax['tax_id'],
-                    'further_product_planment_id' => $planment['id'],
-                    'porcent' => $tax['porcent'],
+                    'further_product_planment_id' => $pivotId,
+                    'percent' => $tax['percent'],
                     'users_id' => $userId
                 ]);
             }
@@ -171,32 +176,29 @@ class UpdateResource implements CRUD
     }
     protected function updateProductInvoice($userId, Request $request)
     {
-        Log::info($request);
-        Log::info('t1');
         $currentlyProducts = Invoice::find($request['invoice_id'])->products();
         if(empty($currentlyProducts)){
             $currentlyProducts = $currentlyProducts->pluck('id')->toArray();
             Invoice::find($request['invoice_id'])->products()->detach($currentlyProducts);
         }
-        Log::info('t2');
-        Log::info('t3');
+
         foreach ($request['products'] as $product) {
             Invoice::find($request['invoice_id'])->products()->attach($product['product_id'], [
                 'amount' => $product['amount'],
                 'cost' => $product['cost'],
-                'discount' => $product['discount'],
+                'discount' => $product['discount'] ?? 0,
                 'status' => 'A',
                 'warehouse_id' => $product['warehouse_id'],
                 'users_id' => $userId,
                 'tracing' => $product['tracing']
             ]);
-            Log::info('t4');
+
             $pivotId = DB::table('products_invoices')->where('product_id', $product['product_id'])->where('invoice_id', $request['invoice_id'])->first()->id;
             foreach ($product['taxes'] as $tax) {
                 DB::table('products_taxes')->insert([
                     'tax_id' => $tax['tax_id'],
                     'product_invoice_id' => $pivotId,
-                    'porcent' => $tax['porcent'],
+                    'percent' => $tax['percent'],
                     'users_id' => $userId,
                 ]);
             }
@@ -214,14 +216,15 @@ class UpdateResource implements CRUD
                 'planment_id' => $planment['id'],
                 'product_id' => $event['product_id'],
                 'cost' => $event['cost'],
-                'discount' => $event['discount'],
+                'amount' => $event['amount'],
+                'discount' => $event['discount'] ?? 0,
                 'users_id' => $userId
             ]);
             foreach ($event['taxes'] as $tax) {
                 DB::table('products_taxes')->insert([
                     'tax_id' => $tax['tax_id'],
                     'product_planment_id' => $productPlanment['id'],
-                    'porcent' => $tax['porcent'],
+                    'percent' => $tax['percent'],
                     'users_id' => $userId
                 ]);
             }
@@ -236,7 +239,7 @@ class UpdateResource implements CRUD
                     'tracing' => $subproduct['tracing']
                 ]);
                 if ($checkState && $subproduct['tracing']) {
-                    Log::info('Orden de compra creada para abastecimiento de planeación ' . $planment->id);
+
                 }
             }
         }

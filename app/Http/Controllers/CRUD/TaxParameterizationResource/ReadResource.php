@@ -19,7 +19,7 @@ class ReadResource implements CRUD, RecordOperations
             return $this->singleRecord($request->input('tax_id'));
         } else {
             $this->format = $request->input('format');
-            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'));
+            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'), $request->input('format'));
         }
     }
 
@@ -45,9 +45,9 @@ class ReadResource implements CRUD, RecordOperations
             if ($typeKeyword && $keyword) {
                 $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
             }
-            if($format == 'short'){
-                $data = $data->where('status','A')->select('id','acronym','name','default_percent')->take(10)->get();
-            }else{
+            if ($format == 'short') {
+                $data = $data->where('status', 'A')->select('id', 'acronym', 'name', 'default_percent')->take(10)->get();
+            } else {
 
                 //append shorters to query
                 foreach ($sorters as $shorter) {
