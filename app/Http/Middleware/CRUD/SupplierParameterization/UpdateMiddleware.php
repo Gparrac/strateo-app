@@ -16,7 +16,6 @@ class UpdateMiddleware implements ValidateData
 {
     public function validate(Request $request)
     {
-        Log::info('entrando middle');
         $validator = Validator::make($request->all(), [
             //--------------------- new attributes
             'supplier_id' => 'required|exists:suppliers,id',

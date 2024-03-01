@@ -15,7 +15,7 @@ class UpdateResource implements CRUD
     public function resource(Request $request)
     {
         //datos entrada [role_id=>roleId,forms=>[forms=> form_id, permissions_id => [1,2,..]]
-        Log::info('entrando');
+
         DB::beginTransaction();
         try {
             $userId = Auth::id(); //meanwhile implement auth module
@@ -27,8 +27,8 @@ class UpdateResource implements CRUD
                 'users_update_id' => $userId,
             ]);
             if(!$adminRole){
-                Log::info('paso1');
-                Log::info($request['forms']);
+
+
             foreach ($request['forms'] as $key => $form) {
                 if (isset($request['forms'][$key]['permissions_id'])) {
                     DB::table('permission_roles')->where('role_id', $request['role_id'])->where('form_id', $form['form_id'])->whereNotIn('permission_id', $form['permissions_id'])->update([
@@ -53,7 +53,7 @@ class UpdateResource implements CRUD
                         }
                     }
                 } else {
-                    Log::info('paso2');
+
                     DB::table('permission_roles')->where('role_id', $request['role_id'])->where('form_id', $form['form_id'])->update([
                         'status' => 'I'
                     ]);

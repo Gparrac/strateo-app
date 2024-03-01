@@ -13,7 +13,6 @@ class UpdateMiddleware implements ValidateData
 {
     public function validate(Request $request)
     {
-        Log::info('middle1');
         $validator = Validator::make($request->all(), [
             //Third table
             'role_id' => 'required|integer|exists:roles,id',
@@ -24,7 +23,6 @@ class UpdateMiddleware implements ValidateData
             'forms.*.permissions_id' => 'array',
             'forms.*.permissions_id.*' => 'integer|exists:permissions,id',
         ]);
-        Log::info('middle2');
         if ($validator->fails()){
             return [
                 'error' => TRUE,

@@ -103,7 +103,6 @@ class ReadResource implements CRUD, RecordOperations
     protected function getInventory($productId, $warehouseId){
         try{
             $data = Inventory::where('product_id', $productId)->where('warehouse_id', $warehouseId)->first();
-            Log::info($data ?? 'no entra');
             return response()->json(['message' => 'read', 'data' => $data ?? 0], 200);
         }catch (\Exception $ex) {
             Log::error('unknown error ClientResource@readResource:allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());

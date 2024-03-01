@@ -24,7 +24,7 @@ class ReadResource implements CRUD, RecordOperations
     {
         if ($request->has('invoice_id')) {
             if ($request->has('attribute_key')) {
-                Log::info($request->input('attribute_key'));
+
                 switch ($request->input('attribute_key')) {
                     case 'F':
 
@@ -39,7 +39,7 @@ class ReadResource implements CRUD, RecordOperations
                         return $this->getEventProducts($request->input('invoice_id'));
 
                     default:
-                    Log::info('pasando? default');
+
                         return $this->getEmployees($request->input('invoice_id'));
 
                 }
@@ -148,7 +148,7 @@ class ReadResource implements CRUD, RecordOperations
     }
     protected function getInvoiceProducts($invoice)
     {
-        Log::info('entrando');
+
         try {
             $products = ProductInvoice::with(['product' => function ($query) {
                 $query->with(['measure:id,symbol', 'brand:id,name']);
@@ -192,7 +192,7 @@ class ReadResource implements CRUD, RecordOperations
             }, 'taxes:id,name,acronym,default_percent'])->where('planment_id', $planmentId)->get();
             $products->each(function ($product, $key) use ($products){
                 $product->subproducts->map(function ($subproduct)  {
-                    Log::info('wareouse');
+
                     $subproduct['warehouse'] = Warehouse::where('id', $subproduct['pivot']['warehouse_id'])->with('city:id,name')->select('id', 'city_id', 'address')->first();
 
                     $inventory = ($subproduct['warehouse']) ? Inventory::where('product_id', $subproduct['id'])->where('warehouse_id', $subproduct['warehouse']['id'])->first() : 0;

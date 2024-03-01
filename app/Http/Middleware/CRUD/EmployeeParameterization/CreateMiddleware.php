@@ -14,13 +14,13 @@ use Monolog\Handler\PushoverHandler;
 
 class CreateMiddleware implements ValidateData
 {
-    protected $rules ;
+    protected $rules;
     public function validate(Request $request)
     {
         $typeRequest = $request->has("type_connection");
-        if($typeRequest){
+        if ($typeRequest) {
             $this->typeConnectionValidation();
-        }else{
+        } else {
             $this->createValidation();
         }
 
@@ -53,7 +53,6 @@ class CreateMiddleware implements ValidateData
                         array_push($contentRules, 'integer');
                         break;
                     case 'F':
-                        Log::info('entrando');
                         array_push($contentRules, 'file', 'mimes:pdf,docx', 'max:2048');
                         break;
                     default:
@@ -65,7 +64,6 @@ class CreateMiddleware implements ValidateData
                     return ['error' => TRUE, 'message' => $validator2->errors()];
                 }
                 $contentRules = [];
-
             }
         }
         $request->merge(['services' => $recordServices]);
@@ -73,7 +71,8 @@ class CreateMiddleware implements ValidateData
 
         return ['error' => FALSE];
     }
-    public function createValidation(){
+    public function createValidation()
+    {
         $this->rules = [
             'type_document' => 'required|in:CC,NIT,CE,PASAPORTE',
             'identification' => 'required|numeric|digits_between:7,10|unique:thirds,identification',
@@ -100,13 +99,13 @@ class CreateMiddleware implements ValidateData
             'services.*.fields.*.content' => ['required']
         ];
     }
-    public function typeConnectionValidation(){
+    public function typeConnectionValidation()
+    {
         $this->rules = [
             'planment_id' => 'required|exists:planments,id',
             'employees' => ['array'],
-            'employees.*.employee_id' => ['required','exists:employees,id'],
+            'employees.*.employee_id' => ['required', 'exists:employees,id'],
             'employees.*.salary' => 'required|numeric|min:|max:99999999'
         ];
     }
-
 }

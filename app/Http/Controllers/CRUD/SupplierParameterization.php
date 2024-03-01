@@ -18,7 +18,6 @@ class SupplierParameterization extends Controller
      */
     public function __invoke(Request $request)
     {
-        Log::info('mensage');
         switch($request->method()){
             case 'POST':
                 $strategy = new CRUDContext(new CreateResource());

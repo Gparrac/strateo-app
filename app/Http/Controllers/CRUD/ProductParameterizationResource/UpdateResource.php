@@ -147,11 +147,11 @@ class UpdateResource implements CRUD
     }
     protected function updateFurtherEvent($userId, Request $request){
         $planment = Invoice::find($request['invoice_id'])->planment;
-        Log::info('pasing1');
+
         $currentlyProducts = Planment::find($planment->id)->furtherProducts()->pluck('further_products_planments.id')->toArray();
-        Log::info('passing 2:D');
+
         Planment::find($planment->id)->furtherProducts()->detach($currentlyProducts);
-        Log::info('passing 3:D');
+
         foreach ($request['products'] as $product) {
             Planment::find($planment->id)->furtherProducts()->attach($product['product_id'], [
                 'amount' => $product['amount'],
@@ -192,7 +192,7 @@ class UpdateResource implements CRUD
                 'users_id' => $userId,
                 'tracing' => $product['tracing']
             ]);
-            Log::info('t4');
+
             $pivotId = DB::table('products_invoices')->where('product_id', $product['product_id'])->where('invoice_id', $request['invoice_id'])->first()->id;
             foreach ($product['taxes'] as $tax) {
                 DB::table('products_taxes')->insert([
@@ -239,7 +239,7 @@ class UpdateResource implements CRUD
                     'tracing' => $subproduct['tracing']
                 ]);
                 if ($checkState && $subproduct['tracing']) {
-                    Log::info('Orden de compra creada para abastecimiento de planeación ' . $planment->id);
+
                 }
             }
         }

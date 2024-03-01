@@ -19,7 +19,6 @@ class UpdateResource implements CRUD
     {
         DB::beginTransaction();
         try {
-            Log::info('entrando');
             $userId = Auth::id();
             $company = Company::first();
             // Find Third with third_id in company

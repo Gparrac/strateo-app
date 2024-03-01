@@ -17,7 +17,6 @@ class DeleteResource implements CRUD
     {
         try {
             $userId = auth()->id();
-            Log::info($request['suppliers_id']);
             Supplier::whereIn('id', $request['suppliers_id'])->update([
                 'status' => 'I',
                 'users_update_id' => $userId,

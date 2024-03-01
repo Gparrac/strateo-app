@@ -33,47 +33,41 @@ class ReadResource implements CRUD, RecordOperations
         try {
 
 
-                $data = new User();
-
-            Log::info($typeKeyword);
-            Log::info($keyword);
+            $data = new User();
             //filter query with keyword 🚨
             if ($typeKeyword && $keyword) {
-                if($typeKeyword == 'third'){
-                    $data = $data->whereHas('third', function ($query) use ($typeKeyword, $keyword){
-                        $query->where('identification', 'LIKE', '%'. $keyword . '%');
-                        $query->orWhere('names', 'LIKE', '%'. $keyword . '%');
-                        $query->orWhere('surnames', 'LIKE', '%'. $keyword . '%');
-                        $query->orWhere('business_name', 'LIKE', '%'. $keyword . '%');
+                if ($typeKeyword == 'third') {
+                    $data = $data->whereHas('third', function ($query) use ($typeKeyword, $keyword) {
+                        $query->where('identification', 'LIKE', '%' . $keyword . '%');
+                        $query->orWhere('names', 'LIKE', '%' . $keyword . '%');
+                        $query->orWhere('surnames', 'LIKE', '%' . $keyword . '%');
+                        $query->orWhere('business_name', 'LIKE', '%' . $keyword . '%');
                     });
-                }else{
+                } else {
 
                     $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
                 }
             }
 
-            if($format == 'short'){
+            if ($format == 'short') {
                 $data = $data
 
-                ->select('users.id','users.name','third_id')->take(10)->get()
-                ->map(function ($query){
-                    $shortForm = [
-                        'id' => $query->id,
-                        'name' => $query->name,
-                        'full_name' => $query['third']['names'],
-                        'identification' => $query['third']['type_document'] . '. ' . $query['third']['identification']
-                    ];
-                    unset($query['third_id']);
-                    unset($query['third']);
-                    return $shortForm;
-                });
-
-
-            }else{
+                    ->select('users.id', 'users.name', 'third_id')->take(10)->get()
+                    ->map(function ($query) {
+                        $shortForm = [
+                            'id' => $query->id,
+                            'name' => $query->name,
+                            'full_name' => $query['third']['names'],
+                            'identification' => $query['third']['type_document'] . '. ' . $query['third']['identification']
+                        ];
+                        unset($query['third_id']);
+                        unset($query['third']);
+                        return $shortForm;
+                    });
+            } else {
                 $data = $data->with(['third' => function ($query) {
                     $query->with('city:id,name');
-
-                },'role:id,name', 'offices:id,name']);
+                }, 'role:id,name', 'offices:id,name']);
 
                 //append shorters to query
                 foreach ($sorters as $shorter) {

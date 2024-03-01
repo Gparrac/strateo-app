@@ -30,11 +30,7 @@ class UpdateResource implements CRUD
                 'description',
                 'status',
                 ])+ ['users_update_id' => $userId])->save();
-                Log::info('pasando1');
-                Log::info($service['id']);
                 DB::table('fields_services')->where('services_id',$service['id'])->update(['status'=> 'I']);
-            Log::info('pasando2');
-            Log::info($request['fields']);
 
             foreach ($request['fields'] as $value) {
                 $query = DB::table('fields_services')->where('services_id',$service['id'])->where('fields_id',$value['field_id']);

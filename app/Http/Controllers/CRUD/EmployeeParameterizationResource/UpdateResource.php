@@ -22,10 +22,10 @@ class UpdateResource implements CRUD
         try {
             $userId = auth()->id();
             // request data to update
-            if($request->has('type_connection')){
+            if ($request->has('type_connection')) {
                 $this->updateEmployeePlanment($request, $userId);
-            }else{
-                $this->updateResource($request,$userId);
+            } else {
+                $this->updateResource($request, $userId);
             }
             DB::commit();
             return response()->json(['message' => 'Successful']);
@@ -40,7 +40,8 @@ class UpdateResource implements CRUD
             return response()->json(['message' => 'create u'], 500);
         }
     }
-    protected function updateResource(Request $request, $userId){
+    protected function updateResource(Request $request, $userId)
+    {
         $employee = Employee::findOrFail($request->input('employee_id'));
         $third = Third::findOrFail($employee['third_id']);
         $urlFile = 'employees/' . $employee['id'];
@@ -90,10 +91,10 @@ class UpdateResource implements CRUD
 
         // update services and related fields
         DB::table('services_employees')->where('employee_id', $employee['id'])->update(['status' => 'I', 'users_update_id' => $userId]);
-        Log::info("paso 2");
+
         foreach ($request['services'] as $svalue => $service) {
             $query = DB::table('services_employees')->where('employee_id', $employee['id'])->where('service_id', $service['service_id']);
-            Log::info("paso 3");
+
             if ($query->count() == 0) {
                 $employee->services()->attach($service['service_id'], [
                     'status' => 'A',
@@ -108,53 +109,48 @@ class UpdateResource implements CRUD
             foreach ($service['fields'] as $fvalue => $field) {
 
                 if ($field['type'] == 'F') {
-                    if(!array_key_exists('content',$field)){
-                        $content = Field::find($field['field_id'])->employees()->where('employee_id',$employee['id'])->first()->pivot['path_info'];
-                        Log::info("paso 4");
-                    }else{
-                    //if update service and its a file then it's gonna create other file and not replace
-                    $pathFileRequest = 'services.' . $svalue . '.fields.' . $fvalue . '.content';
-                    $urlFile = $urlFile . '/services/' . $service['service_id'] . '/fields/';
-                    $content = $request->file($pathFileRequest)
-                        ->storeAs(
-                            $urlFile,
-                            FileFormat::formatName(
-                                $request->file($pathFileRequest)->getClientOriginalName(),
-                                $request->file($pathFileRequest)->guessExtension()
-                            )
-                        );
+                    if (!array_key_exists('content', $field)) {
+                        $content = Field::find($field['field_id'])->employees()->where('employee_id', $employee['id'])->first()->pivot['path_info'];
+                    } else {
+                        //if update service and its a file then it's gonna create other file and not replace
+                        $pathFileRequest = 'services.' . $svalue . '.fields.' . $fvalue . '.content';
+                        $urlFile = $urlFile . '/services/' . $service['service_id'] . '/fields/';
+                        $content = $request->file($pathFileRequest)
+                            ->storeAs(
+                                $urlFile,
+                                FileFormat::formatName(
+                                    $request->file($pathFileRequest)->getClientOriginalName(),
+                                    $request->file($pathFileRequest)->guessExtension()
+                                )
+                            );
                     }
-                }else{
+                } else {
                     $content = $field['content'];
                 }
                 $queryFields = DB::table('fields_employees')->where('employee_id', $employee['id'])->where('field_id', $field['field_id']);
-                Log::info("paso 5");
+
                 if ($query->count() == 0) {
-                    Log::info("paso 6");
+
                     $employee->fields()->attach($field['field_id'], [
                         'path_info' => $content,
                         'users_id' => $userId
                     ]);
-                    Log::info("paso 7");
                 } else {
                     $queryFields->update([
                         'path_info' => $content,
                         'users_update_id' => $userId
                     ]);
-                    Log::info("paso 8");
                 }
-                Log::info("paso 8.5");
             }
-            Log::info("paso 9");
         }
-
     }
-    protected function updateEmployeePlanment(REquest $request, $userId){
+    protected function updateEmployeePlanment(REquest $request, $userId)
+    {
         $planment = Invoice::find($request['invoice_id'])->planment;
-        Log::info('entrando');
-        Log::info($planment);
+
+
         $savedEmployees = Planment::find($planment->id)->employees()->pluck('employees.id')->toArray();
-        Log::info($savedEmployees);
+
         Planment::find($planment->id)->employees()->detach($savedEmployees);
 
         foreach ($request['employees'] as $employee) {
@@ -163,7 +159,6 @@ class UpdateResource implements CRUD
                 'users_id' => $userId,
                 'status' => 'A'
             ]);
-
         }
     }
 }

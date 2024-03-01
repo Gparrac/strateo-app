@@ -19,7 +19,6 @@ class UpdateResource implements CRUD
     public function resource(Request $request)
     {
         DB::beginTransaction();
-        Log::info('pasando1 controller');
         try {
             $userId = auth()->id();
             // request data to update
