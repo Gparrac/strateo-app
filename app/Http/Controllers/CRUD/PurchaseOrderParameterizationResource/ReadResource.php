@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\CRUD\TaxParameterizationResource;
+namespace App\Http\Controllers\CRUD\PurchaseOrderParameterizationResource;
 
 use App\Http\Controllers\CRUD\Interfaces\CRUD;
 use App\Http\Controllers\CRUD\Interfaces\RecordOperations;
@@ -29,10 +29,10 @@ class ReadResource implements CRUD, RecordOperations
             $data = Tax::where('id', $id)->select('id', 'name', 'acronym', 'status', 'default_percent')->first();
             return response()->json(['message' => 'read: ' . $id, 'data' => $data], 200);
         } catch (QueryException $ex) {
-            Log::error('Query error TaxResource@read:singleRecord: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
+            Log::error('Query error PurchaseOrder@read:singleRecord: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'read q'], 500);
         } catch (\Exception $ex) {
-            Log::error('unknown error TaxResource@read:singleRecord: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
+            Log::error('unknown error PurchaseOrder@read:singleRecord: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'read u'], 500);
         }
     }
@@ -58,10 +58,10 @@ class ReadResource implements CRUD, RecordOperations
 
             return response()->json(['message' => 'read', 'data' => $data], 200);
         } catch (QueryException $ex) {
-            Log::error('Query error TaxResource@readResource:allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
+            Log::error('Query error PurchaseOrder@readResource:allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'read q'], 500);
         } catch (\Exception $ex) {
-            Log::error('unknown error TaxResource@readResource:allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
+            Log::error('unknown error PurchaseOrder@readResource:allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'read u'], 500);
         }
     }
