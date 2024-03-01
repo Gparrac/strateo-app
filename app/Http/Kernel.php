@@ -91,9 +91,10 @@ class Kernel extends HttpKernel
         'product.parameterization' => \App\Http\Middleware\CRUD\ProductParameterization\ProductParameterization::class,
         'employee.parameterization' => \App\Http\Middleware\CRUD\EmployeeParameterization\EmployeeParameterization::class,
         'invoice.parameterization' => \App\Http\Middleware\CRUD\InvoiceParameterization\InvoiceParameterization::class,
+        'tax.parameterization' => \App\Http\Middleware\CRUD\TaxParameterization\TaxParameterization::class,
+        'purchase.order.parameterization' => \App\Http\Middleware\CRUD\PurchaseOrderParameterization\PurchaseOrderParameterization::class,
         //INVOKES
         'validate.name.invoke' => \App\Http\Middleware\Invokes\ValidateNameParameter::class,
-        'tax.parameterization' => \App\Http\Middleware\CRUD\TaxParameterization\TaxParameterization::class,
     ];
 }
 

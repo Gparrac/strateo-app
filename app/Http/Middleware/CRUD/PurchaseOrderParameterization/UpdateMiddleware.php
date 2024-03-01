@@ -22,9 +22,16 @@ class UpdateMiddleware implements ValidateData
             'products' => [
                 'required',
                 'array',
-                Rule::exists('products', 'id'),
             ],
-            'amount' => 'required|numeric|digits_between:1,10',
+            'products.*.id' => [
+                'required',
+                'exists:products,id'
+            ],
+            'products.*.amount' => [
+                'required',
+                'numeric',
+                'digits_between:1,10'
+            ]
         ]);
 
         if ($validator->fails()){
