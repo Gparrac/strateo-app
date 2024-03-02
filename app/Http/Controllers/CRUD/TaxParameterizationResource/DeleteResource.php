@@ -23,7 +23,7 @@ class DeleteResource implements CRUD, RecordOperations
     public function singleRecord($id){
         try {
             $userId = auth()->id();
-            dd("ok");
+
             $tax = Tax::where('id', $id)->firstOrFail();
             // Create a record in the Office table
             $tax->update([
