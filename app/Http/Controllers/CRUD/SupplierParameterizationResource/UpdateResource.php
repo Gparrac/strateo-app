@@ -77,11 +77,12 @@ class UpdateResource implements CRUD
                         $third->secondaryCiius()->attach($value,[
                             'status' => 'A',
                             'users_id' => $userId,
-                            'users_update_id' => $userId
+
                         ]);
                     }else{
                         $codes->update([
-                            'status' => 'A'
+                            'status' => 'A',
+                            'users_update_id' => $userId
                         ]);
                     }
                 }

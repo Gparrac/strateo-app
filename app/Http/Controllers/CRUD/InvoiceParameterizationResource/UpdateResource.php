@@ -24,6 +24,8 @@ class UpdateResource implements CRUD
     {
         DB::beginTransaction();
         try {
+            Log::info('test stage');
+            Log::info($request->stage);
             $userId = Auth::id();
             // -----------------------saving third ----------------------------
             $invoice = Invoice::findOrFail($request->input('invoice_id'));
@@ -35,14 +37,15 @@ class UpdateResource implements CRUD
                 'date',
                 'further_discount',
             ]) + ['users_update_id' => $userId])->save();
-            if ($request->input('state_type') == 'E') {
+
+            if ($invoice->sale_type['id'] == 'E') {
+                Log::info('entrando...');
                 $invoice->planment->fill($request->only([
                     'start_date',
                     'end_date',
                     'stage',
                     'status',
-                    'pay_off',
-                    'sale_type'
+                    'pay_off'
                 ]) + ['users_update_id' => $userId])->save();
             }
 

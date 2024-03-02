@@ -41,7 +41,7 @@ class CreateResource implements CRUD
                    'end_date' => $request['end_date'],
                    'pay_off' => $request['pay_off'],
                    'users_id' => $userId,
-                   'stage' => $request['pay_off'] == 0 ? 'QUO' : 'CON',
+                   'stage' => 'QUO',
                    'status' => 'A',
                    'invoice_id' => $invoice['id']
                 ]);

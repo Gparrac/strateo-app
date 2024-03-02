@@ -55,7 +55,7 @@ class ReadResource implements CRUD, RecordOperations
     {
         try {
             $data = Invoice::where('id', $id)
-                ->with(['planment:id,start_date,end_date,pay_off,invoice_id', 'seller' => function ($query) {
+                ->with(['planment:id,start_date,end_date,pay_off,invoice_id,stage', 'seller' => function ($query) {
                     $query->with('third:id,names,surnames,identification,type_document');
                     $query->select('users.id', 'users.third_id', 'users.name');
                 }, 'client' => function ($query) {
