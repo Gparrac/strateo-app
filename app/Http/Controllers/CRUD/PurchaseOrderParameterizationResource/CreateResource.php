@@ -17,7 +17,7 @@ class CreateResource implements CRUD
         DB::beginTransaction();
         try {
             $userId = Auth::id();
-    
+
             $purchaseOrder = PurchaseOrder::create([
                 'supplier_id' => $request->input('supplier_id'),
                 'date' => $request->input('date'),
@@ -29,7 +29,7 @@ class CreateResource implements CRUD
             $products = $request->input('products');
 
             foreach ($products as $key => $value) {
-                $purchaseOrder->products()->attach($value['id'], [
+                $purchaseOrder->products()->attach($value['product_id'], [
                     'amount' => $value['amount'],
                     'users_id' => $userId,
                 ]);
