@@ -54,11 +54,11 @@ class UpdateResource implements CRUD
             return response()->json(['message' => 'Successful']);
         } catch (QueryException $ex) {
             DB::rollback();
-            Log::error('Query error ClientResource@updateResource: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
+            Log::error('Query error ServiceResource@updateResource: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'update q'], 500);
         } catch (\Exception $ex) {
             DB::rollback();
-            Log::error('unknown error ClientResource@updateResource: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
+            Log::error('unknown error ServiceResource@updateResource: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'update u'], 500);
         }
     }
