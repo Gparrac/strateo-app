@@ -34,7 +34,7 @@ class DeleteResource implements CRUD, RecordOperations
 
     public function allRecords($ids = null,$pagination=5, $sorters = [], $keyword =null, $typeKeyword = null, $format = null){
         try {
-            return response()->json(['message' => 'Not Deleted: '. $id], 200);
+            return response()->json(['message' => 'Not Deleted: '. $ids], 200);
         } catch (QueryException $ex) {
             Log::error('Query error PurchaseOrder@allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'delete q'], 500);

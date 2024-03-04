@@ -15,7 +15,7 @@ class CreateMiddleware implements ValidateData
             'supplier_id' => 'required|exists:suppliers,id',
             'date' => 'required|date',
             'note' => 'required|string|min:3|max:45',
-
+            'status' => 'required|in:A,I',
             //purchase_orders_products
             'products' => [
                 'required',

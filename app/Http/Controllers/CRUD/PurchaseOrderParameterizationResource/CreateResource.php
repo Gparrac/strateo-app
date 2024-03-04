@@ -23,6 +23,7 @@ class CreateResource implements CRUD
                 'date' => $request->input('date'),
                 'note' => $request->input('note'),
                 'users_id' => $userId,
+                'status' => 'A'
             ]);
 
             // Adjuntar productos a la orden de compra

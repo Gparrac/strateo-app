@@ -120,7 +120,8 @@ class ReadResource implements CRUD, RecordOperations
                 }, 'warehouse' => function ($query) {
                     $query->with('city:id,name')->select('id', 'city_id', 'address');
                 }, 'taxes:id,name,acronym,default_percent'])->where('planment_id', $planment->id)
-                    ->select('further_products_planments.id as further_product_planment_id', 'further_products_planments.planment_id', 'further_products_planments.product_id', 'further_products_planments.tracing', 'further_products_planments.warehouse_id', 'further_products_planments.amount', 'further_products_planments.cost', 'further_products_planments.discount')->get();
+                    //->select('further_products_planments.id as further_product_planment_id', 'further_products_planments.planment_id', 'further_products_planments.product_id', 'further_products_planments.tracing', 'further_products_planments.warehouse_id', 'further_products_planments.amount', 'further_products_planments.cost', 'further_products_planments.discount')
+                    ->get();
                 $products->each(function ($product, $key) use ($products) {
                     $inventory = ($product['warehouse']) ? Inventory::where('product_id', $product['id'])->where('warehouse_id', $product['warehouse']['id'])->first() : 0;
                     $temp = $product['product']->toArray() + [
@@ -129,9 +130,14 @@ class ReadResource implements CRUD, RecordOperations
                         'amount' => $product['amount'],
                         'cost' => $product['cost'],
                         'discount' => $product['discount'],
-                        'taxes' => $product['taxes'],
                         'tracing' => $product['tracing'] ??0
                     ];
+                    $product['taxes']->map(function ($tax){
+                        $tax['default_percent'] = $tax['pivot']['percent'];
+                        $tax['percent'] = $tax['default_percent'];
+                        unset($tax['pivot']);
+                    });
+                    $temp['taxes'] = $product['taxes'];
                     $products[$key] = $temp;
                 });
             }else{

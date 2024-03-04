@@ -24,6 +24,7 @@ class UpdateResource implements CRUD
                 'supplier_id',
                 'date',
                 'note',
+                'status'
             ]) + ['users_update_id' => $userId])->save();
 
             // Attach products to the purchase order
