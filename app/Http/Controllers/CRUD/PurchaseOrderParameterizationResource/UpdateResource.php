@@ -30,12 +30,13 @@ class UpdateResource implements CRUD
             $products = $request->input('products');
 
             // Synchronize the attached products with the new product IDs
-            foreach ($productIdsWithAmounts as $product) {
+            foreach ($products as $product) {
                 $purchaseOrder->products()->sync([$product['id'] => ['amount' => $product['amount'], 'users_update_id' => $userId]], false);
             }
 
             // Get the IDs of the attached products after synchronization
             $attachedProductIds = $purchaseOrder->products()->pluck('products.id')->toArray();
+            $productIds = $products->pluck('id')->toArray();
 
             // Determine the product IDs to remove
             $productsToDetach = array_diff($attachedProductIds, $productIds);
