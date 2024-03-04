@@ -13,6 +13,14 @@ class PurchaseOrder extends Model
 
     protected $table = 'purchase_order';
 
+    protected $fillable = [
+        'supplier_id',
+        'date',
+        'note',
+        'users_id',
+        'users_update_id'
+    ];
+    
     // RELATIONSHIP
     public function products() : BelongsToMany
     {
