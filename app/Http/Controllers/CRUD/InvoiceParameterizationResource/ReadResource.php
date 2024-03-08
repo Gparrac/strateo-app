@@ -20,6 +20,7 @@ use Illuminate\Http\Request;
 
 class ReadResource implements CRUD, RecordOperations
 {
+    protected $typeSale;
     public function resource(Request $request)
     {
         if ($request->has('invoice_id')) {
@@ -44,9 +45,11 @@ class ReadResource implements CRUD, RecordOperations
 
                 }
             } else {
+
                 return $this->singleRecord($request->input('invoice_id'));
             }
         } else {
+            $this->typeSale = $request->input('type');
             return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'), $request->input('format'));
         }
     }
@@ -60,8 +63,9 @@ class ReadResource implements CRUD, RecordOperations
                     $query->select('users.id', 'users.third_id', 'users.name');
                 }, 'client' => function ($query) {
                     $query->select('clients.id', 'legal_representative_name as name', 'legal_representative_id as document');
-                }])
-                ->first();
+                }]);
+
+                $data = $data->first();
             $test = [
                 'id' => $data->seller->id,
                 'full_name' => $data->seller->third->names . ' ' . $data->seller->third->surnames,
@@ -85,7 +89,11 @@ class ReadResource implements CRUD, RecordOperations
         try {
             $data = Invoice::with(['seller:id,name', 'client' => function ($query) {
                 $query->with('third:id,identification,names,surnames,type_document')->select('id', 'third_id');
-            }, 'planment:id,invoice_id,stage,pay_off,start_date,end_date'])->select('id', 'seller_id', 'client_id', 'sale_type', 'date', 'updated_at');
+            } ]);
+            if($this->typeSale == 'E'){
+                $data = $data->whereHas('planment')->with('planment:id,invoice_id,stage,pay_off,start_date,end_date');
+            }
+            $data = $data->withCount('products')->where('sale_type', $this->typeSale);
             //filter query with keyword 🚨
             if ($typeKeyword && $keyword) {
                 $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
@@ -94,7 +102,9 @@ class ReadResource implements CRUD, RecordOperations
                 $data = $data->where('status', 'A')->select('warehouses.id', 'warehouses.address', 'warehouses.city_id')->take(10)->get();
             } else {
                 //append shorters to query
+                Log::info($sorters);
                 foreach ($sorters as $shorter) {
+                    if($shorter['key'] == 'stage') $shorter['key'] = 'planment.stage';
                     $data = $data->orderBy($shorter['key'], $shorter['order']);
                 }
                 $data = $data->paginate($pagination);
@@ -156,24 +166,33 @@ class ReadResource implements CRUD, RecordOperations
     {
 
         try {
-            $products = ProductInvoice::with(['product' => function ($query) {
+            $products = ProductInvoice::with([
+                    'product' => function ($query) {
                 $query->with(['measure:id,symbol', 'brand:id,name']);
                 $query->select('products.id', 'products.name', 'products.consecutive', 'products.product_code', 'products.brand_id', 'products.measure_id', 'products.cost as defaultCost');
             }, 'warehouse' => function ($query) {
                 $query->with('city:id,name')->select('id', 'city_id', 'address');
-            }, 'taxes:id,name,acronym,default_percent'])->where('invoice_id', $invoice)
-                ->select('products_invoices.id as products_invoice_id', 'products_invoices.invoice_id', 'products_invoices.product_id', 'products_invoices.tracing', 'products_invoices.warehouse_id', 'products_invoices.amount', 'products_invoices.cost', 'products_invoices.discount')->get();
-            $products->each(function ($product, $key) use ($products) {
-                $inventory = Inventory::where('product_id', $product['id'])->where('warehouse_id', $product['warehouse']['id'])->first();
+            },
+            'taxes:id,name,acronym,default_percent'])->where('invoice_id', $invoice)
+                ->select('products_invoices.id', 'products_invoices.invoice_id', 'products_invoices.product_id', 'products_invoices.tracing', 'products_invoices.warehouse_id', 'products_invoices.amount', 'products_invoices.cost', 'products_invoices.discount')
+                ->get();
+
+                $products->each(function ($product, $key) use ($products) {
+                $inventory = $product['warehouse'] ? Inventory::where('product_id', $product['id'])->where('warehouse_id', $product['warehouse']['id'])->first() : null;
                 $temp = $product['product']->toArray() + [
                     'stock' => $inventory['stock'] ?? 0,
                     'warehouse' => $product['warehouse'],
                     'amount' => $product['amount'],
                     'cost' => $product['cost'],
                     'discount' => $product['discount'],
-                    'taxes' => $product['taxes'],
-                    'tracing' => $product['tracing'] ? true : false
+                    'tracing' => $product['tracing']
                 ];
+                $product['taxes']->map(function ($tax){
+                    $tax['default_percent'] = $tax['pivot']['percent'];
+                    $tax['percent'] = $tax['default_percent'];
+                    unset($tax['pivot']);
+                });
+                $temp['taxes'] = $product['taxes'];
                 $products[$key] = $temp;
             });
             return response()->json(['message' => 'read: ' . $invoice, 'data' => $products], 200);

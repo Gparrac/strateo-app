@@ -178,19 +178,17 @@ class UpdateResource implements CRUD
     }
     protected function updateProductInvoice($userId, Request $request)
     {
-        $currentlyProducts = Invoice::find($request['invoice_id'])->products();
-        if(empty($currentlyProducts)){
-            $currentlyProducts = $currentlyProducts->pluck('id')->toArray();
-            Invoice::find($request['invoice_id'])->products()->detach($currentlyProducts);
-        }
 
+
+
+        Invoice::find($request['invoice_id'])->products()->detach();
         foreach ($request['products'] as $product) {
             Invoice::find($request['invoice_id'])->products()->attach($product['product_id'], [
                 'amount' => $product['amount'],
                 'cost' => $product['cost'],
                 'discount' => $product['discount'] ?? 0,
                 'status' => 'A',
-                'warehouse_id' => $product['warehouse_id'],
+                'warehouse_id' => $product['warehouse_id'] ?? null,
                 'users_id' => $userId,
                 'tracing' => $product['tracing']
             ]);
