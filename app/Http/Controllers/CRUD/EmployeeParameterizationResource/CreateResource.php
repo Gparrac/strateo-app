@@ -4,6 +4,7 @@ namespace App\Http\Controllers\CRUD\EmployeeParameterizationResource;
 
 use App\Http\Controllers\CRUD\Interfaces\CRUD;
 use App\Http\Utils\CastVerificationNit;
+use App\Models\DynamicService;
 use App\Models\Planment;
 use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
@@ -68,8 +69,6 @@ class CreateResource implements CRUD
             'status' => $request['status'],
             'users_id' => $userId
         ];
-
-
         // Create a record in the Third table
         $third = Third::create($thirdData);
         $employeeData['third_id'] = $third['id'];
@@ -96,16 +95,19 @@ class CreateResource implements CRUD
         ]);
 
         //relate services and its fields with employee record
+        //append services and their fields to supplier's relationship
         foreach ($request['services'] as $svalue => $service) {
-            $employee->services()->attach($service['service_id'], [
+            $dynamicService = DynamicService::create([
+                'employee_id' => $employee->id,
+                'service_id' => $service['service_id'],
                 'status' => 'A',
                 'users_id' => $userId
             ]);
             foreach ($service['fields'] as $fvalue => $field) {
-                $content = $field['content'];
-                if ($field['type'] == 'F') {
+                $content = $field['content'] ?? null;
+                if ($content && $field['type'] == 'F') {
                     $pathFileRequest = 'services.' . $svalue . '.fields.' . $fvalue . '.content';
-                    $urlFile = $urlFile . '/services/' . $service['service_id'] . '/fields/';
+                    $urlFile = $urlFile . '/services/' . $service['service_id'] . '/fields';
                     $content = $request->file($pathFileRequest)
                         ->storeAs(
                             $urlFile,
@@ -115,9 +117,10 @@ class CreateResource implements CRUD
                             )
                         );
                 }
-                $employee->fields()->attach($field['field_id'], [
+                $dynamicService->fields()->attach($field['field_id'], [
                     'path_info' => $content,
-                    'users_id' => $userId
+                    'users_id' => $userId,
+                    'status' => 'A'
                 ]);
             }
         }

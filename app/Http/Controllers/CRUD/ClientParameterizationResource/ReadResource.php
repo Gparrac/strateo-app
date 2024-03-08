@@ -25,8 +25,9 @@ class ReadResource implements CRUD, RecordOperations
     {
         try {
             $data = Client::with(['third' => function ($query) {
+
+                    $query->with(['city:id,name','ciiu:id,code,description']);
                 $query->select('id', 'type_document', 'identification', 'code_ciiu_id', 'verification_id', 'names', 'surnames', 'business_name', 'address', 'mobile', 'email', 'email2', 'postal_code', 'city_id');
-                $query->with('ciiu:id,code,description');
             }])
                 ->where('clients.id', $id)
                 ->first();

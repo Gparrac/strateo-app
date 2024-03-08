@@ -96,7 +96,6 @@ class CreateMiddleware implements ValidateData
             'services.*.service_id' => 'required|exists:services,id',
             'services.*.fields' => ['required', 'array', new ServiceFieldSizeValidationRule()],
             'services.*.fields.*.field_id' => 'required|exists:fields,id',
-            'services.*.fields.*.content' => ['required']
         ];
     }
     public function typeConnectionValidation()

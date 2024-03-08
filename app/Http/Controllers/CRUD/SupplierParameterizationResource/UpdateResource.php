@@ -4,6 +4,7 @@ namespace App\Http\Controllers\CRUD\SupplierParameterizationResource;
 
 use App\Http\Controllers\CRUD\Interfaces\CRUD;
 use App\Http\Utils\FileFormat;
+use App\Models\DynamicService;
 use App\Models\Field;
 use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
@@ -31,7 +32,7 @@ class UpdateResource implements CRUD
                     ->storeAs(
                         $urlFile,
                         FileFormat::formatName(
-                            'crf' . $request->file('commercial_registry_file')->getClientOriginalName(),
+                            'crf_' . $request->file('commercial_registry_file')->getClientOriginalName(),
                             $request->file('commercial_registry_file')->guessExtension()
                         )
                     );
@@ -41,7 +42,7 @@ class UpdateResource implements CRUD
                     ->storeAs(
                         $urlFile,
                         FileFormat::formatName(
-                            $request->file('rut_file')->getClientOriginalName(),
+                            'rutf_' . $request->file('rut_file')->getClientOriginalName(),
                             $request->file('rut_file')->guessExtension()
                         )
                     );
@@ -87,29 +88,35 @@ class UpdateResource implements CRUD
                     }
                 }
             }
-
             // update services and related fields
-            DB::table('suppliers_services')->where('suppliers_id', $supplier['id'])->update(['status' => 'I', 'users_update_id' => $userId]);
+            $savedServices = DynamicService::where('supplier_id', $supplier['id'])->pluck('service_id')->toArray();
+            $newServices = array_column($request['services'], 'service_id');
+            $inactiveServices = array_diff($savedServices, $newServices);
+            Log::info($inactiveServices);
+            DynamicService::where('supplier_id', $supplier['id'])->whereIn('service_id',$inactiveServices)->update(['status'=> 'I', 'users_update_id' => $userId]);
+
             foreach ($request['services'] as $svalue => $service) {
-                $query = DB::table('suppliers_services')->where('suppliers_id', $supplier['id'])->where('services_id', $service['service_id']);
-                if ($query->count() == 0) {
-                    $supplier->fields()->attach($service['service_id'], [
-                        'status' => 'A',
-                        'users_id' => $userId
-                    ]);
-                } else {
+                $query = DynamicService::where('supplier_id', $supplier['id'])->where('service_id', $service['service_id'])->first();
+                if ($query) {
                     $query->update([
                         'status' => 'A',
                         'users_update_id' => $userId
                     ]);
+                } else {
+                    $query = DynamicService::create([
+                        'status' => 'A',
+                        'supplier_id' => $supplier['id'],
+                        'service_id' => $service['service_id'],
+                        'users_id' => $userId
+                    ]);
                 }
+                DB::table('fields_dynamic_services')->where('dynamic_service_id', $query['id'])->update(['status' => 'I', 'users_update_id' => $userId]);
                 foreach ($service['fields'] as $fvalue => $field) {
-
                     if ($field['type'] == 'F') {
-                        if(!array_key_exists('content',$field)){
-                            $content = Field::find($field['field_id'])->suppliers()->where('suppliers_id',$supplier['id'])->first()->pivot['path_info'];
+                        if(!array_key_exists('content', $field)){
+                            $content = $query->fields()->where('fields.id',$field['field_id'])->first();
+                            $content = $content ? $content->pivot->path_info : null;
                         }else{
-                        //if update service and its a file then it's gonna create other file and not replace
                         $pathFileRequest = 'services.' . $svalue . '.fields.' . $fvalue . '.content';
                         $urlFile = $urlFile . '/services/' . $service['service_id'] . '/fields/';
                         $content = $request->file($pathFileRequest)
@@ -124,16 +131,20 @@ class UpdateResource implements CRUD
                     }else{
                         $content = $field['content'];
                     }
-                    $queryFields = DB::table('suppliers_fields')->where('suppliers_id', $supplier['id'])->where('fields_id', $field['field_id']);
-                    if ($query->count() == 0) {
-                        $supplier->fields()->attach($field['field_id'], [
-                            'path_info' => $content,
-                            'users_id' => $userId
-                        ]);
-                    } else {
-                        $queryFields->update([
+
+
+                    $queryFields = $query->fields()->where('fields.id',$field['field_id'])->first();
+                    if ($queryFields) {
+                        DB::table('fields_dynamic_services')->where('dynamic_service_id', $query['id'])
+                        ->where('field_id',$queryFields['id'])->update([
                             'path_info' => $content,
                             'users_update_id' => $userId
+                        ]);
+                    } else {
+                        $query->fields()->attach($field['field_id'], [
+                            'path_info' => $content,
+                            'users_id' => $userId,
+                            'status'=> 'A',
                         ]);
                     }
 

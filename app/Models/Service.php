@@ -24,10 +24,10 @@ class Service extends Model
     }
     public function suppliers(): BelongsToMany
     {
-        return $this->BelongsToMany(Supplier::class, 'suppliers_services', 'services_id', 'suppliers_id')->withPivot(['users_id', 'users_update_id', 'required']);
+        return $this->BelongsToMany(Supplier::class, 'dynamic_services', 'service_id', 'supplier_id')->withPivot(['users_id', 'users_update_id']);
     }
     public function employees(): BelongsToMany
     {
-        return $this->belongsToMany(Employee::class,'services_employees', 'service_id', 'employee_id')->withPivot(['path_info']);
+        return $this->BelongsToMany(Employee::class, 'dynamic_services', 'service_id', 'employee_id')->withPivot(['users_id', 'users_update_id']);
     }
 }
