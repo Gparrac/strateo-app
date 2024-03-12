@@ -21,6 +21,7 @@ use Illuminate\Http\Request;
 class ReadResource implements CRUD, RecordOperations
 {
     protected $typeSale;
+    protected $filters;
     public function resource(Request $request)
     {
         if ($request->has('invoice_id')) {
@@ -31,8 +32,7 @@ class ReadResource implements CRUD, RecordOperations
 
                         return $this->getFurtherProducts($request->input('invoice_id'));
 
-                    case 'I':
-                        ;
+                    case 'I':;
                         return $this->getInvoiceProducts($request->input('invoice_id'));
 
                     case 'E': // E
@@ -42,7 +42,6 @@ class ReadResource implements CRUD, RecordOperations
                     default:
 
                         return $this->getEmployees($request->input('invoice_id'));
-
                 }
             } else {
 
@@ -50,6 +49,7 @@ class ReadResource implements CRUD, RecordOperations
             }
         } else {
             $this->typeSale = $request->input('type');
+            $this->filters = $request->input('filters');
             return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'), $request->input('format'));
         }
     }
@@ -65,7 +65,7 @@ class ReadResource implements CRUD, RecordOperations
                     $query->select('clients.id', 'legal_representative_name as name', 'legal_representative_id as document');
                 }]);
 
-                $data = $data->first();
+            $data = $data->first();
             $test = [
                 'id' => $data->seller->id,
                 'full_name' => $data->seller->third->names . ' ' . $data->seller->third->surnames,
@@ -89,8 +89,8 @@ class ReadResource implements CRUD, RecordOperations
         try {
             $data = Invoice::with(['seller:id,name', 'client' => function ($query) {
                 $query->with('third:id,identification,names,surnames,type_document')->select('id', 'third_id');
-            } ]);
-            if($this->typeSale == 'E'){
+            }]);
+            if ($this->typeSale == 'E') {
                 $data = $data->whereHas('planment')->with('planment:id,invoice_id,stage,pay_off,start_date,end_date');
             }
             $data = $data->withCount('products')->where('sale_type', $this->typeSale);
@@ -98,13 +98,33 @@ class ReadResource implements CRUD, RecordOperations
             if ($typeKeyword && $keyword) {
                 $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
             }
+            if ($this->filters) {
+                foreach ($this->filters as  $value) {
+                    if ($value['key'] == 'client') {
+                        $data = $data->whereHas('client', function ($query) use ($value) {
+                            $query->whereHas('third', function ($query) use ($value) {
+                                $query->whereRaw("CONCAT(names, ' ', surnames) LIKE '%" . $value['value'] . "%'");
+                            });
+                        });
+                    }
+                    if ($value['key'] == 'id'){
+                        $data = $data->where('id', 'like', '%' . $value['value'] . '%');
+                    }
+                    if ($value['key'] == 'seller'){
+                        $data = $data->whereHas('seller', function ($query) use ($value) {
+                            $query->where('name', 'like', '%' . $value['value'] . '%');
+                        });
+                    }
+                }
+            }
+
             if ($format == 'short') {
                 $data = $data->where('status', 'A')->select('warehouses.id', 'warehouses.address', 'warehouses.city_id')->take(10)->get();
             } else {
                 //append shorters to query
                 Log::info($sorters);
                 foreach ($sorters as $shorter) {
-                    if($shorter['key'] == 'stage') $shorter['key'] = 'planment.stage';
+                    if ($shorter['key'] == 'stage') $shorter['key'] = 'planment.stage';
                     $data = $data->orderBy($shorter['key'], $shorter['order']);
                 }
                 $data = $data->paginate($pagination);
@@ -123,7 +143,7 @@ class ReadResource implements CRUD, RecordOperations
     {
         try {
             $planment = Invoice::find($invoice)->planment;
-            if($planment){
+            if ($planment) {
                 $products = FurtherProductPlanment::with(['product' => function ($query) {
                     $query->with(['measure:id,symbol', 'brand:id,name']);
                     $query->select('products.id', 'products.name', 'products.consecutive', 'products.product_code', 'products.brand_id', 'products.measure_id', 'products.cost as defaultCost');
@@ -140,9 +160,9 @@ class ReadResource implements CRUD, RecordOperations
                         'amount' => $product['amount'],
                         'cost' => $product['cost'],
                         'discount' => $product['discount'],
-                        'tracing' => $product['tracing'] ??0
+                        'tracing' => $product['tracing'] ?? 0
                     ];
-                    $product['taxes']->map(function ($tax){
+                    $product['taxes']->map(function ($tax) {
                         $tax['default_percent'] = $tax['pivot']['percent'];
                         $tax['percent'] = $tax['default_percent'];
                         unset($tax['pivot']);
@@ -150,7 +170,7 @@ class ReadResource implements CRUD, RecordOperations
                     $temp['taxes'] = $product['taxes'];
                     $products[$key] = $temp;
                 });
-            }else{
+            } else {
                 $products = [];
             }
             return response()->json(['message' => 'read: ' . $invoice, 'data' => $products], 200);
@@ -167,17 +187,18 @@ class ReadResource implements CRUD, RecordOperations
 
         try {
             $products = ProductInvoice::with([
-                    'product' => function ($query) {
-                $query->with(['measure:id,symbol', 'brand:id,name']);
-                $query->select('products.id', 'products.name', 'products.consecutive', 'products.product_code', 'products.brand_id', 'products.measure_id', 'products.cost as defaultCost');
-            }, 'warehouse' => function ($query) {
-                $query->with('city:id,name')->select('id', 'city_id', 'address');
-            },
-            'taxes:id,name,acronym,default_percent'])->where('invoice_id', $invoice)
+                'product' => function ($query) {
+                    $query->with(['measure:id,symbol', 'brand:id,name']);
+                    $query->select('products.id', 'products.name', 'products.consecutive', 'products.product_code', 'products.brand_id', 'products.measure_id', 'products.cost as defaultCost');
+                }, 'warehouse' => function ($query) {
+                    $query->with('city:id,name')->select('id', 'city_id', 'address');
+                },
+                'taxes:id,name,acronym,default_percent'
+            ])->where('invoice_id', $invoice)
                 ->select('products_invoices.id', 'products_invoices.invoice_id', 'products_invoices.product_id', 'products_invoices.tracing', 'products_invoices.warehouse_id', 'products_invoices.amount', 'products_invoices.cost', 'products_invoices.discount')
                 ->get();
 
-                $products->each(function ($product, $key) use ($products) {
+            $products->each(function ($product, $key) use ($products) {
                 $inventory = $product['warehouse'] ? Inventory::where('product_id', $product['id'])->where('warehouse_id', $product['warehouse']['id'])->first() : null;
                 $temp = $product['product']->toArray() + [
                     'stock' => $inventory['stock'] ?? 0,
@@ -187,7 +208,7 @@ class ReadResource implements CRUD, RecordOperations
                     'discount' => $product['discount'],
                     'tracing' => $product['tracing']
                 ];
-                $product['taxes']->map(function ($tax){
+                $product['taxes']->map(function ($tax) {
                     $tax['default_percent'] = $tax['pivot']['percent'];
                     $tax['percent'] = $tax['default_percent'];
                     unset($tax['pivot']);
@@ -215,8 +236,8 @@ class ReadResource implements CRUD, RecordOperations
                 $query->with(['measure:id,symbol', 'brand:id,name']);
                 $query->select('products.id', 'products.name', 'products.consecutive', 'products.product_code', 'products.brand_id', 'products.measure_id', 'products_planments_products.warehouse_id', 'products_planments_products.tracing');
             }, 'taxes:id,name,acronym,default_percent'])->where('planment_id', $planmentId)->get();
-            $products->each(function ($product, $key) use ($products){
-                $product->subproducts->map(function ($subproduct)  {
+            $products->each(function ($product, $key) use ($products) {
+                $product->subproducts->map(function ($subproduct) {
 
                     $subproduct['warehouse'] = Warehouse::where('id', $subproduct['pivot']['warehouse_id'])->with('city:id,name')->select('id', 'city_id', 'address')->first();
 
@@ -226,7 +247,7 @@ class ReadResource implements CRUD, RecordOperations
                     $subproduct['stock'] = $inventory ?? 0;
                     unset($subproduct['pivot']);
                 });
-                $product->taxes->each(function ($tax){
+                $product->taxes->each(function ($tax) {
                     $tax['id'] = $tax['pivot']['tax_id'];
                     $tax['percent'] = $tax['pivot']['percent'];
                     unset($tax['pivot']);
@@ -256,8 +277,8 @@ class ReadResource implements CRUD, RecordOperations
         try {
             $planment = Planment::with(['employees' =>  function ($query) {
                 $query->with('third:id,names,surnames,business_name,identification,type_document');
-                $query->select('employees.id','third_id');
-            }])->where('invoice_id',$invoice)->select('planments.id')->first();
+                $query->select('employees.id', 'third_id');
+            }])->where('invoice_id', $invoice)->select('planments.id')->first();
             // dd($planment);
             $planment['employees']->each(function ($employee, $key) use ($planment) {
                 $planment['employees'][$key] = [
@@ -266,7 +287,7 @@ class ReadResource implements CRUD, RecordOperations
                     'identification' => $employee['third']['type_document'] . ':' . $employee['third']['identification'],
                     'salary' => $employee['pivot']['salary']
                 ];
-                });
+            });
 
             return response()->json(['message' => 'read: ' . $invoice, 'data' => $planment->employees], 200);
         } catch (QueryException $ex) {

@@ -16,13 +16,13 @@ class TypeProduct extends Controller
         if ($request->has('attribute')) {
             if ($request['attribute'] == 'type') {
                 $types = [
-                    ['name' => 'Servicio',  'id' => 'SE'],
-                    ['name' => 'Producto',  'id' => 'PR'],
-                    ['name' => 'Lugar',  'id' => 'PL'],
+                    ['name' => 'Tangible',  'id' => 'I'],
+                    ['name' => 'Intangible',  'id' => 'T'],
+
                 ];
             } else {
                 $types = [
-                    ['name' => 'Reutilizable',  'id' => 'R'], ['name' => 'Consumible',  'id' => 'C']
+                    ['name' => 'Evento',  'id' => 'E'], ['name' => 'Consumible',  'id' => 'C'],['name' => 'Lugar',  'id' => 'L']
                 ];
             }
         }
