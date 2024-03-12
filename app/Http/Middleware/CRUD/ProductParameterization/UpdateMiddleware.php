@@ -37,7 +37,7 @@ class UpdateMiddleware implements ValidateData
         $this->rules = [
             'product_id'  => ['required', 'exists:products,id'],
             'type' => 'required|in:T,I', // Tangible, Intangible
-            'type_content' => 'required|in:E,C,L', //Evento, Consumible, Lugar
+            'type_content' => 'required|in:E,C,L,R',//Evento, Consumible, Lugar, Reutilizable
             'consecutive' => ['required', 'numeric', Rule::unique('products', 'consecutive')->ignore(request()->input('product_id'))],
             'name' => 'required|string|min:3|max:50',
             'description' => 'string|min:3|max:250',

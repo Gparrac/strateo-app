@@ -59,7 +59,7 @@ class CreateResource implements CRUD
             'measure_id' => $request->input('measure_id'),
             'barcode' => $request->input('barcode') ?? null,
             'status' => $request->input('status'),
-            'type_content' => $request->input('type_content') ?? null,
+            'type_content' => $request->input('type_content'),
             'users_id' => $userId,
             'size' => $request['size'],
             'tracing' => $request->input('type') == 'T' ? $request['tracing'] : false

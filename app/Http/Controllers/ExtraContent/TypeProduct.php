@@ -16,14 +16,20 @@ class TypeProduct extends Controller
         if ($request->has('attribute')) {
             if ($request['attribute'] == 'type') {
                 $types = [
-                    ['name' => 'Tangible',  'id' => 'I'],
-                    ['name' => 'Intangible',  'id' => 'T'],
+                    ['name' => 'Intangible',  'id' => 'I'],
+                    ['name' => 'Tangible',  'id' => 'T'],
 
                 ];
             } else {
-                $types = [
-                    ['name' => 'Evento',  'id' => 'E'], ['name' => 'Consumible',  'id' => 'C'],['name' => 'Lugar',  'id' => 'L']
-                ];
+                if($request->has('type')){
+                    $types = $request->input('type') == 'T' ?
+                    [['name' => 'Consumible',  'id' => 'C'], ['name'=> 'Reutilizable', 'id'=> 'R']]
+                    : [['name' => 'Evento',  'id' => 'E'],['name' => 'Lugar',  'id' => 'L']];
+                }else{
+                    $types = [
+                        ['name' => 'Evento',  'id' => 'E'],['name' => 'Lugar',  'id' => 'L'], ['name' => 'Consumible',  'id' => 'C'], ['name'=> 'Reutilizable', 'id'=> 'R']
+                    ];
+                }
             }
         }
         return response()->json(['message' => 'Read: ', 'data' => $types], 200);

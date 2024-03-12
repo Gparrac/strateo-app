@@ -30,7 +30,7 @@ class CreateMiddleware implements ValidateData
     protected function createValidation(){
         $this->rules = [
             'type' =>'required|in:T,I',// Tangible, Intangible
-            'type_content' => 'required|in:E,C,L',//Evento, Consumible, Lugar
+            'type_content' => 'required|in:E,C,L,R',//Evento, Consumible, Lugar
             'consecutive' => 'required|numeric|unique:products,consecutive',
             'name' => 'required|string|min:3|max:50',
             'description' => 'string|min:3|max:250',
