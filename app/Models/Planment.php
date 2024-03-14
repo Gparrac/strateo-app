@@ -38,4 +38,8 @@ class Planment extends Model
     {
         return $this->hasMany(ProductPlanment::class, 'planment_id')->withPivot(['amount','cost','discount']);
     }
+    public function librettoActivities() : BelongsToMany
+    {
+        return $this->belongsToMany(LibrettoActivity::class, 'libretto_activities_planments', 'planment_id', 'libretto_activity_id');
+    }
 }

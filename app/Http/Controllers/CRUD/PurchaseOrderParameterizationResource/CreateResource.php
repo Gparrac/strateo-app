@@ -21,7 +21,7 @@ class CreateResource implements CRUD
             $purchaseOrder = PurchaseOrder::create([
                 'supplier_id' => $request->input('supplier_id'),
                 'date' => $request->input('date'),
-                'note' => $request->input('note'),
+                'note' => $request->input('note') ?? null,
                 'users_id' => $userId,
                 'status' => 'A'
             ]);

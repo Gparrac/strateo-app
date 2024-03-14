@@ -12,9 +12,9 @@ class CreateMiddleware implements ValidateData
     public function validate(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'type' =>'required|in:F,T,A,I',
+            'type' =>'required|in:TI,LE,WE,VO',
             'name' => 'required|string|min:3|max:50',
-            'symbol' => 'required|string|digits_between:1,3|unique:measures,symbol',
+            'symbol' => 'required|string|max:3|unique:measures,symbol',
             'status' => 'required|in:A,I',
         ]);
 
