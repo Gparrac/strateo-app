@@ -19,10 +19,10 @@ class UpdateMiddleware implements ValidateData
         $validator = Validator::make($request->all(), [
             //--------------------- new attributes
             'supplier_id' => 'required|exists:suppliers,id',
-            'commercial_registry' => 'required|string|max:50',
+            'commercial_registry' => 'string|max:50',
             'commercial_registry_file' => 'file|mimes:pdf,docx|max:2048',
             'rut_file' => 'file|mimes:pdf,docx|max:2048',
-            'note' => 'required|string',
+            'note' => 'string',
             'status' => 'required|in:A,I',
             //--------------------- third attributes
             'type_document' => 'required|in:CC,NIT,CE,PASAPORTE',
@@ -34,9 +34,9 @@ class UpdateMiddleware implements ValidateData
             'mobile' => 'required|numeric|digits_between:10,13',
             'email' => ['required', 'email', Rule::unique('thirds', 'email')->ignore(Supplier::find($request['supplier_id'])->third->id)],
             'email2' => 'email|different:email',
-            'postal_code' => 'required|numeric',
+            'postal_code' => 'numeric',
             'city_id' => 'required|exists:cities,id',
-            'code_ciiu_id' => 'required|exists:code_ciiu,id',
+            'code_ciiu_id' => 'required_if:type_document,NIT|exists:code_ciiu,id',
             'secondary_ciiu_ids' => 'array',
             'secondary_ciiu_ids.*' => 'numeric|exists:code_ciiu,id',
             // //--------------------- service attributes
@@ -89,7 +89,7 @@ class UpdateMiddleware implements ValidateData
                 $contentRules = [];
             }
         }
-        $request->merge(['services' => $recordServices]);
+        $request->merge(['services' => $recordServices, 'note' => $request['note'] ?? null]);
 
         return ['error' => FALSE];
     }

@@ -24,6 +24,7 @@ class ReadMiddleware implements ValidateData
                 'typeKeyword' => 'string|in:id,name',
                 'sorters' => 'array',
                 'sorters.order' => 'nullable|in:asc,desc',
+                'type' => 'in:P,E'
             ]);
         }
 

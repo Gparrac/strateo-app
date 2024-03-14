@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Third;
 use App\Models\Client;
 use App\Http\Utils\FileFormat;
+use App\Models\DynamicService;
 use App\Models\Service;
 use App\Models\Supplier;
 
@@ -33,19 +34,19 @@ class CreateResource implements CRUD
                 'address' => $request->input('address'),
                 'mobile' => $request->input('mobile'),
                 'email' => $request->input('email'),
-                'postal_code' => $request->input('postal_code'),
+                'postal_code' => $request->input('postal_code') ?? null,
                 'city_id' => $request->input('city_id'),
                 'users_id' => $userId,
-                'code_ciiu_id' => $request->input('code_ciiu_id')
+                'code_ciiu_id' => $request->input('code_ciiu_id') ?? null
             ];
             // Create body to create supplier record
             $supplierData = [
-                'commercial_registry' => $request['commercial_registry'],
+                'commercial_registry' => $request['commercial_registry'] ?? null,
                 //'commercial_registry_file' => $request['commercial_registry'],
-                'note' => $request->input('note'),
+                'note' => $request->input('note') ?? null,
                 'status' => $request->input('status'),
                 'users_id' => $userId,
-                'commercial_registry_file' => ''
+                'commercial_registry_file' => null
             ];
 
 
@@ -61,32 +62,51 @@ class CreateResource implements CRUD
             //write dawn in suppliers table
             $supplier = Supplier::create($supplierData);
             $urlFile = 'supplier/'.$supplier['id'];
-            $supplier->update([
-                'commercial_registry_file' => $request->file('commercial_registry_file')
-                ->storeAs(
-                    $urlFile,
-                    FileFormat::formatName('crf'.$request->file('commercial_registry_file')->getClientOriginalName(),
-                    $request->file('commercial_registry_file')->guessExtension()))
-            ]);
+
+            if($request->has('commercial_registry_file')){
+                $supplier->update([
+                    'commercial_registry_file' => $request->file('commercial_registry_file')
+                    ->storeAs(
+                        $urlFile,
+                        'crf_' . FileFormat::formatName('crf'.$request->file('commercial_registry_file')->getClientOriginalName(),
+                        $request->file('commercial_registry_file')->guessExtension()))
+                ]);
+            }
+
+            if($request->has('rut_file')){
+                $supplier->update([
+                    'rut_file' => $request->file('rut_file')
+                    ->storeAs(
+                        $urlFile,
+                        'rutf_' . FileFormat::formatName('crf'.$request->file('rut_file')->getClientOriginalName(),
+                        $request->file('rut_file')->guessExtension()))
+                ]);
+
+            }
+
+            //append services and their fields to supplier's relationship
             foreach ($request['services'] as $svalue => $service) {
-                $supplier->services()->attach($service['service_id'],[
+                $dynamicService = DynamicService::create([
+                    'supplier_id' => $supplier->id,
+                    'service_id' => $service['service_id'],
                     'status' => 'A',
                     'users_id' => $userId
                 ]);
                 foreach ($service['fields'] as $fvalue => $field) {
-                    $content = $field['content'];
-                    if ($field['type'] == 'F'){
+                    $content = $field['content'] ?? null;
+                    if ( $content && $field['type'] == 'F' ){
                         $pathFileRequest = 'services.'.$svalue.'.fields.'.$fvalue.'.content';
-                        $urlFile = $urlFile.'/services/'.$service['service_id'].'/fields/';
+                        $urlFile = $urlFile.'/services/'.$service['service_id'].'/fields';
                         $content = $request->file($pathFileRequest)
                         ->storeAs(
                             $urlFile,
                             FileFormat::formatName($request->file($pathFileRequest)->getClientOriginalName(),
                             $request->file($pathFileRequest)->guessExtension()));
                     }
-                    $supplier->fields()->attach($field['field_id'],[
+                    $dynamicService->fields()->attach($field['field_id'],[
                         'path_info' => $content,
-                        'users_id' => $userId
+                        'users_id' => $userId,
+                        'status' => 'A'
                     ]);
                 }
             }

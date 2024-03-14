@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Employee extends Model
 {
@@ -18,14 +19,13 @@ class Employee extends Model
     ];
     protected $fillable = ['type_contract', 'hire_date', 'end_date_contract', 'rut_file', 'resume_file', 'third_id', 'status', 'users_id', 'users_update_id'];
 
-    public function services(): BelongsToMany
-    {
-        return $this->belongsToMany(Service::class,'services_employees','employee_id','service_id');
+    public function services() : BelongsToMany {
+        return $this->belongsToMany(Service::class, 'dynamic_services', 'supplier_id', 'service_id');
     }
-    public function fields(): BelongsToMany
-    {
-        return $this->belongsToMany(Field::class,'fields_employees','employee_id','field_id')->withPivot(['path_info','required']);
+    public function dynamicServices() : HasMany {
+        return $this->hasMany(DynamicService::class,'employee_id');
     }
+
     public function third(): BelongsTo
     {
         return $this->belongsTo(Third::class);

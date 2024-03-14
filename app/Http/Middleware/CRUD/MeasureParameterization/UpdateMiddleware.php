@@ -15,7 +15,7 @@ class UpdateMiddleware implements ValidateData
     {
         $validator = Validator::make($request->all(), [
             'measure_id' => 'required|exists:measures,id',
-            'type' =>'required|in:F,T,A,I',
+            'type' =>'required|in:TI,LE,WE,VO',
             'name' => 'required|string|min:3|max:50',
             'symbol' => ['required','string', 'max:3', Rule::unique('measures', 'symbol')->ignore(Measure::find($request['measure_id'])->id)],
             'status' => 'required|in:A,I',

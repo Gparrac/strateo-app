@@ -18,9 +18,10 @@ class PurchaseOrder extends Model
         'date',
         'note',
         'users_id',
-        'users_update_id'
+        'users_update_id',
+        'status'
     ];
-    
+
     // RELATIONSHIP
     public function products() : BelongsToMany
     {

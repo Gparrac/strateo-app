@@ -24,5 +24,6 @@ Route::group(['middleware' => ['auth:api','role.user']], function() {
     Route::match(['get', 'post', 'put', 'delete'],'/invoice-parameterization', CRUD\InvoiceParameterization::class)->middleware('invoice.parameterization');
     Route::match(['get', 'post', 'put', 'delete'],'/tax-parameterization', CRUD\TaxParameterization::class)->middleware('tax.parameterization');
     Route::match(['get', 'post', 'put', 'delete'],'/purchase-order-parameterization', CRUD\PurchaseOrderParameterization::class)->middleware('purchase.order.parameterization');
+    Route::match(['get', 'post', 'put', 'delete'],'/libretto-activity-parameterization', CRUD\LibrettoActivityParameterization::class)->middleware('libretto.activity.parameterization');
 });
 

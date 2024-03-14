@@ -19,11 +19,12 @@ class UpdateResource implements CRUD
             $userId = Auth::id();
 
             $purchaseOrder = PurchaseOrder::where('id', $request->input('purchase_order_id'))->firstOrFail();
-    
+
             $purchaseOrder->fill($request->only([
                 'supplier_id',
                 'date',
                 'note',
+                'status'
             ]) + ['users_update_id' => $userId])->save();
 
             // Attach products to the purchase order
@@ -31,7 +32,7 @@ class UpdateResource implements CRUD
 
             // Synchronize the attached products with the new product IDs
             foreach ($products as $product) {
-                $purchaseOrder->products()->sync([$product['id'] => ['amount' => $product['amount'], 'users_update_id' => $userId]], false);
+                $purchaseOrder->products()->sync([$product['product_id'] => ['amount' => $product['amount'], 'users_update_id' => $userId]], false);
             }
 
             // Get the IDs of the attached products after synchronization

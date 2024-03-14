@@ -29,7 +29,8 @@ class Product extends Model
         'status',
         'size',
         'supply',
-        'tracing'
+        'tracing',
+        'cost'
     ];
     public function getTypeAttribute(){
         $types =[
@@ -41,9 +42,9 @@ class Product extends Model
     }
     public function getTypeContentAttribute(){
         $types =[
-            'E' => ['name' => 'EVENTO',  'id' => 'E'],
-            'C' => ['name' => 'CONSUMIBLE',  'id' => 'C'],
-            'L' => ['name' => 'LUGAR',  'id' => 'L']
+            'E' => ['name' => 'Evento',  'id' => 'E'],
+            'C' => ['name' => 'Consumible',  'id' => 'C'],
+            'L' => ['name' => 'Lugar',  'id' => 'L']
         ];
         return $types[$this->attributes['type_content']] ?? ['name' => 'Desconocido'];
     }

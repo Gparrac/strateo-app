@@ -15,11 +15,10 @@ class Planment extends Model
 
     public function getStageAttribute(){
         $types =[
-            'QUO' => ['name' => 'Cotización',  'id' => 'QUO'],
-            'CON' => ['name' => 'Confirmación',  'id' => 'CON'],
-            'REA' => ['name' => 'Listo',  'id' => 'REA'],
-            'FIN' => ['name' => 'Finalizado',  'id' => 'FIN'],
-            'CAN' => ['name' => 'Cancelado',  'id' => 'CAN']
+            'QUO' => ['name' => 'Cotización',  'id' => 'QUO', 'color' => 'red'],
+            'REA' => ['name' => 'Listo',  'id' => 'REA', 'color'=> 'primary'],
+            'COM' => ['name' => 'Finalizado',  'id' => 'FIN', 'color' => 'success'],
+            'CAN' => ['name' => 'Cancelado',  'id' => 'CAN', 'color' => 'purple']
         ];
         return $types[$this->attributes['stage']] ?? ['name' => 'Desconocido'];
     }
@@ -38,5 +37,9 @@ class Planment extends Model
     public function productPlanments() : BelongsToMany
     {
         return $this->hasMany(ProductPlanment::class, 'planment_id')->withPivot(['amount','cost','discount']);
+    }
+    public function librettoActivities() : BelongsToMany
+    {
+        return $this->belongsToMany(LibrettoActivity::class, 'libretto_activities_planments', 'planment_id', 'libretto_activity_id');
     }
 }

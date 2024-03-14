@@ -23,6 +23,9 @@ class Field extends Model
     {
         return $this->belongsToMany(Employee::class,'fields_employees', 'field_id', 'employee_id')->withPivot(['path_info']);
     }
+    public function dynamicServices(): BelongsToMany {
+        return $this->belongsToMany(DynamicService::class, 'fields_dynamic_services','field_id', 'dynamic_service_id')->withPivot(['status']);
+    }
     public function getTypeAttribute(){
         $types =[
             'F' => ['name' => 'Archivo', 'icon' => 'mdi-file-send', 'id' => 'F'],

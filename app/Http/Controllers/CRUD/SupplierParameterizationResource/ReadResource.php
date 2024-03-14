@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Client;
+use App\Models\DynamicService;
+use App\Models\Field;
 use App\Models\Service;
 use App\Models\Supplier;
 use Illuminate\Support\Facades\DB;
@@ -28,38 +30,37 @@ class ReadResource implements CRUD, RecordOperations
     public function singleRecord($id)
     {
         try {
-            $data = Supplier::with(['fields' => function ($query) {
-                $query->select('fields.id', 'fields.name', 'fields.type', 'fields.length');
-            }, 'services' => function ($query) {
-                $query->wherePivot('status', 'A')->select('services.id', 'services.name', 'services.description');
+            $data = Supplier::with(['dynamicServices' => function ($query) {
+                $query->with(['service:id,name,description', 'fields' => function ($query){
+                    $query->wherePivot('status', 'A')->select(['fields.id', 'fields.name', 'fields.type', 'fields.length']);
+                }]);
+                $query->where('status', 'A')->select('dynamic_services.id','service_id','supplier_id');
             }, 'third' => function ($query) {
-                $query->with(['secondaryCiius:id,code,description', 'ciiu:id,code,description']);
+                $query->with(['secondaryCiius:id,code,description', 'ciiu:id,code,description', 'city:id,name']);
                 $query->select('id', 'type_document', 'identification', 'code_ciiu_id', 'verification_id', 'names', 'surnames', 'business_name', 'address', 'mobile', 'email', 'email2', 'postal_code', 'city_id');
             }])
                 ->where('suppliers.id', $id)
                 ->select('suppliers.id','suppliers.status', 'suppliers.note', 'suppliers.note', 'suppliers.third_id', 'suppliers.commercial_registry', 'suppliers.commercial_registry_file', 'suppliers.rut_file')
                 ->first();
-            $data->services->map(function ($service) use ($data) {
+            $data['dynamicServices']->each(function ($ds, $dskey) use ($data) {
+                $service = $ds['service'];
 
                 $service['fields'] = Service::find($service['id'])->fields()
                     ->select('fields.id', 'fields.name', 'fields.type', 'fields.length', DB::raw('null as data'))
-                    ->get()->map(function ($field) use ($data) {
-                        $data['fields']->map(function ($dfield, $key) use ($field, $data) {
-                            if ($field['id'] == $dfield['id']) {
-
-                                ($field['type']['id'] == 'F') ? $field['pathFile'] = FileFormat::downloadPath($dfield->pivot['path_info']) : $field['data'] = $dfield->pivot['path_info'];
-                                unset($data['fields'][$key]);
+                    ->get()->map(function ($field) use ( $ds ) {
+                        $ds['fields']->each(function ($dsfield) use ( $field )  {
+                            if ($field['id'] == $dsfield['id']) {
+                                ($field['type']['id'] == 'F' && $dsfield->pivot['path_info']) ? $field['pathFile'] = FileFormat::downloadPath($dsfield->pivot['path_info']) : $field['data'] = $dsfield->pivot['path_info'];
                             }
-                            return $dfield;
                         });
                         $field['required'] = $field->pivot['required'];
                         unset($field->pivot);
                         return $field;
-                    });
-                unset($service->pivot);
-                return $data;
+
+                });
+                $data['services'][$dskey] = $service;
             });
-            unset($data->fields);
+            unset($data->dynamicServices);
             return response()->json(['message' => 'read: ' . $id, 'data' => $data], 200);
         } catch (QueryException $ex) {
             Log::error('Query error ClientResource@readResource:singleRecord: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
@@ -76,7 +77,7 @@ class ReadResource implements CRUD, RecordOperations
             $data = Supplier::with(['third' =>
             function ($query) {
                 $query->select(['id', DB::raw('IFNULL(names, business_name) as supplier'), 'type_document', 'identification']);
-            }])->withCount(['services', 'fields']);
+            }])->withCount(['dynamicServices']);
             //filter query with keyword 🚨
             if ($typeKeyword && $keyword) {
                 if ($typeKeyword == 'name') {

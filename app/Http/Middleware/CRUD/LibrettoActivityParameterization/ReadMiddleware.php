@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Middleware\CRUD\EmployeeParameterization;
+namespace App\Http\Middleware\CRUD\LibrettoActivityParameterization;
 
 use Illuminate\Http\Request;
 use App\Http\Middleware\CRUD\Interfaces\ValidateData;
@@ -10,9 +10,9 @@ class ReadMiddleware implements ValidateData
 {
     public function validate(Request $request)
     {
-        if($request->has('employee_id')){
+        if($request->has('libretto_activity_id')){
             $validator = Validator::make($request->all(), [
-                'employee_id' => 'numeric|exists:employees,id'
+                'libretto_activity_id' => 'numeric|exists:libretto_activities,id'
             ]);
         }else{
             $validator = Validator::make($request->all(), [
@@ -23,12 +23,13 @@ class ReadMiddleware implements ValidateData
                 'typeKeyword' => 'string|in:id,name',
                 'sorters' => 'array',
                 'sorters.order' => 'nullable|in:asc,desc',
-
             ]);
         }
+
         if ($validator->fails()){
             return ['error' => TRUE, 'message' => $validator->errors()];
         }
+
         return ['error' => FALSE];
     }
 }

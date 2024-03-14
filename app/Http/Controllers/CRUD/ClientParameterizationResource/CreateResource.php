@@ -28,7 +28,7 @@ class CreateResource implements CRUD
                 'address' => $request->input('address'),
                 'mobile' => $request->input('mobile'),
                 'email' => $request->input('email'),
-                'postal_code' => $request->input('postal_code'),
+                'postal_code' => $request->input('postal_code') ?? null,
                 'city_id' => $request->input('city_id'),
                 'code_ciiu_id' => $request->input('code_ciiu_id'),
                 'users_id' => $userId,
@@ -43,7 +43,7 @@ class CreateResource implements CRUD
             $third = Third::create($thirdData);
 
             $client = Client::create([
-                'commercial_registry' => $request->input('commercial_registry'),
+                'commercial_registry' => $request->input('commercial_registry') ?? null,
                 'commercial_registry_file' => $request->file('commercial_registry_file')
                         ->storeAs(
                             'commercial',
@@ -56,7 +56,7 @@ class CreateResource implements CRUD
                             $request->file('rut_file')->guessExtension())),
                 'legal_representative_name' => $request->input('legal_representative_name'),
                 'legal_representative_id' => $request->input('legal_representative_id'),
-                'note' => $request->input('note'),
+                'note' => $request->input('note') ?? null,
                 'status' => $request->input('status'),
                 'third_id' => $third->id,
                 'users_id' => $userId

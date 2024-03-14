@@ -148,10 +148,9 @@ class UpdateResource implements CRUD
     protected function updateFurtherEvent($userId, Request $request){
         $planment = Invoice::find($request['invoice_id'])->planment;
 
-        $currentlyProducts = Planment::find($planment->id)->furtherProducts()->pluck('further_products_planments.id')->toArray();
 
-        Planment::find($planment->id)->furtherProducts()->detach($currentlyProducts);
 
+        Planment::find($planment->id)->furtherProducts()->detach();
         foreach ($request['products'] as $product) {
             Planment::find($planment->id)->furtherProducts()->attach($product['product_id'], [
                 'amount' => $product['amount'],
@@ -163,6 +162,7 @@ class UpdateResource implements CRUD
                 'tracing' =>  $product['tracing'],
             ]);
             $pivotId = FurtherProductPlanment::where('planment_id', $planment['id'], $product['product_id'])->first()->id;
+
             foreach ($product['taxes'] as $tax) {
                 DB::table('products_taxes')->insert([
                     'tax_id' => $tax['tax_id'],
@@ -171,24 +171,24 @@ class UpdateResource implements CRUD
                     'users_id' => $userId
                 ]);
             }
+            // dd(Planment::find($planment->id)->furtherProducts()->get());
         }
+
 
     }
     protected function updateProductInvoice($userId, Request $request)
     {
-        $currentlyProducts = Invoice::find($request['invoice_id'])->products();
-        if(empty($currentlyProducts)){
-            $currentlyProducts = $currentlyProducts->pluck('id')->toArray();
-            Invoice::find($request['invoice_id'])->products()->detach($currentlyProducts);
-        }
 
+
+
+        Invoice::find($request['invoice_id'])->products()->detach();
         foreach ($request['products'] as $product) {
             Invoice::find($request['invoice_id'])->products()->attach($product['product_id'], [
                 'amount' => $product['amount'],
                 'cost' => $product['cost'],
                 'discount' => $product['discount'] ?? 0,
                 'status' => 'A',
-                'warehouse_id' => $product['warehouse_id'],
+                'warehouse_id' => $product['warehouse_id'] ?? null,
                 'users_id' => $userId,
                 'tracing' => $product['tracing']
             ]);

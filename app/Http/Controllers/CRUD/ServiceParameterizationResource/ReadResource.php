@@ -66,7 +66,7 @@ class ReadResource implements CRUD, RecordOperations
             } else {
                 $data = $data->with('fields:id,name,type,length,status')->withCount(['fields' => function($query){
                     $query->where('fields_services.status', '=', 'A');
-                }])->withCount('suppliers');
+                }])->withCount(['suppliers','fields','employees']);
                 //append shorters to query
                 foreach ($sorters as $shorter) {
                     $data = $data->orderBy($shorter['key'], $shorter['order']);

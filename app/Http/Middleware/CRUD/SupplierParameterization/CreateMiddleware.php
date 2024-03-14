@@ -16,10 +16,10 @@ class CreateMiddleware implements ValidateData
     {
         $validator = Validator::make($request->all(), [
             //--------------------- new attributes
-            'commercial_registry' => 'required|string|max:50',
-            'commercial_registry_file' => 'required|file|mimes:pdf,docx|max:2048',
-            'rut_file' => 'required|file|mimes:pdf,docx|max:2048',
-            'note' => 'required|string',
+            'commercial_registry' => 'string|max:50',
+            'commercial_registry_file' => 'file|mimes:pdf,docx|max:2048',
+            'rut_file' => 'file|mimes:pdf,docx|max:2048',
+            'note' => 'string',
             'status' => 'required|in:A,I',
             //--------------------- third attributes
             'type_document' => 'required|in:CC,NIT,CE,PASAPORTE',
@@ -31,17 +31,16 @@ class CreateMiddleware implements ValidateData
             'mobile' => 'required|numeric|digits_between:10,13',
             'email' => 'required|email|unique:thirds,email',
             'email2' => 'email|different:email',
-            'postal_code' => 'required|numeric',
+            'postal_code' => 'numeric',
             'city_id' => 'required|exists:cities,id',
-            'code_ciiu_id' => 'required|exists:code_ciiu,id',
+            'code_ciiu_id' => 'exists:code_ciiu,id',
             'secondary_ciiu_ids' => 'array',
             'secondary_ciiu_ids.*' => 'numeric|exists:code_ciiu,id',
             // //--------------------- service attributes
             'services' => ['required', 'array'],
             'services.*.service_id' => 'required|exists:services,id',
             'services.*.fields' => ['required', 'array'],
-            'services.*.fields.*.field_id' => 'required|exists:fields,id',
-            'services.*.fields.*.content' => 'required'
+            'services.*.fields.*.field_id' => 'required|exists:fields,id'
             //--------------------- others
         ]);
 
@@ -61,7 +60,9 @@ class CreateMiddleware implements ValidateData
                 $typeField = $fieldQuery->type['id'];
                 $serviceRealeted = $fieldQuery->services()->where('services.id', $service['service_id'])->first();
 
-                if ($serviceRealeted['pivot']['required'] == 1) array_push($contentRules, 'required');
+                if ($serviceRealeted['pivot']['required'] == 1) {
+                    Log::info($serviceRealeted);
+                    array_push($contentRules, 'required');};
                 $recordServices[$skey]['fields'][$fkey]['type'] = $typeField;
 
                 switch ($typeField) {
