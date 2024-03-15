@@ -31,15 +31,15 @@ class ReadResource implements CRUD, RecordOperations
     {
         try {
             $data = Employee::with(['dynamicServices' => function ($query) {
-                $query->with(['service:id,name,description', 'fields' => function ($query){
+                $query->with(['service:id,name,description', 'fields' => function ($query) {
                     $query->wherePivot('status', 'A')->select(['fields.id', 'fields.name', 'fields.type', 'fields.length']);
                 }]);
-                $query->where('status', 'A')->select('dynamic_services.id','service_id','employee_id');
+                $query->where('status', 'A')->select('dynamic_services.id', 'service_id', 'employee_id');
             }, 'third' => function ($query) {
                 $query->with('city:id,name');
                 $query->select('id', 'type_document', 'identification', 'names', 'surnames', 'business_name', 'address', 'mobile', 'email', 'email2', 'postal_code', 'city_id');
             }])->where('employees.id', $id)
-                ->select('employees.id','employees.status', 'employees.type_contract', 'employees.hire_date', 'employees.third_id', 'employees.end_date_contract', 'employees.rut_file', 'employees.resume_file')
+                ->select('employees.id', 'employees.status', 'employees.type_contract', 'employees.hire_date', 'employees.third_id', 'employees.end_date_contract', 'employees.rut_file', 'employees.resume_file')
                 ->first();
 
             $data['dynamicServices']->map(function ($ds, $dskey) use ($data) {
@@ -47,8 +47,8 @@ class ReadResource implements CRUD, RecordOperations
 
                 $service['fields'] = Service::find($service['id'])->fields()
                     ->select('fields.id', 'fields.name', 'fields.type', 'fields.length', DB::raw('null as data'))
-                    ->get()->map(function ($field) use ( $ds ) {
-                        $ds['fields']->each(function ($dsfield) use ( $field )  {
+                    ->get()->map(function ($field) use ($ds) {
+                        $ds['fields']->each(function ($dsfield) use ($field) {
                             if ($field['id'] == $dsfield['id']) {
                                 ($field['type']['id'] == 'F' && $dsfield->pivot['path_info']) ? $field['pathFile'] = FileFormat::downloadPath($dsfield->pivot['path_info']) : $field['data'] = $dsfield->pivot['path_info'];
                             }
@@ -56,9 +56,9 @@ class ReadResource implements CRUD, RecordOperations
                         $field['required'] = $field->pivot['required'];
                         unset($field->pivot);
                         return $field;
-
-                });
-                $data['services'][$dskey] = $service;            });
+                    });
+                $data['dynamicServices'][$dskey] = $service;
+            });
             unset($data->fields);
             return response()->json(['message' => 'read: ' . $id, 'data' => $data], 200);
         } catch (QueryException $ex) {
@@ -75,7 +75,7 @@ class ReadResource implements CRUD, RecordOperations
         try {
             $data = Employee::with(['third' =>
             function ($query) {
-                $query->select(['id', 'names','surnames','business_name', 'type_document', 'identification']);
+                $query->select(['id', 'names', 'surnames', 'business_name', 'type_document', 'identification']);
             }])->withCount(['dynamicServices']);
             //filter query with keyword 🚨
             if ($typeKeyword && $keyword) {
@@ -85,20 +85,19 @@ class ReadResource implements CRUD, RecordOperations
                         $query->orWhere('surnames', 'LIKE', '%' . $keyword . '%');
                         $query->orWhere('identification', 'LIKE', '%' . $keyword . '%');
                     });
-                }else{
+                } else {
                     $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
                 }
             }
-            if($format == 'short'){
-                $data = $data->where('status','A')->take(10)->get()->map(function($query){
+            if ($format == 'short') {
+                $data = $data->where('status', 'A')->take(10)->get()->map(function ($query) {
                     return [
                         'id' => $query->id,
                         'fullname' => $query->third->names,
                         'identification' => $query->third->type_document . ': ' . $query->third->identification
                     ];
                 });
-
-            }else{
+            } else {
                 //append shorters to query
                 foreach ($sorters as  $shorter) {
                     $data = $data->orderBy($shorter['key'], $shorter['order']);

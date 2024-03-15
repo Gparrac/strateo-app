@@ -33,8 +33,9 @@ class UpdateMiddleware implements ValidateData
         }
         if(!$typeRequest){
             $contentRules = [];
-
-            $recordServices = $request['services'];
+            $recordServices = $request['services'] ?? [];
+            Log::info('ARRAVING');
+            Log::info($recordServices);
             foreach ($recordServices as  $skey => $service) {
                 if (count($service['fields']) != Service::find($service['service_id'])->fields()->count()) {
                     return ['error' => TRUE, 'message' => ['Campos' => 'La cantidad de campos no coincide con el servicio seleccionado.']];
@@ -96,7 +97,7 @@ class UpdateMiddleware implements ValidateData
             'resume_file' => ['file', 'mimes:pdf,docx', 'max:2048'],
             'status' => 'required|in:A,I',
             // //--------------------- service attributes
-            'services' => ['required', 'array'],
+            'services' => ['array'],
             'services.*.service_id' => 'required|exists:services,id',
             'services.*.fields' => ['required', 'array', new ServiceFieldSizeValidationRule()],
             'services.*.fields.*.field_id' => 'required|exists:fields,id',

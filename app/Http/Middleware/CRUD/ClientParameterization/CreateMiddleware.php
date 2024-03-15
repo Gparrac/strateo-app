@@ -25,7 +25,7 @@ class CreateMiddleware implements ValidateData
             'city_id' => 'required|exists:cities,id',
             'code_ciiu_id' => 'required|exists:code_ciiu,id',
             //Client table
-            'commercial_registry' => 'string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
+            'commercial_registry' => 'string|min:3|max:80',//|regex:/^[\p{L}\s]+$/u',
             'commercial_registry_file' => 'file|mimes:pdf,docx|max:2048',
             'rut_file' => 'file|mimes:pdf,docx|max:2048',
             'legal_representative_name' => 'required|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',

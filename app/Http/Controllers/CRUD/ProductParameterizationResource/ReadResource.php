@@ -66,7 +66,7 @@ class ReadResource implements CRUD, RecordOperations
                         'products.name',
                         'products.product_code',
                         'products.barcode',
-                        'products.size'
+                        'products.size',
                     );
                 },
                 'taxes:id,name,acronym'
@@ -84,7 +84,8 @@ class ReadResource implements CRUD, RecordOperations
                     'products.status',
                     'products.type',
                     'products.type_content',
-                    'products.barcode'
+                    'products.barcode',
+                    'products.tracing'
                 )->first();
 
             $data['categories']->map(function ($category) {

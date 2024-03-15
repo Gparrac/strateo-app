@@ -75,23 +75,24 @@ class CreateResource implements CRUD
         //write down in employee's table
         $employee = Employee::create($employeeData);
         $urlFile = 'employees/' . $employee['id'];
+
         $employee->update([
-            'rut_file' => $request->file('rut_file')
+            'rut_file' => $request->has('rut_file') ? $request->file('rut_file')
                 ->storeAs(
                     $urlFile,
                     FileFormat::formatName(
                         'crf' . $request->file('rut_file')->getClientOriginalName(),
                         $request->file('rut_file')->guessExtension()
                     )
-                ),
-            'resume_file' => $request->file('resume_file')
+                ) : null,
+            'resume_file' => $request->has('resume_file') ? $request->file('resume_file')
                 ->storeAs(
                     $urlFile,
                     FileFormat::formatName(
                         'crf' . $request->file('resume_file')->getClientOriginalName(),
                         $request->file('resume_file')->guessExtension()
                     )
-                ),
+                ) : null,
         ]);
 
         //relate services and its fields with employee record

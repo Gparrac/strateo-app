@@ -32,7 +32,7 @@ class CreateMiddleware implements ValidateData
 
         $contentRules = [];
 
-        $recordServices = $request['services'];
+        $recordServices = $request['services'] ?? [];
         foreach ($recordServices as  $skey => $service) {
             foreach ($service['fields'] as $fkey => $field) {
                 $fieldQuery =  Field::find($field['field_id']);
@@ -88,11 +88,11 @@ class CreateMiddleware implements ValidateData
             'type_contract' => 'required|in:TF,TI,OL,PS,CA,OT',
             'hire_date' => 'required|date_format:Y-m-d H:i:s',
             'end_date_contract' => 'required|date_format:Y-m-d H:i:s',
-            'rut_file' => ['required', 'file', 'mimes:pdf', 'max:2048'],
-            'resume_file' => ['required', 'file', 'mimes:pdf,docx', 'max:2048'],
+            'rut_file' => ['file', 'mimes:pdf', 'max:2048'],
+            'resume_file' => ['file', 'mimes:pdf,docx', 'max:2048'],
             'status' => 'required|in:A,I',
             // //--------------------- service attributes
-            'services' => ['required', 'array'],
+            'services' => ['array'],
             'services.*.service_id' => 'required|exists:services,id',
             'services.*.fields' => ['required', 'array', new ServiceFieldSizeValidationRule()],
             'services.*.fields.*.field_id' => 'required|exists:fields,id',
