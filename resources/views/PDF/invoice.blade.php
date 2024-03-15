@@ -13,16 +13,10 @@
             <table>
                 <tr>
                     <td class="company-logo">
-                        <img src="{{ asset('images/laravel.png') }}" alt="Logo de la empresa">
+                        <img src="{{ $dataPDF['path_logo'] }}" alt="Logo de la empresa">
                     </td>
                     <td class="company-info">
-                        <h1>Nombre de tu Empresa</h1>
-                        <p>Dirección de tu Empresa</p>
-                        <p>Dirección de tu Empresa</p>
-                        <p>Dirección de tu Empresa</p>
-                        <p>Dirección de tu Empresa</p>
-                        <p>Dirección de tu Empresa</p>
-                        <!-- Otros datos de la empresa aquí -->
+                        {{$dataPDF['header']}}
                     </td>
                 </tr>
             </table>
@@ -212,7 +206,7 @@
             </table>
         </div>
         <footer>
-            © 2024 Nombre de tu Empresa | Todos los derechos reservados
+            {{$dataPDF['footer']}}
         </footer>
     </body>
 </html>

@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use PDF;
 use App\Models\Invoice;
+use App\Models\Company;
+use App\Models\ProductInvoice;
+
 
 class InvoicePDF extends Controller
 {
@@ -14,24 +17,18 @@ class InvoicePDF extends Controller
      */
     public function __invoke(Request $request)
     {
-        $invoiceId = 26;
-        $invoice = Invoice::where('id', $invoiceId)
-                    ->with('client', 'products')
-                    ->get();
-        return $invoice;
+        $invoiceId = 22;
+        $invoiceType = Invoice::findOrFail($invoiceId);
 
-        $data = [
-            'title' => 'Welcome to ItSolutionStuff.com',
-            'date' => date('m/d/Y'),
-        ];
-        // Header
+        if($invoiceType->sale_type['id'] == 'P'){
+            return ProductInvoice::where('invoice_id', $invoiceId)
+                ->with('product')
+                ->get();
+        }
+        $dataPDF = Company::first();
         
-
-        // Client information
+        $pdf = PDF::loadView('PDF.invoice', compact('dataPDF'));
         
-        
-        $pdf = PDF::loadView('PDF.invoice', $data);
-
         return $pdf->download('itsolutionstuff.pdf');
     }
 }
