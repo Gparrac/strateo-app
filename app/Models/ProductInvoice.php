@@ -13,6 +13,17 @@ class ProductInvoice extends Model
     protected $table = "products_invoices";
     protected $fillable = ['product_id', 'planment_id', 'cost', 'discount', 'status', 'users_id', 'users_udate_id'];
 
+    protected $appends = ['total'];
+
+    // Append Variables
+
+    public function getTotalAttribute()
+    {
+        return $this->amount * $this->cost;
+    }
+
+
+    // RELATIONSHIP
     public function product() : BelongsTo
     {
         return $this->belongsTo(Product::class);
@@ -29,6 +40,4 @@ class ProductInvoice extends Model
     {
         return $this->belongsTo(Warehouse::class);
     }
-
-
 }

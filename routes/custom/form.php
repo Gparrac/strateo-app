@@ -1,10 +1,7 @@
 <?php
 
-use App\Http\Controllers\ExtraContent\CityServer;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CRUD;
-use App\Http\Controllers\ExportContent\InventoryController;
-
 
 Route::group(['middleware' => ['auth:api','role.user']], function() {
     Route::match(['get', 'post', 'put', 'delete'],'/enterprise-parameterization', CRUD\EnterpriseParameterization::class)->middleware('enterprise.parameterization');
@@ -28,10 +25,5 @@ Route::group(['middleware' => ['auth:api','role.user']], function() {
     Route::match(['get', 'post', 'put', 'delete'],'/tax-parameterization', CRUD\TaxParameterization::class)->middleware('tax.parameterization');
     Route::match(['get', 'post', 'put', 'delete'],'/purchase-order-parameterization', CRUD\PurchaseOrderParameterization::class)->middleware('purchase.order.parameterization');
     Route::match(['get', 'post', 'put', 'delete'],'/libretto-activity-parameterization', CRUD\LibrettoActivityParameterization::class)->middleware('libretto.activity.parameterization');
-
-    Route::prefix('export-data')->group(function () {
-        Route::get('/inventory-trades', InventoryController::class);
-        // ... más rutas de configuración
-    });
 });
 

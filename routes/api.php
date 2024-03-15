@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 include __DIR__.'/custom/auth.php';
 include __DIR__.'/custom/form.php';
 include __DIR__.'/custom/extraContent.php';
+include __DIR__.'/custom/export.php';
 /*
 |--------------------------------------------------------------------------
 | API Routes

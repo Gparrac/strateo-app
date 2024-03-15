@@ -1,0 +1,90 @@
+table {
+    width: 100%;
+}
+
+/* HEADER */
+
+.header {
+    padding: 0 20px;
+    background-color: #ffffff; /* Color de fondo de la cabecera */
+    max-height: 50%;
+}
+
+
+.company-logo {
+    width: 20%; /* Columna del logo utiliza el 20% del ancho total */
+}
+
+.company-info {
+    width: 80%; /* Columna de la información utiliza el 80% del ancho total */
+    padding: 10px;
+    text-align: center;
+    font-size: 10px; /* Tamaño de fuente más pequeño */
+    line-height: 0.6; /* Espaciado entre líneas */
+}
+
+
+.company-logo img {
+    max-width: 100%;
+    max-height: 70px; /* Altura máxima del logo */
+    width: auto;
+}
+
+.company-info h1 {
+    font-size: 24px; /* Tamaño del título */
+}
+
+/* HEADER */
+
+/* Content Client  */
+.client-data {
+    padding: 20px;
+}
+
+.left-client-data {
+    width: 80%; 
+    padding: 10px;
+    font-size: 13px;
+    line-height: 0.8; 
+}
+
+.right-client-data {
+    width: 20%;
+    text-align: center; /* Centrar horizontalmente */
+    line-height: 2vh; /* Ajusta la altura del contenedor para centrar verticalmente */
+}
+
+/* TABLE PRODUCTS */
+
+.content-table-font-size {
+    padding: 8px;
+    text-align: left;
+    font-size: 13px;
+}
+
+.content-table-font-size-tax {
+    padding: 8px;
+    text-align: left;
+    font-size: 13px;
+}
+
+.product-name {
+    width: 50%; 
+}
+
+.products-invoice-table {
+    text-align: center;
+}
+
+.left-aligned {
+    text-align: left;
+}
+
+/* Footer */
+
+footer {
+    background-color: #f0f0f0;
+    padding: 10px;
+    text-align: center;
+    font-size: 12px;
+}
