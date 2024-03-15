@@ -30,17 +30,42 @@ class UpdateResource implements CRUD
             // Attach products to the purchase order
             $products = $request->input('products');
 
-            // Synchronize the attached products with the new product IDs
-            foreach ($products as $product) {
-                $purchaseOrder->products()->sync([$product['product_id'] => ['amount' => $product['amount'], 'users_update_id' => $userId]], false);
+            $attachedProductIds = $purchaseOrder->products();
+            $attachedProductIds = count($products) > 0 ? $attachedProductIds->pluck('products.id')->toArray() : [];
+            $productIds = count($products) > 0 ? array_column($products,'product_id') : [];
+
+            $productsToDetach = array_diff($attachedProductIds, $productIds);
+            Log::info($productsToDetach);
+            DB::table('purchase_orders_products')
+            ->where('purchase_order_id')
+            ->whereIn('product_id',$productsToDetach)
+            ->update(['status'=> 'I', 'users_update_id' => $userId]);
+            foreach ($products as  $value) {
+                $query = DB::table('purchase_orders_products')
+                ->where('purchase_order_id', $purchaseOrder['id'])
+                ->where('product_id',$value['product_id']);
+                if($query->count() > 0){
+                    $query->update([
+                        'amount' => $value['amount'],
+                        'users_update_id' => $userId,
+                        'status' => 'A'
+                    ]);
+                }else{
+                    $purchaseOrder->products()->attach($value['product_id'],[
+                        'amount' => $value['amount'],
+                        'users_id' => $userId,
+                        'status' => 'A'
+                    ]);
+                }
             }
 
-            // Get the IDs of the attached products after synchronization
-            $attachedProductIds = $purchaseOrder->products()->pluck('products.id')->toArray();
-            $productIds = $products->pluck('id')->toArray();
+
+
+            Log::info('entrando?');
+            Log::info($products);
+
 
             // Determine the product IDs to remove
-            $productsToDetach = array_diff($attachedProductIds, $productIds);
 
             // Delete products that are no longer present in the request
             $purchaseOrder->products()->detach($productsToDetach);
