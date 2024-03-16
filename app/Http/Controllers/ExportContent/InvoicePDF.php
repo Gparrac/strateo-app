@@ -17,17 +17,25 @@ class InvoicePDF extends Controller
     public function __invoke(Request $request)
     {
         $invoiceId = 22;
-        $invoiceType = Invoice::findOrFail($invoiceId);
+        $invoice = Invoice::findOrFail($invoiceId);
 
-        if($invoiceType->sale_type['id'] == 'P'){
+        //Client Information
+        $client = $invoice->client->third;
+        $invoiceId = $invoice->id;
+
+        // Products with tax
+        $titlePDF = '';
+        if($invoice->sale_type['id'] == 'P'){
+            $titlePDF = 'Productos Contratados';
             $products = $this->getProducts($invoiceId);
         }
 
+        //Set total taxes for each tax
         $products = $this->setTotalTax($products);
-        return $products;
+
         $dataPDF = Company::first();
         
-        $pdf = PDF::loadView('PDF.invoice', compact('dataPDF'));
+        $pdf = PDF::loadView('PDF.invoice', compact('dataPDF', 'titlePDF', 'client', 'invoiceId', 'products'));
         
         return $pdf->download('itsolutionstuff.pdf');
     }

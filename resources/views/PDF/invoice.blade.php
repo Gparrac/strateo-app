@@ -26,18 +26,15 @@
                 <tr>
                     <td class="left-client-data">
                         <!-- Contenido del div izquierdo -->
-                        <p>Contenido del lado izquierdo</p>
-                        <p>Contenido del lado izquierdo</p>
-                        <p>Contenido del lado izquierdo</p>
-                        <p>Contenido del lado izquierdo</p>
-                        <p>Contenido del lado izquierdo</p>
-                        <p>Contenido del lado izquierdo</p>
-                        <p>Contenido del lado izquierdo</p>
-                        <p>Contenido del lado izquierdo</p>
+                        <p><strong>Nombre: </strong> {{$client['names'] ? $client['names'].' '. $client['surnames'] : $client['business_name']}}</p>
+                        <p><strong>Tipo de Documento: </strong> {{$client['type_document']}}</p>
+                        <p><strong>Identificación: </strong> {{$client['identification']}}</p>
+                        <p><strong>Dirección: </strong> {{$client['address']}}</p>
+                        <p><strong>Correo: </strong> {{$client['email']}}</p>
                     </td>
                     <td class="right-client-data">
                         <!-- Contenido del div derecho (número grande) -->
-                        <h1># 45 </h1>
+                        <h2>Cotizacion: N°{{$invoiceId}}</h2>
                     </td>
                 </tr>
             </table>
@@ -45,147 +42,48 @@
         <div>
             {{-- Productos contratados --}}
             <div class="products-invoice-table">
-                <h3>Productos Contratados, Eventos y Productos adicionales</h3>
-                <table>
-                    <thead>
-                        <tr class="content-table-font-size">
-                            <th class="product-name left-aligned">Nombre del Producto</th>
-                            <th class="left-aligned">Cantidad</th>
-                            <th class="left-aligned">Precio</th>
-                            <th class="left-aligned">Descuento</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="content-table-font-size">
-                            <td>Producto 1</td>
-                            <td>10</td>
-                            <td>$100</td>
-                            <td>5%</td>
-                        </tr>
-                        <tr class="content-table-font-size">
-                            <td>Producto 2</td>
-                            <td>5</td>
-                            <td>$50</td>
-                            <td>0%</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <h3>{{ $titlePDF }}</h3>
+                @foreach ( $products as $product )
+                    <table>
+                        <thead>
+                            <tr class="content-table-font-size">
+                                <th class="product-name left-aligned">Nombre del Producto</th>
+                                <th class="left-aligned">Cantidad</th>
+                                <th class="left-aligned">Precio</th>
+                                <th class="left-aligned">Descuento</th>
+                                <th class="left-aligned">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="content-table-font-size">
+                                <td>{{$product->product->name}}</td>
+                                <td>{{$product->amount}}</td>
+                                <td>{{$product->cost}}</td>
+                                <td>%{{$product->discount}}</td>
+                                <td>{{$product->total}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    @if (count($product->taxes) > 0)
+                        <table>
+                            <thead>
+                                <tr class="content-table-font-size-tax">
+                                    <th class="left-aligned">Impuestos asociados</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($product->taxes as $tax)
+                                    <tr class="content-table-font-size-tax">
+                                        <td>{{$tax->acronym}}</td>
+                                        <td>%{{$tax->pivot->percent}}</td>
+                                        <td>{{$tax->total_tax}}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endif
                 <br>
-                <table>
-                    <thead>
-                        <tr class="content-table-font-size-tax">
-                            <th class="left-aligned">Impuestos asociados</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="content-table-font-size-tax">
-                            <td>Impuesto 1</td>
-                            <td>10%</td>
-                            <td>100000</td>
-                        </tr>
-                        <tr class="content-table-font-size-tax">
-                            <td>Impuesto 1</td>
-                            <td>10%</td>
-                            <td>100000</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            {{-- Eventos --}}
-            <div class="products-invoice-table">
-                <h3>Productos Contratados, Eventos y Productos adicionales</h3>
-                <table>
-                    <thead>
-                        <tr class="content-table-font-size">
-                            <th class="product-name left-aligned">Nombre del Producto</th>
-                            <th class="left-aligned">Cantidad</th>
-                            <th class="left-aligned">Precio</th>
-                            <th class="left-aligned">Descuento</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="content-table-font-size">
-                            <td>Producto 1</td>
-                            <td>10</td>
-                            <td>$100</td>
-                            <td>5%</td>
-                        </tr>
-                        <tr class="content-table-font-size">
-                            <td>Producto 2</td>
-                            <td>5</td>
-                            <td>$50</td>
-                            <td>0%</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <br>
-                <table>
-                    <thead>
-                        <tr class="content-table-font-size-tax">
-                            <th class="left-aligned">Impuestos asociados</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="content-table-font-size-tax">
-                            <td>Impuesto 1</td>
-                            <td>10%</td>
-                            <td>100000</td>
-                        </tr>
-                        <tr class="content-table-font-size-tax">
-                            <td>Impuesto 1</td>
-                            <td>10%</td>
-                            <td>100000</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            {{-- Productos adicionales --}}
-            <div class="products-invoice-table">
-                <h3>Productos Contratados, Eventos y Productos adicionales</h3>
-                <table>
-                    <thead>
-                        <tr class="content-table-font-size">
-                            <th class="product-name left-aligned">Nombre del Producto</th>
-                            <th class="left-aligned">Cantidad</th>
-                            <th class="left-aligned">Precio</th>
-                            <th class="left-aligned">Descuento</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="content-table-font-size">
-                            <td>Producto 1</td>
-                            <td>10</td>
-                            <td>$100</td>
-                            <td>5%</td>
-                        </tr>
-                        <tr class="content-table-font-size">
-                            <td>Producto 2</td>
-                            <td>5</td>
-                            <td>$50</td>
-                            <td>0%</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <br>
-                <table>
-                    <thead>
-                        <tr class="content-table-font-size-tax">
-                            <th class="left-aligned">Impuestos asociados</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="content-table-font-size-tax">
-                            <td>Impuesto 1</td>
-                            <td>10%</td>
-                            <td>100000</td>
-                        </tr>
-                        <tr class="content-table-font-size-tax">
-                            <td>Impuesto 1</td>
-                            <td>10%</td>
-                            <td>100000</td>
-                        </tr>
-                    </tbody>
-                </table>
+                @endforeach
             </div>
         </div>
         <div class="client-data">
