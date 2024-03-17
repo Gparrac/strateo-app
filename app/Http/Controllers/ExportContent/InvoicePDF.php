@@ -8,6 +8,7 @@ use PDF;
 use App\Models\Invoice;
 use App\Models\Company;
 use App\Models\ProductInvoice;
+use App\Http\Utils\PriceFormat;
 
 class InvoicePDF extends Controller
 {
@@ -21,7 +22,6 @@ class InvoicePDF extends Controller
 
         //Client Information
         $client = $invoice->client->third;
-        $invoiceId = $invoice->id;
 
         // Products with tax
         $titlePDF = '';
@@ -33,9 +33,13 @@ class InvoicePDF extends Controller
         //Set total taxes for each tax
         $products = $this->setTotalTax($products);
 
+        //products Total Purchase
+        $productsPurchase = $this->getTotalPurchase($products);
+
+        // Company Header and Footer
         $dataPDF = Company::first();
         
-        $pdf = PDF::loadView('PDF.invoice', compact('dataPDF', 'titlePDF', 'client', 'invoiceId', 'products'));
+        $pdf = PDF::loadView('PDF.invoice', compact('dataPDF', 'titlePDF', 'client', 'invoice', 'products', 'productsPurchase'));
         
         return $pdf->download('itsolutionstuff.pdf');
     }
@@ -51,11 +55,31 @@ class InvoicePDF extends Controller
     {
         return $collection->map(function ($product)
         {
-            $product->taxes->map(function ($tax) use ($product) {
+            $totalTaxProduct = 0;
+            $product->taxes->each(function ($tax) use ($product, &$totalTaxProduct) {
                 $tax->total_tax = $product->total * ($tax->pivot->percent / 100);
-                return $tax;
+                $totalTaxProduct += $tax->total_tax;
+                $tax->total_tax = PriceFormat::getNumber($tax->total_tax);
             });
+            $product->total_tax_product = $totalTaxProduct;
+            $product->total_format = PriceFormat::getNumber($product->total);
             return $product;
         });
+    }
+
+    private function getTotalPurchase($products)
+    {
+        $totalTaxProduct = 0;
+        $totalProduct = 0;
+        $products->each(function ($product) use(&$totalProduct, &$totalTaxProduct){
+            $totalProduct += $product->total;
+            $totalTaxProduct += $product->total_tax_product;
+            $product->total_tax_product =  PriceFormat::getNumber($product->total_tax_product);
+        });
+        return [
+            'total_tax_product' => PriceFormat::getNumber($totalTaxProduct),
+            'total_product' => PriceFormat::getNumber($totalProduct),
+            'total_purchase' => PriceFormat::getNumber($totalTaxProduct + $totalProduct)
+        ];
     }
 }

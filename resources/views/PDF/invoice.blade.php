@@ -34,7 +34,7 @@
                     </td>
                     <td class="right-client-data">
                         <!-- Contenido del div derecho (número grande) -->
-                        <h2>Cotizacion: N°{{$invoiceId}}</h2>
+                        <h2>Cotizacion: N°{{$invoice->id}}</h2>
                     </td>
                 </tr>
             </table>
@@ -60,7 +60,7 @@
                                 <td>{{$product->amount}}</td>
                                 <td>{{$product->cost}}</td>
                                 <td>%{{$product->discount}}</td>
-                                <td>{{$product->total}}</td>
+                                <td>${{$product->total_format}}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -76,7 +76,7 @@
                                     <tr class="content-table-font-size-tax">
                                         <td>{{$tax->acronym}}</td>
                                         <td>%{{$tax->pivot->percent}}</td>
-                                        <td>{{$tax->total_tax}}</td>
+                                        <td>${{$tax->total_tax}}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -88,17 +88,21 @@
         </div>
         <div class="client-data">
             <table>
-                <tr>
-                    <td class="left-client-data">
-                        <!-- Contenido del div izquierdo -->
-                        <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Facere eum nulla atque earum pariatur culpa corporis officia laudantium veritatis sunt sed exercitationem odit praesentium ratione expedita veniam, quia nobis recusandae.</p>
+                <tr class="content-table-font-size-tax">
+                    <td class="left-client-data-invoice">
+                        {{$invoice->note}}
                     </td>
-                    <td class="right-client-data">
-                        <!-- Contenido del div derecho (número grande) -->
-                        <p>Costos Totales </p>
-                        <p>Impuestos totales</p>
-                        <p>Descuentos totales y extras</p>
-                        <p>Productos adicionales</p>
+                    <td class="right-client-data-invoice">
+                        <p><strong>Costos Totales: </strong></p>
+                        <p><strong>Impuestos Totales: </strong></p>
+                        <p><strong>Productos adicionales: </strong></p>
+                        <p><strong>Total: </strong></p>
+                    </td>
+                    <td class="right-client-data-invoice-value">
+                        <p>${{$productsPurchase['total_product']}}</p>
+                        <p>${{$productsPurchase['total_tax_product']}}</p>
+                        <p>$0</p>
+                        <p>${{$productsPurchase['total_purchase']}}</p>
                     </td>
                 </tr>
             </table>

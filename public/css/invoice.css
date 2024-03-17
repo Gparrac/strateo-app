@@ -80,6 +80,26 @@ table {
     text-align: left;
 }
 
+/* Invoice total */
+.left-client-data-invoice {
+    width: 50%; 
+    padding: 10px;
+    font-size: 13px;
+    line-height: 0.8; 
+}
+
+.right-client-data-invoice {
+    width: 20%;
+    text-align: right;
+    line-height: 2vh; /* Ajusta la altura del contenedor para centrar verticalmente */
+}
+
+.right-client-data-invoice-value {
+    width: 20%;
+    text-align: left;
+    line-height: 2vh; /* Ajusta la altura del contenedor para centrar verticalmente */
+}
+
 /* Footer */
 
 footer {
