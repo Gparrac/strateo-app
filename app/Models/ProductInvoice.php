@@ -19,7 +19,8 @@ class ProductInvoice extends Model
 
     public function getTotalAttribute()
     {
-        return $this->amount * $this->cost;
+        $total = $this->amount * $this->cost;
+        return ($total) - ($total * $this->discount/100);
     }
 
 
@@ -34,7 +35,8 @@ class ProductInvoice extends Model
     }
     public function taxes() : BelongsToMany
     {
-        return $this->belongsToMany(Tax::class,'products_taxes','product_invoice_id','tax_id')->withPivot(['percent']);
+        return $this->belongsToMany(Tax::class,'products_taxes','product_invoice_id','tax_id')
+        ->withPivot(['percent']);
     }
     public function warehouse() : BelongsTo
     {
