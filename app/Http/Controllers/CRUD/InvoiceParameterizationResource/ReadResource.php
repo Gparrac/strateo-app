@@ -215,7 +215,7 @@ class ReadResource implements CRUD, RecordOperations
     {
         Log::info('entry..#');
         $planmentId = Invoice::find($invoice)->planment->id;
-        $products = ProductPlanment::with(['eventProduct' => function ($query) {
+        $products = ProductPlanment::with(['product' => function ($query) {
             $query->with(['measure:id,symbol', 'brand:id,name']);
             $query->select('products.id', 'products.name', 'products.consecutive', 'products.product_code', 'products.brand_id', 'products.measure_id', 'products.cost as defaultCost');
         }, 'subproducts' => function ($query) {
@@ -238,7 +238,7 @@ class ReadResource implements CRUD, RecordOperations
                 $tax['percent'] = $tax['pivot']['percent'];
                 unset($tax['pivot']);
             });
-            $temp = $product['eventProduct']->toArray() + [
+            $temp = $product['product']->toArray() + [
                 'cost' => $product['cost'],
                 'discount' => $product['discount'],
                 'taxes' => $product['taxes'],

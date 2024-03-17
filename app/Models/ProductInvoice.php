@@ -20,7 +20,7 @@ class ProductInvoice extends Model
     public function getTotalAttribute()
     {
         $total = $this->amount * $this->cost;
-        return ($total) - ($total * $this->discount/100);
+        return ($total) - ($this->discount);
     }
 
 

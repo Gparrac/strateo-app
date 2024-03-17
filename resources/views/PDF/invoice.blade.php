@@ -21,7 +21,7 @@
                 </tr>
             </table>
         </div>
-        <div class="client-data">
+         <div class="client-data">
             <table>
                 <tr>
                     <td class="left-client-data">
@@ -106,7 +106,7 @@
                     </td>
                 </tr>
             </table>
-        </div>
+        </div> --}}
         <footer>
             {{$dataPDF['footer']}}
         </footer>

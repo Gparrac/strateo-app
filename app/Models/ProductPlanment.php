@@ -12,8 +12,17 @@ class ProductPlanment extends Model
     use HasFactory;
     protected $table = "products_planments";
     protected $fillable = ['product_id', 'planment_id', 'cost', 'discount', 'status', 'users_id', 'users_udate_id', 'amount'];
+    protected $appends = ['total'];
 
-    public function eventProduct() : BelongsTo
+    // Append Variables
+
+    public function getTotalAttribute()
+    {
+        $total = $this->amount * $this->cost;
+        // return ($total) - ($total * $this->discount/100);
+        return $total - $this->discount;
+    }
+    public function product() : BelongsTo
     {
         return $this->belongsTo(Product::class, 'product_id');
     }

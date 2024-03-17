@@ -5,7 +5,7 @@ use App\Http\Controllers\ExportContent\InvoicePDF;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => ['auth:api','role.user']], function() {
-    
+
     Route::prefix('export-data')->group(function () {
         Route::get('/inventory-trades', InventoryController::class);
     });

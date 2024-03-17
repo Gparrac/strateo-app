@@ -13,6 +13,14 @@ class FurtherProductPlanment extends Model
     protected $table = "further_products_planments";
     protected $fillable = ['product_id', 'planment_id', 'amount', 'status','discount', 'cost','warehouse_id','tracing' ,'users_id', 'users_udate_id'];
 
+    protected $appends = ['total'];
+
+    public function getTotalAttribute()
+    {
+        $total = $this->amount * $this->cost;
+        // return ($total) - ($total * $this->discount/100);
+        return $total - $this->discount;
+    }
     public function product() : BelongsTo
     {
         return $this->belongsTo(Product::class);

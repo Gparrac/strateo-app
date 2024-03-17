@@ -9,6 +9,9 @@ use App\Models\Invoice;
 use App\Models\Company;
 use App\Models\ProductInvoice;
 use App\Http\Utils\PriceFormat;
+use App\Models\FurtherProductPlanment;
+use App\Models\Planment;
+use App\Models\ProductPlanment;
 
 class InvoicePDF extends Controller
 {
@@ -17,38 +20,55 @@ class InvoicePDF extends Controller
      */
     public function __invoke(Request $request)
     {
-        $invoiceId = 22;
+        $invoiceId = 43;
         $invoice = Invoice::findOrFail($invoiceId);
 
         //Client Information
         $client = $invoice->client->third;
-
+        $furtherProducts = null;
+        $furtherProductsPurchase = null;
         // Products with tax
-        $titlePDF = '';
         if($invoice->sale_type['id'] == 'P'){
             $titlePDF = 'Productos Contratados';
-            $products = $this->getProducts($invoiceId);
+            $products = $this->getProducts(ProductInvoice::where('invoice_id', $invoice['id']));
+            $productsPurchase = $this->getTotalPurchase($products);
+            $products = $this->setTotalTax($products);
+        }else{
+            $titlePDF = 'Eventos contratados';
+            $planmentId = Planment::where('invoice_id', $invoiceId)->first()->id;
+            $products = $this->getProducts(ProductPlanment::where('planment_id', $planmentId));
+            $furtherProducts = $this->getProducts(FurtherProductPlanment::where('planment_id', $planmentId));
+            $products = $this->setTotalTax($products);
+            $furtherProducts = $this->setTotalTax($furtherProducts);
+            $productsPurchase = $this->getTotalPurchase($products);
+            $furtherProductsPurchase = $this->getTotalPurchase($furtherProducts);
+            $productsPurchase['net_total'] =  PriceFormat::getNumber($furtherProductsPurchase['unformat_total_purchase'] + $productsPurchase['unformat_total_purchase']);
         }
 
+
         //Set total taxes for each tax
-        $products = $this->setTotalTax($products);
+
 
         //products Total Purchase
-        $productsPurchase = $this->getTotalPurchase($products);
 
         // Company Header and Footer
         $dataPDF = Company::first();
-        
-        $pdf = PDF::loadView('PDF.invoice', compact('dataPDF', 'titlePDF', 'client', 'invoice', 'products', 'productsPurchase'));
-        
+        // return $products;
+        $pdf = PDF::loadView('PDF.invoice', compact('dataPDF', 'titlePDF', 'client', 'invoice', 'products', 'productsPurchase', 'furtherProductsPurchase'));
+
         return $pdf->download('itsolutionstuff.pdf');
     }
 
-    private function getProducts($invoiceId)
+    private function getProducts( $query)
     {
-        return ProductInvoice::where('invoice_id', $invoiceId)
+        return $query
         ->with('product', 'taxes')
         ->get();
+    }
+    private function getEventProducts($invoiceId)
+    {
+        $planmentId = Planment::where('invoice_id', $invoiceId)->first()->id;
+        return ProductPlanment::where('planment_id', $planmentId)->with('product','taxes')->get();
     }
 
     private function setTotalTax($collection)
@@ -79,7 +99,8 @@ class InvoicePDF extends Controller
         return [
             'total_tax_product' => PriceFormat::getNumber($totalTaxProduct),
             'total_product' => PriceFormat::getNumber($totalProduct),
-            'total_purchase' => PriceFormat::getNumber($totalTaxProduct + $totalProduct)
+            'total_purchase' => PriceFormat::getNumber($totalTaxProduct + $totalProduct),
+            'unformat_total_purchase' => $totalTaxProduct + $totalProduct
         ];
     }
 }
