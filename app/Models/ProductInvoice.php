@@ -23,7 +23,6 @@ class ProductInvoice extends Model
         return ($total) - ($this->discount);
     }
 
-
     // RELATIONSHIP
     public function product() : BelongsTo
     {

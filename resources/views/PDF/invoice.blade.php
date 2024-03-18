@@ -5,15 +5,15 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Título de tu PDF</title>
-        <link rel="stylesheet" href="{{ asset('css/invoice.css') }}">
+        <link rel="stylesheet" href="{{ public_path('css/invoice.css') }}">
     </head>
 
     <body>
-        <div class="header">
+         <div class="header">
             <table>
                 <tr>
                     <td class="company-logo">
-                        <img src="{{ $dataPDF['path_logo'] }}" alt="Logo de la empresa">
+                        {{-- <img src="{{ $dataPDF['path_logo'] }}" alt="Logo de la empresa"> --}}
                     </td>
                     <td class="company-info">
                         {{$dataPDF['header']}}
@@ -51,6 +51,52 @@
                                 <th class="left-aligned">Cantidad</th>
                                 <th class="left-aligned">Precio</th>
                                 <th class="left-aligned">Descuento</th>
+                                <th class="right-aligned">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="content-table-font-size">
+                                <td>{{$product->product->name}}</td>
+                                <td>{{$product->amount}}</td>
+                                <td>${{$product->fcost}}</td>
+                                <td>${{$product->fdiscount}}</td>
+                                <td class="right-aligned">${{$product->total_format}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    @if (count($product->taxes) > 0)
+                        <table>
+                            <thead>
+                                <tr class="content-table-font-size-tax">
+                                    <th class="left-aligned">Impuestos asociados</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($product->taxes as $tax)
+                                    <tr class="content-table-font-size-tax">
+                                        <td>{{$tax->acronym}}</td>
+                                        <td>%{{$tax->pivot->percent}}</td>
+                                        <td>${{$tax->total_tax}}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endif
+                <br>
+                @endforeach
+            </div>
+            @if ($furtherProducts && count($furtherProducts) > 0)
+
+            <div class="products-invoice-table">
+                <h3>Productos adicionales</h3>
+                @foreach ( $furtherProducts as $product )
+                    <table>
+                        <thead>
+                            <tr class="content-table-font-size">
+                                <th class="product-name left-aligned">Nombre del Producto</th>
+                                <th class="left-aligned">Cantidad</th>
+                                <th class="left-aligned">Precio</th>
+                                <th class="left-aligned">Descuento</th>
                                 <th class="left-aligned">Total</th>
                             </tr>
                         </thead>
@@ -58,8 +104,8 @@
                             <tr class="content-table-font-size">
                                 <td>{{$product->product->name}}</td>
                                 <td>{{$product->amount}}</td>
-                                <td>{{$product->cost}}</td>
-                                <td>%{{$product->discount}}</td>
+                                <td>${{$product->fcost}}</td>
+                                <td>${{$product->fdiscount}}</td>
                                 <td>${{$product->total_format}}</td>
                             </tr>
                         </tbody>
@@ -86,27 +132,35 @@
                 @endforeach
             </div>
         </div>
+
+
+            @endif
         <div class="client-data">
             <table>
                 <tr class="content-table-font-size-tax">
                     <td class="left-client-data-invoice">
+                        <strong class="subtitle">Observaciones</strong>
                         {{$invoice->note}}
                     </td>
                     <td class="right-client-data-invoice">
-                        <p><strong>Costos Totales: </strong></p>
+                        <p><strong>Total productos: </strong></p>
+                        @if (count($product->taxes) > 0)
+                        <p><strong>Total Adicionales: </strong></p>
+                        @endif
                         <p><strong>Impuestos Totales: </strong></p>
-                        <p><strong>Productos adicionales: </strong></p>
                         <p><strong>Total: </strong></p>
                     </td>
                     <td class="right-client-data-invoice-value">
                         <p>${{$productsPurchase['total_product']}}</p>
+                        @if (count($product->taxes) > 0)
+                        <p><strong>{{$furtherProductsPurchase['total_product']}}</strong></p>
+                        @endif
                         <p>${{$productsPurchase['total_tax_product']}}</p>
-                        <p>$0</p>
                         <p>${{$productsPurchase['total_purchase']}}</p>
                     </td>
                 </tr>
             </table>
-        </div> --}}
+        </div>
         <footer>
             {{$dataPDF['footer']}}
         </footer>

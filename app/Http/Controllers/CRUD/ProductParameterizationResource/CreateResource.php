@@ -22,6 +22,7 @@ class CreateResource implements CRUD
         DB::beginTransaction();
         try {
             $userId = auth()->id();
+            $respose = [];
             if($request->has('type_connection')){
                 if ($request['type_connection'] == 'F') {
                     $this->createFurtherEvent($userId, $request);
@@ -33,10 +34,11 @@ class CreateResource implements CRUD
                     $this->createProductInvoice($userId, $request);
                 }
             }else{
-                $this->create($request, $userId);
+                $response = $this->create($request, $userId);
+
             }
             DB::commit();
-            return response()->json(['message' => 'Successful']);
+            return response()->json(array_merge(['message' => 'Successful'], $response));
         } catch (QueryException $ex) {
             DB::rollback();
             Log::error('Query error ClientResource@createResource: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
@@ -90,6 +92,7 @@ class CreateResource implements CRUD
                 ]);
         }
     }
+        return ['product_id' => $product['id']];
     }
     protected function createFurtherEvent($userId, Request $request){
         $planment = Invoice::find($request['invoice_id'])->planment;

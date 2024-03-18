@@ -38,19 +38,19 @@ table {
 
 /* Content Client  */
 .client-data {
-    padding: 20px;
+    padding: 20px 0px;
 }
 
 .left-client-data {
-    width: 80%; 
-    padding: 10px;
+    width: 80%;
+
     font-size: 13px;
-    line-height: 0.8; 
+    line-height: 0.8;
 }
 
 .right-client-data {
     width: 20%;
-    text-align: center; /* Centrar horizontalmente */
+    text-align: left; /* Centrar horizontalmente */
     line-height: 2vh; /* Ajusta la altura del contenedor para centrar verticalmente */
 }
 
@@ -58,7 +58,7 @@ table {
 
 .content-table-font-size {
     padding: 8px;
-    text-align: left;
+
     font-size: 13px;
 }
 
@@ -69,7 +69,7 @@ table {
 }
 
 .product-name {
-    width: 50%; 
+    width: 50%;
 }
 
 .products-invoice-table {
@@ -79,25 +79,34 @@ table {
 .left-aligned {
     text-align: left;
 }
+.right-aligned {
+    text-align: right;
+}
 
 /* Invoice total */
 .left-client-data-invoice {
-    width: 50%; 
-    padding: 10px;
+    width: 50%;
+
     font-size: 13px;
-    line-height: 0.8; 
+
+}
+.left-client-data-invoice .subtitle{
+    display: block;
+    width: 100%;
+    font-size: 13px;
+    padding-bottom: 10px;
 }
 
 .right-client-data-invoice {
     width: 20%;
-    text-align: right;
-    line-height: 2vh; /* Ajusta la altura del contenedor para centrar verticalmente */
+    text-align: left;
+    line-height: 0.8; /* Ajusta la altura del contenedor para centrar verticalmente */
 }
 
 .right-client-data-invoice-value {
     width: 20%;
-    text-align: left;
-    line-height: 2vh; /* Ajusta la altura del contenedor para centrar verticalmente */
+    text-align: right;
+    line-height: 0.8; /* Ajusta la altura del contenedor para centrar verticalmente */
 }
 
 /* Footer */
