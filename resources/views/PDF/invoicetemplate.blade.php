@@ -5,15 +5,15 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Título de tu PDF</title>
-        <link rel="stylesheet" href="{{ public_path('css/invoice.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/invoice-template.css') }}">
     </head>
 
     <body>
-         <div class="header">
+        <div class="header">
             <table>
                 <tr>
                     <td class="company-logo">
-                        {{-- <img src="{{ $dataPDF['path_logo'] }}" alt="Logo de la empresa"> --}}
+                        <img src="{{ $dataPDF['path_logo'] }}" alt="Logo de la empresa">
                     </td>
                     <td class="company-info">
                         {{$dataPDF['header']}}
@@ -21,18 +21,57 @@
                 </tr>
             </table>
         </div>
-         <div class="client-data">
-            <table>
+        <div class="client-data">
+            <table class="line-mark-table">
                 <tr>
                     <td class="left-client-data">
-                        <!-- Contenido del div izquierdo -->
-                        <p><strong>Nombre: </strong> {{$client['names'] ? $client['names'].' '. $client['surnames'] : $client['business_name']}}</p>
-                        <p><strong>Tipo de Documento: </strong> {{$client['type_document']}}</p>
-                        <p><strong>Identificación: </strong> {{$client['identification']}}</p>
-                        <p><strong>Dirección: </strong> {{$client['address']}}</p>
-                        <p><strong>Correo: </strong> {{$client['email']}}</p>
+                        <table >
+                            <tr class="information-rows-client">
+                                <td class="left-client-data-information"><p><strong>Cliente</strong></p></td>
+                                <td><p>{{$client->business_name ? $client->business_name : $client->names.' '.$client->surnames}}</p></td>
+                            </tr>
+                            <tr class="information-rows-client">
+                                <td class="left-client-data-information"><p><strong>Fecha de creación</strong></p></td>
+                                <td><p>{{$invoice->created_at}}</p></td>
+                            </tr>
+                            <tr class="information-rows-client">
+                                <td class="left-client-data-information"><p><strong>Ciudad</strong></p></td>
+                                <td><p>{{$client->city->name}}</p></td>
+                            </tr>
+                            <tr class="information-rows-client">
+                                <td class="left-client-data-information"><p><strong>C.C o NIT</strong></p></td>
+                                <td><p>{{$client->identification}}</p></td>
+                            </tr>
+                            <tr class="information-rows-client">
+                                <td class="left-client-data-information"><p><strong>Email</strong></p></td>
+                                <td><p>{{$client->email}}</p></td>
+                            </tr>
+                            
+                        </table>
                     </td>
-                    <td class="right-client-data">
+                    <td class="left-client-data">
+                        <table cellspacing="0">
+                            <tr class="information-rows-client">
+                                <td class="left-client-data-information"><p><strong>Vendedor</strong></p></td>
+                                <td><p>{{$client->userCreate->third->business_name ? 
+                                        $client->userCreate->third->business_name :
+                                        $client->userCreate->third->names . ' ' .  $client->userCreate->third->surnames}}</p></td>
+                            </tr>
+                            <tr class="information-rows-client">
+                                <td class="left-client-data-information"><p><strong>Fecha del evento</strong></p></td>
+                                <td><p>No se sabe</p></td>
+                            </tr>
+                            <tr class="information-rows-client"class="information-rows-client">
+                                <td class="left-client-data-information"><p><strong>Celular</strong></p></td>
+                                <td><p>{{$client->mobile}}</p></td>
+                            </tr>
+                            <tr class="information-rows-client">
+                                <td class="left-client-data-information"><p><strong>Dirección principal</strong></p></td>
+                                <td><p>{{$client->address}}</p></td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td class="right-client-data line-mark-table">
                         <!-- Contenido del div derecho (número grande) -->
                         <h2>Cotizacion: N°{{$invoice->id}}</h2>
                     </td>
@@ -42,7 +81,7 @@
         <div>
             {{-- Productos contratados --}}
             <div class="products-invoice-table">
-                <h3>{{ $titlePDF }}</h3>
+                <h5>{{ $titlePDF }}</h5>
                 @foreach ( $products as $product )
                     <table>
                         <thead>
@@ -133,29 +172,26 @@
             </div>
             @endif
         </div>
-
-
         <div class="client-data">
-            <table>
+            <table class="line-mark-table">
                 <tr class="content-table-font-size-tax">
-                    <td class="left-client-data-invoice">
-                        <strong class="subtitle">Observaciones</strong>
-                        {{$invoice->note}}
+                    <td class="left-client-data-invoice line-mark-table table-padding-purchase">
+                        <p><strong>Observaciones: </strong> {{$invoice->note}}</p>
                     </td>
-                    <td class="right-client-data-invoice">
-                        <p><strong>Total productos: </strong></p>
-                        @if (count($product->taxes) > 0)
-                        <p><strong>Total Adicionales: </strong></p>
-                        @endif
-                        <p><strong>Impuestos Totales: </strong></p>
-                        <p><strong>Total: </strong></p>
+                    <td class="right-client-data-invoice table-padding-purchase">
+                        <p><strong>SUBTOTAL</strong></p>
+                        <p><strong>-Descuentos</strong></p>
+                        <p><strong>+Adicionales</strong></p>
+                        <p><strong>BASE GRAVABLE</strong></p>
+                        <p><strong>+IVA</strong></p>
+                        <p><strong>NETO COTIZACION </strong></p>
                     </td>
-                    <td class="right-client-data-invoice-value">
+                    <td class="right-client-data-invoice-value table-padding-purchase">
                         <p>${{$productsPurchase['total_product']}}</p>
-                        @if (count($product->taxes) > 0)
-                        <p><strong>{{$furtherProductsPurchase['total_product']}}</strong></p>
-                        @endif
+                        <p>$0,00</p>
+                        <p>$0,00</p>
                         <p>${{$productsPurchase['total_tax_product']}}</p>
+                        <p>$0,00</p>
                         <p>${{$productsPurchase['total_purchase']}}</p>
                     </td>
                 </tr>

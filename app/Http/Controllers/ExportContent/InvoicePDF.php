@@ -12,6 +12,7 @@ use App\Models\ProductInvoice;
 use App\Http\Utils\PriceFormat;
 use App\Models\FurtherProductPlanment;
 use App\Models\Planment;
+use App\Models\Third;
 use App\Models\ProductPlanment;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
@@ -23,11 +24,11 @@ class InvoicePDF extends Controller
      */
     public function __invoke(Request $request)
     {
-        $invoiceId = 43;  // 43 => event, 22 => straight purchase
+        $invoiceId = 22;  // 43 => event, 22 => straight purchase
         $invoice = Invoice::findOrFail($invoiceId);
 
         //Client Information
-        $client = $invoice->client->third;
+        $client = Third::with('city', 'userCreate', 'userCreate.third')->findOrFail($invoice->client->third->id);
         $furtherProducts = null;
         $furtherProductsPurchase = null;
         // Products with tax
@@ -48,15 +49,11 @@ class InvoicePDF extends Controller
             $productsPurchase['total_purchase'] =  PriceFormat::getNumber($furtherProductsPurchase['unformat_total_purchase'] + $productsPurchase['unformat_total_purchase']);
             $productsPurchase['total_tax_product'] = PriceFormat::getNumber($productsPurchase['unformat_total_tax'] + $furtherProductsPurchase['unformat_total_tax']);
         }
-        //Set total taxes for each tax
-
-
-        //products Total Purchase
 
         // Company Header and Footer
         $dataPDF = Company::first();
-        // return $products;
-        $pdf = PDF::loadView('PDF.invoice', compact('dataPDF', 'titlePDF', 'client', 'invoice', 'products', 'productsPurchase', 'furtherProducts', 'furtherProductsPurchase'));
+
+        $pdf = PDF::loadView('PDF.invoicetemplate', compact('dataPDF', 'titlePDF', 'client', 'invoice', 'products', 'productsPurchase', 'furtherProducts', 'furtherProductsPurchase'));
         // dd($pdf);
         return $pdf->download('itsolutionstuff.pdf');
     }
