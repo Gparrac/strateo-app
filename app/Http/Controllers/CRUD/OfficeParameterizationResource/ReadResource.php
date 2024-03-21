@@ -17,7 +17,7 @@ class ReadResource implements CRUD, RecordOperations
         if ($request->has('office_id')) {
             return $this->singleRecord($request->input('office_id'));
         } else {
-            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'), $request->input('format'));
+            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('filters') ?? [], $request->input('format'));
         }
     }
 
@@ -37,20 +37,34 @@ class ReadResource implements CRUD, RecordOperations
         }
     }
 
-    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null, $format = null)
+    public function allRecords($ids = null, $pagination = 5, $sorters = [], $filters=[], $format = null)
     {
         try {
-            if ($format == 'shorter') {
+            if ($format == 'short') {
                 $data = Office::select('id', 'name')->get();
             } else {
                 $data = Office::select('id', 'name', 'address', 'phone', 'status', 'city_id','updated_at')
                     ->with('city:id,name');
                 //filter query with keyword 🚨
-                if ($typeKeyword && $keyword) {
-                    $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
+                if ($filters) {
+                foreach ($filters as $filter) {
+                    switch ($filter['key']) {
+                        case 'name':
+                            $data = $data->whereRaw("UPPER(name) LIKE ?", ['%' . strtoupper($filter['value']) . '%']);
+                            break;
+                        case 'status':
+                            $data = $data->WhereIn('status', $filter['value']);
+                            break;
+                        case 'address':
+                            $data = $data->orWhere('address','LIKE', '%' . $filter['value'] . '%');
+                        default:
+                            $data = $data->orWhere('id','LIKE', '%' . $filter['value'] . '%');
+                            break;
+                    }
+                }
                 }
                 //append shorters to query
-                foreach ($sorters as $key => $shorter) {
+                foreach ($sorters as $shorter) {
                     $data = $data->orderBy($shorter['key'], $shorter['order']);
                 }
                 $data = $data->paginate($pagination);

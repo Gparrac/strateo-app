@@ -23,7 +23,7 @@ class ReadResource implements CRUD, RecordOperations
         if ($request->has('employee_id')) {
             return $this->singleRecord($request->input('employee_id'));
         } else {
-            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'), $request->input('format'));
+            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('filters') ?? [], $request->input('format'));
         }
     }
 
@@ -70,7 +70,7 @@ class ReadResource implements CRUD, RecordOperations
         }
     }
 
-    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null, $format = null)
+    public function allRecords($ids = null, $pagination = 5, $sorters = [], $filters = [], $format = null)
     {
         try {
             $data = Employee::with(['third' =>
@@ -78,15 +78,20 @@ class ReadResource implements CRUD, RecordOperations
                 $query->select(['id', 'names', 'surnames', 'business_name', 'type_document', 'identification']);
             }])->withCount(['dynamicServices']);
             //filter query with keyword 🚨
-            if ($typeKeyword && $keyword) {
-                if ($typeKeyword == 'name') {
-                    $data = $data->whereHas('third', function ($query) use ($keyword) {
-                        $query->where('names', 'LIKE', '%' . $keyword . '%');
-                        $query->orWhere('surnames', 'LIKE', '%' . $keyword . '%');
-                        $query->orWhere('identification', 'LIKE', '%' . $keyword . '%');
-                    });
-                } else {
-                    $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
+            //filter query with keyword 🚨
+            foreach ($filters as $filter) {
+                switch ($filter['key']) {
+                    case 'third':
+                        $data = $data->whereHas('third', function ($query) use ($filter) {
+                            $query->whereRaw('UPPER(CONCAT(names," ",surnames)) LIKE ?', ['%' . strtoupper($filter['value']) . '%']);
+                        });
+                        break;
+                    case 'status':
+                        $data = $data->whereIn('status', $filter['value']);
+                        break;
+                    default:
+                        $data = $data->orWhere('id', 'LIKE', '%' . $filter['value'] . '%');
+                        break;
                 }
             }
             if ($format == 'short') {

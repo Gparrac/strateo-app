@@ -19,7 +19,7 @@ class ReadResource implements CRUD, RecordOperations
         if ($request->has('role_id')) {
             return $this->singleRecord($request->input('role_id'));
         } else {
-            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'), $request->input('format'));
+            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('filters') ?? [], $request->input('format'));
         }
     }
 
@@ -46,7 +46,7 @@ class ReadResource implements CRUD, RecordOperations
         return response()->json(['message' => 'Read: ' . $id, 'data' => $role], 200);
     }
 
-    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null, $format = null)
+    public function allRecords($ids = null, $pagination = 5, $sorters = [], $filters = [], $format = null)
     {
         try {
             if ($format == 'short') {
@@ -60,9 +60,19 @@ class ReadResource implements CRUD, RecordOperations
                         $query->where('users.status', 'A');
                     }
                 ]);
-                //filter query with keyword 🚨
-                if ($typeKeyword && $keyword) {
-                    $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
+                if ($filters) {
+                    foreach ($filters as $filter) {
+                        switch ($filter['key']) {
+                            case 'name':
+                                $data = $data->whereRaw("UPPER(name) LIKE ?", ['%' . strtoupper($filter['value']) . '%']);
+                                break;
+                            case 'id':
+                                $data = $data->orWhere('id','LIKE', '%' . $filter['value'] . '%');
+                            default:
+                                # code...
+                                break;
+                        }
+                    }
                 }
                 //append shorters to query
                 foreach ($sorters as $key => $shorter) {

@@ -20,7 +20,7 @@ class ReadResource implements CRUD, RecordOperations
             return $this->singleRecord($request->input('field_id'));
         } else {
 
-            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'), $request->input('format'));
+            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('filters') ?? [], $request->input('format'));
         }
     }
 
@@ -41,13 +41,24 @@ class ReadResource implements CRUD, RecordOperations
         }
     }
 
-    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null, $format = null)
+    public function allRecords($ids = null, $pagination = 5, $sorters = [], $filters = [], $format = null)
     {
         try {
             $data = new Field;
             //filter query with keyword 🚨
-            if ($typeKeyword && $keyword) {
-                $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
+            foreach ($filters as $filter) {
+                switch ($filter['key']) {
+                    case 'name':
+                        $data = $data->whereRaw('UPPER(name) LIKE ?', ['%' . strtoupper($filter['value']) . '%']);
+
+                        break;
+                    case 'type':
+                            $data = $data->whereIn('type', $filter['value']);
+                            break;
+                        default:
+                        $data = $data->orWhere('id','LIKE', '%' . $filter['value'] . '%');
+                        break;
+                }
             }
             if ($format == 'short') {
                 $data = $data->where('status', 'A');

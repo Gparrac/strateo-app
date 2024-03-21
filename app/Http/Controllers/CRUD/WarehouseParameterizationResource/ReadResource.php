@@ -18,7 +18,7 @@ class ReadResource implements CRUD, RecordOperations
             return $this->singleRecord($request->input('warehouse_id'));
         } else {
 
-            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'), $request->input('format'));
+            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('filters') ?? [], $request->input('format'));
         }
     }
 
@@ -45,15 +45,31 @@ class ReadResource implements CRUD, RecordOperations
         }
     }
 
-    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null, $format = null)
+    public function allRecords($ids = null, $pagination = 5, $sorters = [], $filters = [], $format = null)
     {
         try {
             $data = Warehouse::select('id', 'note', 'status', 'city_id', 'address', 'updated_at')
             ->with('city:id,name');
 
             //filter query with keyword 🚨
-            if ($typeKeyword && $keyword) {
-                $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
+            foreach ($filters as $filter) {
+                switch ($filter['key']) {
+                    case 'city':
+                        $data = $data->whereHas('city', function ($query) use ( $filter) {
+                            $query->where('UPPER(cities.name)', 'LIKE', '%' . strtoupper($filter['value']) . '%');
+                            $query->orWhere('UPPER(address)', 'LIKE', '%' . strtoupper($filter['value']) . '%');
+                        });
+                        break;
+                        case 'address':
+                            $data = $data->orWhere('address','LIKE', '%' . $filter['value'] . '%');
+                            break;
+                    case 'id':
+                        $data = $data->orWhere('id','LIKE', '%' . $filter['value'] . '%');
+                        break;
+                    default:
+                        # code...
+                        break;
+                }
             }
             if($format == 'short'){
                 $data = $data->where('status','A')->select('warehouses.id','warehouses.address','warehouses.city_id')->take(10)->get();

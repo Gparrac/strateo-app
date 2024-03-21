@@ -21,10 +21,12 @@ class ReadMiddleware implements ValidateData
                 //pagination an filters
                 'page' => 'numeric|min:0',
                 'pagination' => 'numeric|max:100',
-                'keyword' => 'string|max:40',
-                'typeKeyword' => 'string|in:id,name,legal_credencials',
+                'filters' => 'array',
+                'filters.*.key' => 'required|in:legal_credencials,id,name,status',
+                'filters.*.value' => 'required',
                 'sorters' => 'array',
                 'sorters.order' => 'nullable|in:asc,desc',
+
             ]);
         }
         if ($validator->fails()){

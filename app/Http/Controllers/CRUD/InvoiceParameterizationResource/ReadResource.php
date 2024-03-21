@@ -22,7 +22,6 @@ use Illuminate\Http\Request;
 class ReadResource implements CRUD, RecordOperations
 {
     protected $typeSale;
-    protected $filters;
     public function resource(Request $request)
     {
         try {
@@ -49,8 +48,7 @@ class ReadResource implements CRUD, RecordOperations
                 }
             } else {
                 $this->typeSale = $request->input('type');
-                $this->filters = $request->input('filters');
-                $data = $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'), $request->input('format'));
+                $data = $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('keyword') ?? [], $request->input('format'));
             }
             return response()->json(['message' => 'read', 'data' => $data], 200);
         } catch (QueryException $ex) {
@@ -84,7 +82,7 @@ class ReadResource implements CRUD, RecordOperations
         return $data;
     }
 
-    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null, $format = null)
+    public function allRecords($ids = null, $pagination = 5, $sorters = [], $filters = [], $format = null)
     {
         $data = Invoice::with(['seller:id,name', 'client' => function ($query) {
             $query->with('third:id,identification,names,surnames,type_document')->select('id', 'third_id');
@@ -92,15 +90,8 @@ class ReadResource implements CRUD, RecordOperations
         if ($this->typeSale == 'E') {
             $data = $data->whereHas('planment')->with('planment:id,invoice_id,stage,pay_off,start_date,end_date');
         }
-
-        //filter query with keyword and shorts 🚨
-        if ($typeKeyword && $keyword) {
-            $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
-        }
-        Log::info('filters');
-        Log::info($this->filters);
-        if ($this->filters) {
-            foreach ($this->filters as  $value) {
+        if ($filters) {
+            foreach ($filters as  $value) {
                 if (in_array($value['key'], ['client', 'client_id'])) {
                     $data = $data->whereHas('client', function ($query) use ($value) {
                         $query->whereHas('third', function ($query) use ($value) {

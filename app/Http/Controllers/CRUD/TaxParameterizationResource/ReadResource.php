@@ -12,14 +12,13 @@ use App\Models\Tax;
 
 class ReadResource implements CRUD, RecordOperations
 {
-    private $format;
+
     public function resource(Request $request)
     {
         if ($request->has('tax_id')) {
             return $this->singleRecord($request->input('tax_id'));
         } else {
-            $this->format = $request->input('format');
-            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'), $request->input('format'));
+            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('filters') ?? [], $request->input('format'));
         }
     }
 
@@ -37,13 +36,25 @@ class ReadResource implements CRUD, RecordOperations
         }
     }
 
-    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null, $format = null)
+    public function allRecords($ids = null, $pagination = 5, $sorters = [], $filters = [], $format = null)
     {
         try {
             $data = new Tax();
             //filter query with keyword 🚨
-            if ($typeKeyword && $keyword) {
-                $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
+            foreach ($filters as $filter) {
+                switch ($filter['key']) {
+                    case 'tax':
+                        $data =
+                            $data->whereRaw('UPPER(acronym) LIKE ?', ['%' . strtoupper($filter['value']) . '%']);
+
+                        break;
+                    case 'status':
+                        $data = $data->orWhere('status', $filter['value']);
+                        break;
+                    default: // id
+                        $data = $data->orWhere('id', 'LIKE', '%' . $filter['value'] . '%');
+                        break;
+                }
             }
             if ($format == 'short') {
                 $data = $data->where('status', 'A')->select('id', 'acronym', 'name', 'default_percent')->take(10)->get();

@@ -19,7 +19,7 @@ class ReadResource implements CRUD, RecordOperations
             return $this->singleRecord($request->input('libretto_activity_id'));
         } else {
 
-            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'), $request->input('format'));
+            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('filters') ?? [], $request->input('format'));
         }
     }
 
@@ -27,17 +27,17 @@ class ReadResource implements CRUD, RecordOperations
     {
         try {
             $data = LibrettoActivity::where('id', $id)
-            ->with(['products' => function($query){
-                $query->select('products.id', 'consecutive', 'name', 'measure_id', 'brand_id', 'product_code')
-                    ->where('libretto_activities_products.status', 'A')
-                    ->with([
-                        'brand'=> function($query){
-                            $query->where('status','A')->select('id','name');
-                        },'measure'=> function($query){
-                            $query->where('status','A')->select('id','symbol');
-                        }
-                    ]);
-            }])
+                ->with(['products' => function ($query) {
+                    $query->select('products.id', 'consecutive', 'name', 'measure_id', 'brand_id', 'product_code')
+                        ->where('libretto_activities_products.status', 'A')
+                        ->with([
+                            'brand' => function ($query) {
+                                $query->where('status', 'A')->select('id', 'name');
+                            }, 'measure' => function ($query) {
+                                $query->where('status', 'A')->select('id', 'symbol');
+                            }
+                        ]);
+                }])
                 ->first();
 
             return response()->json(['message' => 'read: ' . $id, 'data' => $data], 200);
@@ -50,18 +50,31 @@ class ReadResource implements CRUD, RecordOperations
         }
     }
 
-    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null, $format = null)
+    public function allRecords($ids = null, $pagination = 5, $sorters = [], $filters = [], $format = null)
     {
         try {
-            $data = LibrettoActivity::select('id', 'name', 'description','status');
+            $data = LibrettoActivity::select('id', 'name', 'description', 'status');
 
             //filter query with keyword 🚨
-            if ($typeKeyword && $keyword) {
-                $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
+            if ($filters) {
+                foreach ($filters as $filter) {
+                    switch ($filter['key']) {
+                        case 'name':
+                            $data = $data->whereRaw("UPPER(name) LIKE ?", ['%' . strtoupper($filter['value']) . '%']);
+                            break;
+                        case 'status':
+                            $data = $data->whereIn("status", $filter['value']);
+                            break;
+                        default:
+                            $data =  $data->where('id', 'like', '%'.$filter['value'].'%');
+                            break;
+                    }
+                }
             }
-            if($format == 'short'){
-                $data = $data->where('status','A')->select('id','name','description')->take(10)->get();
-            }else{
+            //end filter query with keyword 🚨
+            if ($format == 'short') {
+                $data = $data->where('status', 'A')->select('id', 'name', 'description')->take(10)->get();
+            } else {
                 $data = $data->withCount('products');
                 //append shorters to query
                 foreach ($sorters as $shorter) {

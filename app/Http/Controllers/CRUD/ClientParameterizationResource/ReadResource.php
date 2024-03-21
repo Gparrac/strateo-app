@@ -17,7 +17,7 @@ class ReadResource implements CRUD, RecordOperations
         if ($request->has('client_id')) {
             return $this->singleRecord($request->input('client_id'));
         } else {
-            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'),$request->input('format'));
+            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('filters') ?? [], $request->input('format'));
         }
     }
 
@@ -42,18 +42,22 @@ class ReadResource implements CRUD, RecordOperations
         }
     }
 
-    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null, $format = null)
+    public function allRecords($ids = null, $pagination = 5, $sorters = [], $filters = [], $format = null)
     {
         try {
             $data = new Client();
             //filter query with keyword 🚨
-            if ($typeKeyword && $keyword) {
-                if($typeKeyword == 'legal_credencials'){
-                    $data = $data->where('legal_representative_name', 'LIKE', '%' . $keyword . '%')
-                    ->orWhere('legal_representative_id','LIKE', '%' . $keyword . '%');
-                }else{
+            if ($filters) {
+                foreach ($filters as $filter) {
+                    switch ($filter['key']) {
+                        case 'legal_credencials':
+                            $data = $data->whereRaw("UPPER(legal_representative_name) LIKE ?", ['%' . strtoupper($filter['value']) . '%']);
 
-                    $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
+                            break;
+                        default:
+                            $data = $data->where('id','LIKE', '%' . $filter['value'] . '%');
+                            break;
+                    }
                 }
             }
             if($format == 'short'){

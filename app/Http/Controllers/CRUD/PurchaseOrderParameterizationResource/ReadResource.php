@@ -20,7 +20,7 @@ class ReadResource implements CRUD, RecordOperations
             return $this->singleRecord($request->input('purchase_order_id'));
         } else {
             $this->format = $request->input('format');
-            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'));
+            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('filters') ?? [], $request->input('format'));
         }
     }
 
@@ -28,25 +28,25 @@ class ReadResource implements CRUD, RecordOperations
     {
         try {
             $data = PurchaseOrder::where('id', $id)
-            ->select('id','supplier_id','date','note','status')
-            ->with(['supplier' => function($query){
-                $query->with(['third' =>
-                function ($query) {
-                    $query->select(['id', DB::raw('IFNULL(names, business_name) as supplier'), 'type_document', 'identification']);
-                }])->select('suppliers.id','suppliers.commercial_registry', 'suppliers.third_id');
-            }, 'products' => function ($query) {
-                $query->with(['measure:id,symbol', 'brand:id,name']);
-                $query->select('products.id', 'products.name', 'products.consecutive', 'products.product_code', 'products.brand_id', 'products.measure_id', 'products.cost as defaultCost');
-            }])
-            ->first();
-            $data->products->each(function($product){
+                ->select('id', 'supplier_id', 'date', 'note', 'status')
+                ->with(['supplier' => function ($query) {
+                    $query->with(['third' =>
+                    function ($query) {
+                        $query->select(['id', DB::raw('IFNULL(names, business_name) as supplier'), 'type_document', 'identification']);
+                    }])->select('suppliers.id', 'suppliers.commercial_registry', 'suppliers.third_id');
+                }, 'products' => function ($query) {
+                    $query->with(['measure:id,symbol', 'brand:id,name']);
+                    $query->select('products.id', 'products.name', 'products.consecutive', 'products.product_code', 'products.brand_id', 'products.measure_id', 'products.cost as defaultCost');
+                }])
+                ->first();
+            $data->products->each(function ($product) {
                 $product['amount'] = $product['pivot']['amount'];
                 unset($product['pivot']);
             });
             $data['supplier']['supplier'] = $data['supplier']['third']['supplier'];
 
 
-                unset($data['supplier']['third']);
+            unset($data['supplier']['third']);
 
 
             return response()->json(['message' => 'read: ' . $id, 'data' => $data], 200);
@@ -59,18 +59,37 @@ class ReadResource implements CRUD, RecordOperations
         }
     }
 
-    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null, $format = null)
+    public function allRecords($ids = null, $pagination = 5, $sorters = [], $filters = [], $format = null)
     {
         try {
             $data = new PurchaseOrder();
             //filter query with keyword 🚨
-            if ($typeKeyword && $keyword) {
-                $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
+            //filter query with keyword 🚨
+            foreach ($filters as $filter) {
+                switch ($filter['key']) {
+                    case 'supplier':
+                        $data->whereHas('supplier', function ($query) use ($filter) {
+                            $query->whereHas('third', function ($query) use ($filter) {
+                                $query->orWhere('UPPER(CONCAT(names," ",surnames))', 'LIKE', '%' . strtoupper($filter['value']) . '%');
+                                $query->orWhere('identification', 'LIKE', $filter['value']);
+                            });
+                        });
+                        break;
+                    case 'date':
+                        $data = $data->whereIn('date',  $filter['value']);
+                        break;
+                    case 'status':
+                        $data = $data->whereIn('status', $filter['value']);
+                        break;
+                    default:
+                        $data = $data->orWhere('id', 'LIKE', '%' . $filter['value'] . '%');
+                        break;
+                }
             }
-            if($format == 'short'){
-                $data = $data->where('status','A')->select('id','supplier_id','date','note')->with('supplier')->take(10)->get();
-            }else{
-                 $data = $data->with(['supplier' => function($query){
+            if ($format == 'short') {
+                $data = $data->where('status', 'A')->select('id', 'supplier_id', 'date', 'note')->with('supplier')->take(10)->get();
+            } else {
+                $data = $data->with(['supplier' => function ($query) {
                     $query->with(['third' =>
                     function ($query) {
                         $query->select(['id', DB::raw('IFNULL(names, business_name) as supplier'), 'type_document', 'identification']);

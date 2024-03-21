@@ -23,7 +23,7 @@ class ReadResource implements CRUD, RecordOperations
         if ($request->has('supplier_id')) {
             return $this->singleRecord($request->input('supplier_id'));
         } else {
-            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'), $request->input('format'));
+            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('filters') ?? [], $request->input('format'));
         }
     }
 
@@ -71,7 +71,7 @@ class ReadResource implements CRUD, RecordOperations
         }
     }
 
-    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null, $format = null)
+    public function allRecords($ids = null, $pagination = 5, $sorters = [], $filters = [], $format = null)
     {
         try {
             $data = Supplier::with(['third' =>
@@ -79,16 +79,20 @@ class ReadResource implements CRUD, RecordOperations
                 $query->select(['id', DB::raw('IFNULL(names, business_name) as supplier'), 'type_document', 'identification']);
             }])->withCount(['dynamicServices']);
             //filter query with keyword 🚨
-            if ($typeKeyword && $keyword) {
-                if ($typeKeyword == 'name') {
-                    $data = $data->whereHas('third', function ($query) use ($keyword) {
-                        $query->where('names', 'LIKE', '%' . $keyword . '%');
-                        $query->orWhere('names', 'LIKE', '%' . $keyword . '%');
-                    });
-                }else{
-                    $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
+            foreach ($filters as $filter) {
+                switch ($filter['key']) {
+                    case 'third':
+                        $data = $data->whereHas('third', function ($query) use ( $filter) {
+                            $query->whereRaw("UPPER(CONCAT(IFNULL(surnames,''),IFNULL(names,''),business_name)) LIKE ?", ['%' . strtoupper($filter['value']) . '%']);
+                        });
+                        break;
+                    default:
+                    $data = $data->orWhere('id','LIKE', '%' . $filter['value'] . '%');
+                        break;
                 }
             }
+            // dd($data->get());
+
             if($format == 'short'){
                 $data = $data->where('status','A')->select('suppliers.id', 'suppliers.commercial_registry','suppliers.third_id')->take(10)->get()->map(function($supplier){
                     $supplier['supplier'] = $supplier['third']['supplier'];

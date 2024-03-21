@@ -30,7 +30,7 @@ class ReadResource implements CRUD, RecordOperations
             $this->warehouseFilter = $request->input('warehouseFilter') ?? null;
             $this->typeContent = $request->input('typeContent') ?? null;
             $this->supply = $request->input('supply') ?? null;
-            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('typeKeyword'), $request->input('keyword'), $request->input('format'));
+            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('filters') ?? [], $request->input('format'));
         }
     }
 
@@ -117,13 +117,27 @@ class ReadResource implements CRUD, RecordOperations
         }
     }
 
-    public function allRecords($ids = null, $pagination = 5, $sorters = [], $typeKeyword = null, $keyword = null, $format = null)
+    public function allRecords($ids = null, $pagination = 5, $sorters = [], $filters = null, $format = null)
     {
         try {
             $data = new Product();
             //filter query with keyword 🚨
-            if ($typeKeyword && $keyword) {
-                    $data = $data->where($typeKeyword, 'LIKE', '%' . $keyword . '%');
+
+            foreach ($filters as $filter) {
+                switch ($filter['key']) {
+                    case 'name':
+                        $data = $data->whereRaw('UPPER(name) LIKE ?', ['%' . strtoupper($filter['value']) . '%']);
+                        break;
+                    case 'id':
+                        $data = $data->where('id', 'LIKE', '%' . $filter['value'] . '%');
+                        break;
+                    case 'status':
+                        $data = $data->whereIn('status', $filter['value']);
+                        break;
+                    default:
+                        # code...
+                        break;
+                }
             }
             if ($format == 'short') {
                 $data = $data->with(['taxes:id,name,acronym,default_percent',

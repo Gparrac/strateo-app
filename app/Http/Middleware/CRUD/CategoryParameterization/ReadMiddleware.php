@@ -19,8 +19,9 @@ class ReadMiddleware implements ValidateData
                 //pagination an filters
                 'page' => 'numeric|min:0',
                 'pagination' => 'numeric|max:100',
-                'keyword' => 'string|max:40',
-                'typeKeyword' => 'string|in:id,name',
+                'filters' => 'array',
+                'filters.*.key' => 'required|in:id,name,code,status',
+                'filters.*.value' => 'required',
                 'sorters' => 'array',
                 'sorters.order' => 'nullable|in:asc,desc',
             ]);
@@ -29,7 +30,7 @@ class ReadMiddleware implements ValidateData
         if ($validator->fails()){
             return ['error' => TRUE, 'message' => $validator->errors()];
         }
-        
+
         return ['error' => FALSE];
     }
 }
