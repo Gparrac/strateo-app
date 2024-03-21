@@ -103,7 +103,7 @@
                             </tr>
                         </tbody>
                     </table>
-                    @if (count($product->taxes) > 0)
+                    @if (count($product->taxes) > 0 && !$productsPurchase['only_iva'])
                         <table>
                             <thead>
                                 <tr class="content-table-font-size-tax">
@@ -149,7 +149,7 @@
                             </tr>
                         </tbody>
                     </table>
-                    @if (count($product->taxes) > 0)
+                    @if (count($product->taxes) > 0 && !$furtherProductsPurchase['only_iva'])
                         <table>
                             <thead>
                                 <tr class="content-table-font-size-tax">
@@ -181,18 +181,31 @@
                     <td class="right-client-data-invoice table-padding-purchase">
                         <p><strong>SUBTOTAL</strong></p>
                         <p><strong>-Descuentos</strong></p>
-                        <p><strong>+Adicionales</strong></p>
-                        <p><strong>BASE GRAVABLE</strong></p>
-                        <p><strong>+IVA</strong></p>
+                        @if ($furtherProductsPurchase)
+                            <p><strong>+Adicionales</strong></p>
+                            @if ($productsPurchase['total_tax_product'] && $furtherProductsPurchase['total_tax_product'])
+                            <p><strong>+IVA</strong></p>
+                            @endif
+                        @else
+                            @if ($productsPurchase['total_tax_product'])
+                                <p><strong>+IVA</strong></p>
+                            @endif
+                        @endif                        
                         <p><strong>NETO COTIZACION </strong></p>
                     </td>
                     <td class="right-client-data-invoice-value table-padding-purchase">
-                        <p>${{$productsPurchase['total_product']}}</p>
-                        <p>$0,00</p>
-                        <p>$0,00</p>
-                        <p>${{$productsPurchase['total_tax_product']}}</p>
-                        <p>$0,00</p>
-                        <p>${{$productsPurchase['total_purchase']}}</p>
+                        @if ($furtherProductsPurchase)
+                            <p>${{$productsPurchase['total_product']}}</p>
+                            <p>${{$furtherProductsPurchase['total_discount'] + $productsPurchase['total_discount']}}</p>
+                            <p>${{$furtherProductsPurchase['total_product']}}</p>
+                            <p>${{$furtherProductsPurchase['total_tax_product'] + $productsPurchase['total_tax_product']}}</p>
+                            <p>${{$furtherProductsPurchase['total_purchase'] + $productsPurchase['total_purchase']}}</p>
+                        @else
+                            <p>${{$productsPurchase['total_product']}}</p>
+                            <p>${{$productsPurchase['total_discount']}}</p>
+                            <p>${{$productsPurchase['total_tax_product']}}</p>
+                            <p>${{$productsPurchase['total_purchase']}}</p>
+                        @endif
                     </td>
                 </tr>
             </table>
