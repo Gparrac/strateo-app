@@ -26,9 +26,9 @@ class ReadResource implements CRUD, RecordOperations
     {
         try {
             $data = Warehouse::where('id', $id)
-                ->with(['third' => function ($query) {
+                ->with(['city:id,name', 'third' => function ($query) {
                     $query->select('id', 'type_document', 'identification', 'code_ciiu_id', 'verification_id', 'names', 'surnames', 'business_name', 'address', 'mobile', 'email', 'email2', 'postal_code', 'city_id');
-                    $query->with(['ciiu:id,code,description',
+                    $query->with(['ciiu:id,code,description', 'city:id,name',
                     'secondaryCiius' => function($query){
                         $query->where('status', 'A')->select('code_ciiu_thirds.id','code','description');
                     }]);

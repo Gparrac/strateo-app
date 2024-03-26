@@ -24,7 +24,7 @@ class CreateMiddleware implements ValidateData
             'mobile' => 'required|numeric|digits_between:10,13',
             'email' => 'required|email|unique:thirds,email',
             'email2' => 'email|different:email',
-            'postal_code' => 'required|numeric',
+            'postal_code' => 'numeric',
             'city_id' => 'required|exists:cities,id',
             'code_ciiu_id' => 'required|exists:code_ciiu,id',
             'secondary_ciiu_ids' => 'array',

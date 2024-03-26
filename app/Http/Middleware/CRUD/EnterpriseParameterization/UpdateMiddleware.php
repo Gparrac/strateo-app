@@ -26,7 +26,7 @@ class UpdateMiddleware implements ValidateData
             'email2' => 'email',
             'city_id' => 'required|exists:cities,id',
             'code_ciiu_id' => 'required|exists:code_ciiu,id',
-            'postal_code' => 'required|numeric',
+            'postal_code' => 'numeric',
             'secondary_ciiu_ids' => 'array',
             'secondary_ciiu_ids.*' => 'numeric|exists:code_ciiu,id',
 

@@ -87,7 +87,7 @@ class UpdateMiddleware implements ValidateData
             'mobile' => 'required|numeric|digits_between:10,13',
             'email' => ['required', 'email', Rule::unique('thirds', 'email')->ignore(Employee::find($request['employee_id'])->third->id)],
             'email2' => 'email|different:email',
-            'postal_code' => 'required|numeric',
+            'postal_code' => 'numeric',
             'city_id' => 'required|exists:cities,id',
             // -------------------------enployee attributes
             'type_contract' => 'required|in:TF,TI,OL,PS,CA,OT',

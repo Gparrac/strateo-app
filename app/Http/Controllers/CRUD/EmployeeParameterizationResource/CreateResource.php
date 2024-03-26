@@ -57,7 +57,7 @@ class CreateResource implements CRUD
             'address' => $request->input('address'),
             'mobile' => $request->input('mobile'),
             'email' => $request->input('email'),
-            'postal_code' => $request->input('postal_code'),
+            'postal_code' => $request->input('postal_code') ?? null,
             'city_id' => $request->input('city_id'),
             'users_id' => $userId,
         ];

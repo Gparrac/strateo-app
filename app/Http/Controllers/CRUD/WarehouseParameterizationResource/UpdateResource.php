@@ -47,7 +47,7 @@ class UpdateResource implements CRUD
             $this->dynamicUpdate($request, $third, $userId);
 
             $warehouse->fill([
-                'note' => $request->input('note'),
+                'note' => $request->input('note') ?? null,
                 'city_id' => $request->input('city_warehouse_id'),
                 'status' => $request->input('status'),
                 'users_update_id' => $userId,

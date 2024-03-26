@@ -22,14 +22,14 @@ class CreateMiddleware implements ValidateData
             'mobile' => 'required|numeric|digits_between:10,13',
             'email' => 'required|email|unique:thirds,email',
             'email2' => 'email|different:email',
-            'postal_code' => 'required|numeric',
+            'postal_code' => 'numeric',
             'city_id' => 'required|exists:cities,id',
-            'code_ciiu_id' => 'required|exists:code_ciiu,id',
+            'code_ciiu_id' => 'exists:code_ciiu,id',
             'secondary_ciiu_ids' => 'array',
             'secondary_ciiu_ids.*' => 'numeric|exists:code_ciiu,id',
-            
+
             //Warehouse Table
-            'note' => 'required|string|min:3|max:50',
+            'note' => 'string|min:3|max:150',
             'city_warehouse_id' => 'required|exists:cities,id',
             'address_warehouse' => 'required|string',
             'status' => 'required|in:A,I',
