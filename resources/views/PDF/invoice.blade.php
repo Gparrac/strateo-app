@@ -131,10 +131,10 @@
                 <br>
                 @endforeach
             </div>
+            @endif
         </div>
 
 
-            @endif
         <div class="client-data">
             <table>
                 <tr class="content-table-font-size-tax">

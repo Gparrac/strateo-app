@@ -1,0 +1,138 @@
+table {
+    border-collapse: collapse; /* Combina los bordes de las celdas */
+    width: 100%;
+}
+
+body {
+    font-family: Arial, sans-serif; /* Establece Arial como la fuente predeterminada para todo el cuerpo del documento */
+}
+
+/* HEADER */
+
+.header {
+    padding: 0 20px;
+    background-color: #ffffff; /* Color de fondo de la cabecera */
+    max-height: 50%;
+}
+
+
+.company-logo {
+    width: 20%; /* Columna del logo utiliza el 20% del ancho total */
+}
+
+.company-info {
+    width: 80%; /* Columna de la información utiliza el 80% del ancho total */
+    padding: 10px;
+    text-align: center;
+    font-size: 10px; /* Tamaño de fuente más pequeño */
+    line-height: 0.6; /* Espaciado entre líneas */
+}
+
+
+.company-logo img {
+    max-width: 100%;
+    max-height: 70px; /* Altura máxima del logo */
+    width: auto;
+}
+
+.company-info h1 {
+    font-size: 24px; /* Tamaño del título */
+}
+
+/* HEADER */
+
+/* Content Client  */
+.client-data {
+    font-size: 12px; /* Tamaño de fuente base */
+    margin-top: 20px;
+}
+
+.information-rows-client td {
+    padding: 3px 8px; /* Ajusta el espaciado interno de las celdas */
+}
+
+.left-client-data-information {
+    padding-right: 10px; /* Espacio entre etiquetas y valores */
+}
+
+.information-rows-client p {
+    margin: 0; /* Elimina el margen de los párrafos dentro de las celdas */
+}
+
+.right-client-data {
+    width: 28%;
+    margin: auto;
+    text-align: center;
+}
+
+.line-mark-table {
+    border: 1px solid black;
+}
+
+/* TABLE PRODUCTS */
+
+.content-table-font-size {
+    padding: 8px;
+    font-size: 12px;
+}
+
+.content-table-font-size-tax {
+    padding: 8px;
+    text-align: left;
+    font-size: 12px;
+}
+
+.product-name {
+    width: 50%;
+}
+
+.products-invoice-table {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.left-aligned {
+    text-align: left;
+}
+.right-aligned {
+    text-align: right;
+}
+
+/* Invoice total */
+.left-client-data-invoice {
+    width: 50%;
+
+    font-size: 12px;
+
+}
+.left-client-data-invoice .subtitle{
+    display: block;
+    width: 100%;
+    font-size: 12px;
+    padding-bottom: 10px;
+}
+
+.right-client-data-invoice {
+    width: 20%;
+    text-align: left;
+    line-height: 0.8; /* Ajusta la altura del contenedor para centrar verticalmente */
+}
+
+.right-client-data-invoice-value {
+    width: 20%;
+    text-align: right;
+    line-height: 0.8; /* Ajusta la altura del contenedor para centrar verticalmente */
+}
+
+.table-padding-purchase {
+    padding: 15px 10px;
+}
+/* Footer */
+
+footer {
+    margin-top: 30px;
+    background-color: #f0f0f0;
+    padding: 10px;
+    text-align: center;
+    font-size: 12px;
+}

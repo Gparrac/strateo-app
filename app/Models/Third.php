@@ -71,4 +71,8 @@ class Third extends Model
     {
         return $this->hasOne(Warehouse::class);
     }
+    public function userCreate(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'users_id');
+    }
 }
