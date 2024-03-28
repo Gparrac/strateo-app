@@ -38,6 +38,7 @@ class ReadResource implements CRUD, RecordOperations
     {
         try {
             $data = Product::with([
+                'taxes:id,name,acronym,default_percent',
                 'brand' => function ($query) {
                     $query->where('status', 'A')->select('id', 'name');
                 }, 'measure' => function ($query) {
@@ -68,8 +69,7 @@ class ReadResource implements CRUD, RecordOperations
                         'products.barcode',
                         'products.size',
                     );
-                },
-                'taxes:id,name,acronym'
+                }
             ])->where('products.id', $id)
                 ->select(
                     'products.id',
@@ -93,7 +93,7 @@ class ReadResource implements CRUD, RecordOperations
                 return $category;
             });
             $data->taxes->each(function ($tax) {
-                $tax['porcent'] = $tax['pivot']['porcent'];
+                $tax['percent'] = $tax['pivot']['percent'];
                 unset($tax['pivot']);
                 });
             $data['subproducts']->map(function ($product) {

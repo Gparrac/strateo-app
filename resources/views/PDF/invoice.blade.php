@@ -5,7 +5,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Título de tu PDF</title>
-        <link rel="stylesheet" href="{{ public_path('css/invoice.css') }}">
+        {{-- <link rel="stylesheet" href="{{ public_path('css/invoice.css') }}"> --}}
     </head>
 
     <body>
@@ -16,7 +16,7 @@
                         {{-- <img src="{{ $dataPDF['path_logo'] }}" alt="Logo de la empresa"> --}}
                     </td>
                     <td class="company-info">
-                        {{$dataPDF['header']}}
+                        {{-- {{$dataPDF['header']}} --}}
                     </td>
                 </tr>
             </table>

@@ -24,7 +24,7 @@ class CreateResource implements CRUD
             $fieldData = [
                 'name' => $request->input('name'),
                 'type' => $request->input('type'),
-                'length' => $request->input('length'),
+                'length' => $request->input('length') ?? null,
                 'status' => $request->input('status'),
                 'users_id' => $userId
             ];

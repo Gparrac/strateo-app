@@ -14,11 +14,9 @@ class CreateMiddleware implements ValidateData
     protected $rules;
     public function validate(Request $request)
     {
-        if($request->has('typeConnection')){
-            $this->typeConnectionValidation($request->input('type_connection'));
-        }else{
+
             $this->createValidation();
-        }
+
         $validator = Validator::make($request->all(), $this->rules);
 
         if ($validator->fails()){
@@ -46,7 +44,7 @@ class CreateMiddleware implements ValidateData
             'status' =>'required|in:A,I',
             'taxes' => 'array',
             'taxes.*.tax_id' => 'required|exists:taxes,id',
-            'taxes.*.porcent' => 'required|numeric|min:0|max:100',
+            'taxes.*.percent' => 'required|numeric|min:0|max:100',
             'tracing' => 'required_if:type,T|boolean',
             //products
             'products' => 'array',
@@ -55,31 +53,5 @@ class CreateMiddleware implements ValidateData
             'categories_id' => 'required|array',
             'categories.*' => 'required|exists:categories,id'
         ];
-    }
-    protected function typeConnectionValidation($typeConnection){
-        $this->rules = [
-            'type_connection' => 'required|in:I,F,E',
-            'products' => 'required|array',
-            'products.*.product_id' => ['required','exists:products,id', new InvoiceProductValidationRule($typeConnection)],
-            'products.*.cost' => 'required|numeric|min:1|max:99999999',
-            'products.*.discount' => 'required|numeric|min:1|max:99999999',
-            'products.*.amount' => 'numeric|min:1|max:9999',
-            'products.*.taxes' => 'array',
-            'products.*.taxes.*.tax_id' => 'required|exists:taxes,id',
-            'products.*.taxes.*.porcent' => 'required|numeric|min:1|max:99',
-        ];
-        if ($typeConnection == 'F' || $typeConnection = 'I') {
-            $this->rules['products.*.warehouse_id'] = 'required_if:sale_type,P|exists:warehouses,id';
-            $this->rules['sub_products.*.tracing'] = 'required|boolean';
-        }
-        if ($typeConnection == 'E') {
-            $this->rules = array_merge($this->rules, [
-                'sub_products' => 'required|array',
-                'sub_products.*.product_id' => 'required|exists:products,id',
-                'sub_products.*.amount' => 'numeric|min:1|max:9999',
-                'sub_products.*.tracing' => 'required|boolean'
-
-            ]);
-        }
     }
 }

@@ -14,7 +14,7 @@ class CreateMiddleware implements ValidateData
             //--------------------- new attributes
             'name' => 'required|string',
             'type' =>'required|in:F,T,A,I',
-            'length' => 'required|integer',
+            'length' => 'integer',
             'status' =>'required|in:A,I',
             //--------------------- others
         ]);

@@ -95,9 +95,9 @@ class InvoicePDF extends Controller
             $totalTaxProduct += $product->total_tax_product;
             $product->total_tax_product =  PriceFormat::getNumber($product->total_tax_product);
             $totalDiscount += $product->discount;
-            
+
             //This will help us know if the IVA is only printed once.
-            if(count($product->taxes) > 1 && isset($product->taxes[0]) && $product->taxes[0]->acronym == 'IVA' && $onlyIva) $onlyIva = FALSE; 
+            if(count($product->taxes) > 1 && isset($product->taxes[0]) && $product->taxes[0]->acronym == 'IVA' && $onlyIva) $onlyIva = FALSE;
         });
         return [
             'only_iva' => $onlyIva,
