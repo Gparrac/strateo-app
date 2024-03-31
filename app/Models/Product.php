@@ -86,5 +86,9 @@ class Product extends Model
     {
         return $this->belongsToMany(Invoice::class,'products_invoices', 'product_id', 'invoices_id')->withPivot(['cost', 'descount', 'amount']);
     }
+    public function librettoActivities(): BelongsToMany
+    {
+        return $this->belongsToMany(LibrettoActivity::class, 'libretto_activities_products', 'product_id', 'libretto_activity_id');
+    }
 
 }

@@ -37,7 +37,8 @@ class CreateResource implements CRUD
             return response()->json(['message' => 'create u'], 500);
         }
     }
-    private function create(Request $request, $userId){
+    private function create(Request $request, $userId)
+    {
         $product = Product::create([
             'type' => $request->input('type'),
             'consecutive' => $request->input('consecutive'),
@@ -55,7 +56,7 @@ class CreateResource implements CRUD
             'tracing' => $request->input('type') == 'T' ? $request['tracing'] : false
         ]);
         // filling out taxes
-        if($request->has('taxes')){
+        if ($request->has('taxes')) {
             foreach ($request['taxes'] as $value) {
                 $product->taxes()->attach($value['tax_id'], [
                     'users_id' => $userId,
@@ -71,16 +72,23 @@ class CreateResource implements CRUD
                 'status' => 'A'
             ]);
         }
-        if( $request->has('type') == 'I'  and $request->has('products') ){
+        if ($request->has('type') == 'I'  and $request->has('products')) {
             foreach ($request['products'] as $value) {
                 $product->subproducts()->attach($value['product_id'], [
                     'amount' => $value['amount'],
                     'users_id' => $userId,
                     'status' => 'A'
                 ]);
+            }
         }
-    }
+        if ($request->has('libretto_activity_ids')) {
+            foreach ($request['libretto_activity_ids'] as $value) {
+                $product->librettoActivities()->attach($value, [
+                    'users_id' => $userId,
+                    'status' => 'A'
+                ]);
+            }
+        }
         return ['product_id' => $product['id']];
     }
-
 }

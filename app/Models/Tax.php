@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Tax extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'acronym', 'default_percent','status','users_update_id','users_id'];
+    protected $fillable = ['name', 'acronym', 'type', 'default_percent','status','users_update_id','users_id'];
 
     public function products() :BelongsToMany
     {

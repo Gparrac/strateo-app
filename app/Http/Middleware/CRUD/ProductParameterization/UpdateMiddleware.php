@@ -24,7 +24,6 @@ class UpdateMiddleware implements ValidateData
         }
 
         $validator = Validator::make($request->all(), $this->rules);
-
         if ($validator->fails()){
             return ['error' => TRUE, 'message' => $validator->errors()];
         }
@@ -62,6 +61,8 @@ class UpdateMiddleware implements ValidateData
             'taxes.*.tax_id' => 'required|exists:taxes,id',
             'taxes.*.percent' => 'required|numeric|min:0|max:100',
             'tracing' => 'required_if:type,T|boolean',
+            'libretto_activity_ids' => 'array',
+            'libretto_activity_ids*' => 'required|exists:libretto_activities,id',
         ];
     }
     protected function typeConnectionValidation($typeConnection){

@@ -35,11 +35,14 @@ class UpdateResource implements CRUD
                 'note',
                 'seller_id',
                 'date',
+                'sale_type',
                 'further_discount',
             ]) + ['users_update_id' => $userId])->save();
 
             if ($invoice->sale_type['id'] == 'E') {
-                Log::info('entrando...');
+                Log::info('----s');
+                Log::info($invoice->planment);
+                if($invoice->planment){
                 $invoice->planment->fill($request->only([
                     'start_date',
                     'end_date',
@@ -47,6 +50,17 @@ class UpdateResource implements CRUD
                     'status',
                     'pay_off'
                 ]) + ['users_update_id' => $userId])->save();
+                }else{
+                    Planment::create([
+                        'start_date' => $request['start_date'],
+                        'end_date' => $request['end_date'],
+                        'pay_off' => $request['pay_off'],
+                        'users_id' => $userId,
+                        'stage' => 'QUO',
+                        'status' => 'A',
+                        'invoice_id' => $invoice['id']
+                     ]);
+                }
             }
 
 

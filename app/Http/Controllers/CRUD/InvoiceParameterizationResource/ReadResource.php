@@ -121,7 +121,9 @@ class ReadResource implements CRUD, RecordOperations
         if ($format == 'short') {
             $data = $data->where('status', 'A')->select('warehouses.id', 'warehouses.address', 'warehouses.city_id')->take(10)->get();
         } else {
-            $data = $data->withCount('products')->where('sale_type', $this->typeSale);
+            $data = $data->withCount('products');
+            if($this->typeSale)
+            $data = $data->where('sale_type', $this->typeSale);
             //append shorters to query
             Log::info($sorters);
             foreach ($sorters as $shorter) {

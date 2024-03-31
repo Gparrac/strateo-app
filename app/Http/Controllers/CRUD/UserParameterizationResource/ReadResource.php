@@ -55,13 +55,13 @@ class ReadResource implements CRUD, RecordOperations
 
             if ($format == 'short') {
                 $data = $data
-
+                    ->with('third:id,names,surnames,business_name,type_document,identification')
                     ->select('users.id', 'users.name', 'third_id')->take(10)->get()
                     ->map(function ($query) {
                         $shortForm = [
                             'id' => $query->id,
                             'name' => $query->name,
-                            'full_name' => $query['third']['names'],
+                            'full_name' => $query['third']['fullname'],
                             'identification' => $query['third']['type_document'] . '. ' . $query['third']['identification']
                         ];
                         unset($query['third_id']);

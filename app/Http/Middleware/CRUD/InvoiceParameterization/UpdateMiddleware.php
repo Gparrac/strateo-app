@@ -25,6 +25,7 @@ class UpdateMiddleware implements ValidateData
             //invoice Table
             'further_discount' => 'required|numeric|min:0|max:9999999',
             'note' => 'string',
+            'sale_type' => 'required|in:P,E',
             // -- planments table
             'start_date' => 'required_if:state_type,E|date_format:Y-m-d H:i:s',
             'end_date' => ['required_if:state_type,E', 'date_format:Y-m-d H:i:s', new ProductGreatestDateValidation($request->input('start_date'))],

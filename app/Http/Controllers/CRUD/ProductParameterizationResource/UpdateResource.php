@@ -92,7 +92,7 @@ class UpdateResource implements CRUD
                 ]);
             }
         }
-        //record children products 🚨
+        //disable saved records before checking news with olds 🚨
         $product->subproducts()
             ->get()->each(function ($rProduct) use ($userId, $product) {
                 $product->subproducts()->updateExistingPivot($rProduct, [
@@ -102,6 +102,13 @@ class UpdateResource implements CRUD
             });
         $product->taxes()->get()->each(function ($rProduct) use ($userId, $product) {
             $product->taxes()->updateExistingPivot($rProduct, [
+                'status' => 'I',
+                'users_update_id' => $userId,
+            ]);
+        });
+        $product->librettoActivities()
+        ->get()->each(function ($la) use ($userId, $product) {
+            $product->librettoActivities()->updateExistingPivot($la, [
                 'status' => 'I',
                 'users_update_id' => $userId,
             ]);
@@ -144,6 +151,25 @@ class UpdateResource implements CRUD
                 }
             }
         }
+        if ($request->has('libretto_activity_ids')) {
+            foreach ($request['libretto_activity_ids'] as $value) {
+                $query = DB::table('libretto_activities_products')->where('product_id', $product['id'])->where('libretto_activity_id', $value);
+                Log::info('entry each');
+                if ($query->count() == 0) {
+                    Log::info('entry ifcount');
+                    $product->librettoActivities()->attach($value, [
+                        'status' => 'A',
+                        'users_id' => $userId,
+                    ]);
+                } else {
+                    Log::info('entry else');
+                    $query->update([
+                        'status' => 'A',
+                        'users_update_id' => $userId
+                    ]);
+                }
+            }
+        }
     }
     protected function updateFurtherEvent($userId, Request $request){
         $planment = Invoice::find($request['invoice_id'])->planment;
@@ -162,7 +188,7 @@ class UpdateResource implements CRUD
                 'tracing' =>  $product['tracing'],
             ]);
             $pivotId = FurtherProductPlanment::where('planment_id', $planment['id'], $product['product_id'])->first()->id;
-
+            if(array_key_exists('taxes', $product))
             foreach ($product['taxes'] as $tax) {
                 DB::table('products_taxes')->insert([
                     'tax_id' => $tax['tax_id'],
@@ -194,6 +220,7 @@ class UpdateResource implements CRUD
             ]);
 
             $pivotId = DB::table('products_invoices')->where('product_id', $product['product_id'])->where('invoice_id', $request['invoice_id'])->first()->id;
+            if(array_key_exists('taxes', $product))
             foreach ($product['taxes'] as $tax) {
                 DB::table('products_taxes')->insert([
                     'tax_id' => $tax['tax_id'],
@@ -220,6 +247,7 @@ class UpdateResource implements CRUD
                 'discount' => $event['discount'] ?? 0,
                 'users_id' => $userId
             ]);
+            if(array_key_exists('taxes', $event))
             foreach ($event['taxes'] as $tax) {
                 DB::table('products_taxes')->insert([
                     'tax_id' => $tax['tax_id'],

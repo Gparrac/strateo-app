@@ -17,8 +17,8 @@ class CiiuServer extends Controller
     {
         if($request->has('code')){
             Log::info('etrnyyy');
-            $codes = Ciiu::where('code','like', '%'. $request->input('code') . '%')->select('id','code','description')->limit(10)->get();
-            // $codes = Ciiu::where(DB::raw('UPPER(CONCAT(description,code))'),'like', '%' . strtoupper($request->input('code')) . '%')->select('id','code','description')->limit(10)->get();
+            // $codes = Ciiu::where('code','like', '%'. $request->input('code') . '%')->select('id','code','description')->limit(10)->get();
+            $codes = Ciiu::where(DB::raw('UPPER(CONCAT(description,code))'),'like', '%' . strtoupper($request->input('code')) . '%')->select('id','code','description')->limit(10)->get();
         }else{
             $codes = Ciiu::select('id','code','description')->limit(10)->get();
         }

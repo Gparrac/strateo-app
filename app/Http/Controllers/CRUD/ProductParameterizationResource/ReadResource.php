@@ -38,7 +38,10 @@ class ReadResource implements CRUD, RecordOperations
     {
         try {
             $data = Product::with([
-                'taxes:id,name,acronym,default_percent',
+                'taxes:id,name,acronym,default_percent,type',
+                'librettoActivities' => function($query){
+                    $query->where('libretto_activities_products.status', 'A')->select('libretto_activities.id','name', 'description');
+                },
                 'brand' => function ($query) {
                     $query->where('status', 'A')->select('id', 'name');
                 }, 'measure' => function ($query) {
@@ -134,13 +137,15 @@ class ReadResource implements CRUD, RecordOperations
                     case 'status':
                         $data = $data->whereIn('status', $filter['value']);
                         break;
+                    case 'non-subproducts':
+                        $data = $data->whereDoesntHave('subproducts');
                     default:
                         # code...
                         break;
                 }
             }
             if ($format == 'short') {
-                $data = $data->with(['taxes:id,name,acronym,default_percent',
+                $data = $data->with(['taxes:id,name,acronym,default_percent,type',
                     'brand:id,name', 'measure:id,symbol',
                     'categories:id,name',
                     'subproducts' => function ($query) {

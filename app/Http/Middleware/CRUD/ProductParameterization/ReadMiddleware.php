@@ -20,7 +20,7 @@ class ReadMiddleware implements ValidateData
                 'page' => 'numeric|min:0',
                 'pagination' => 'numeric|max:100',
                 'filters' => 'array',
-                'filters.*.key' => 'required|in:id,name,status',
+                'filters.*.key' => 'required|in:id,name,status,non-subproducts',
                 'filters.*.value' => 'required',
                 'warehouseFilter' => 'exists:warehouses,id',
                 'sorters' => 'array',

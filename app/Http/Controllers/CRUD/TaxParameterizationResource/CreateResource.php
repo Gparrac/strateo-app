@@ -16,11 +16,12 @@ class CreateResource implements CRUD
     {
         try {
             $userId = Auth::id();
-            
+
             Tax::create([
                 'name' => $request->input('name'),
                 'acronym' => $request->input('acronym'),
                 'status' => $request->input('status'),
+                'type' => $request->input('type'),
                 'default_percent' => $request->input('default_percent'),
                 'users_id' => $userId,
             ]);
