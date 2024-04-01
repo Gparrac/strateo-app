@@ -29,12 +29,19 @@ class CreateResource implements CRUD
                 'client_id' => $request['client_id'],
                 'note' => $request->has('note') ? $request->input('note') : null,
                 'seller_id' => $request['seller_id'],
-                'further_discount' => $request['further_discount'],
                 'status' => 'A',
                 'users_id' => $userId,
                 'sale_type' => $request['sale_type'],
                 'date' => $request['date']
             ]);
+            if ($request->has('taxes'))
+            foreach ($request['taxes'] as  $value) {
+                $invoice->taxes()->attach($value['tax_id'], [
+                    'percent' => $value['percent'],
+                    'status' => 'A',
+                    'users_id' => $userId,
+                ]);
+            }
             if($request->sale_type == 'E') {
                 Planment::create([
                    'start_date' => $request['start_date'],

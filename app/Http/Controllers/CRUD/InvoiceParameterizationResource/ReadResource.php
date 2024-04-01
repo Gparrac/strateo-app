@@ -63,7 +63,7 @@ class ReadResource implements CRUD, RecordOperations
     public function singleRecord($id)
     {
         $data = Invoice::where('id', $id)
-            ->with(['planment:id,start_date,end_date,pay_off,invoice_id,stage', 'seller' => function ($query) {
+            ->with(['planment:id,start_date,end_date,pay_off,invoice_id,stage', 'taxes:id,name,acronym,default_percent,type','seller' => function ($query) {
                 $query->with('third:id,names,surnames,identification,type_document');
                 $query->select('users.id', 'users.third_id', 'users.name');
             }, 'client' => function ($query) {
@@ -71,6 +71,10 @@ class ReadResource implements CRUD, RecordOperations
             }]);
 
         $data = $data->first();
+        $data['taxes']->each(function($item){
+            $item['percent'] = $item['pivot']['percent'];
+            unset($item['pivot']);
+        });
         $test = [
             'id' => $data->seller->id,
             'full_name' => $data->seller->third->names . ' ' . $data->seller->third->surnames,
@@ -125,7 +129,6 @@ class ReadResource implements CRUD, RecordOperations
             if($this->typeSale)
             $data = $data->where('sale_type', $this->typeSale);
             //append shorters to query
-            Log::info($sorters);
             foreach ($sorters as $shorter) {
                 if ($shorter['key'] == 'stage') $shorter['key'] = 'planment.stage';
                 $data = $data->orderBy($shorter['key'], $shorter['order']);
@@ -143,7 +146,7 @@ class ReadResource implements CRUD, RecordOperations
                 $query->select('products.id', 'products.name', 'products.consecutive', 'products.product_code', 'products.brand_id', 'products.measure_id', 'products.cost as defaultCost');
             }, 'warehouse' => function ($query) {
                 $query->with('city:id,name')->select('id', 'city_id', 'address');
-            }, 'taxes:id,name,acronym,default_percent'])->where('planment_id', $planment->id)
+            }, 'taxes:id,name,acronym,default_percent,type'])->where('planment_id', $planment->id)
                 //->select('further_products_planments.id as further_product_planment_id', 'further_products_planments.planment_id', 'further_products_planments.product_id', 'further_products_planments.tracing', 'further_products_planments.warehouse_id', 'further_products_planments.amount', 'further_products_planments.cost', 'further_products_planments.discount')
                 ->get();
             $products->each(function ($product, $key) use ($products) {
@@ -179,7 +182,7 @@ class ReadResource implements CRUD, RecordOperations
             }, 'warehouse' => function ($query) {
                 $query->with('city:id,name')->select('id', 'city_id', 'address');
             },
-            'taxes:id,name,acronym,default_percent'
+            'taxes:id,name,acronym,default_percent,type'
         ])->where('invoice_id', $invoice)
             ->select('products_invoices.id', 'products_invoices.invoice_id', 'products_invoices.product_id', 'products_invoices.tracing', 'products_invoices.warehouse_id', 'products_invoices.amount', 'products_invoices.cost', 'products_invoices.discount')
             ->get();
@@ -206,7 +209,6 @@ class ReadResource implements CRUD, RecordOperations
     }
     protected function getEventProducts($invoice)
     {
-        Log::info('entry..#');
         $planmentId = Invoice::find($invoice)->planment->id;
         $products = ProductPlanment::with(['product' => function ($query) {
             $query->with(['measure:id,symbol', 'brand:id,name']);
@@ -214,7 +216,7 @@ class ReadResource implements CRUD, RecordOperations
         }, 'subproducts' => function ($query) {
             $query->with(['measure:id,symbol', 'brand:id,name']);
             $query->select('products.id', 'products.name', 'products.consecutive', 'products.product_code', 'products.brand_id', 'products.measure_id', 'products_planments_products.warehouse_id', 'products_planments_products.tracing');
-        }, 'taxes:id,name,acronym,default_percent'])->where('planment_id', $planmentId)->get();
+        }, 'taxes:id,name,acronym,default_percent,type'])->where('planment_id', $planmentId)->get();
         $products->each(function ($product, $key) use ($products) {
             $product->subproducts->map(function ($subproduct) {
 

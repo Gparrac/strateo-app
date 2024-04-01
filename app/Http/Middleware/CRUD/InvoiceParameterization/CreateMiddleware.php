@@ -22,7 +22,6 @@ class CreateMiddleware implements ValidateData
             //invoice Table
             'client_id' => 'required|exists:clients,id',
             'seller_id' => 'required|exists:users,id',
-            'further_discount' => 'required|numeric',
             'sale_type' => 'required|in:P,E',
             'date' => 'required|date_format:Y-m-d H:i:s',
             'note' => 'string',
@@ -30,6 +29,9 @@ class CreateMiddleware implements ValidateData
             'start_date' => 'required_if:sale_type,E|date_format:Y-m-d H:i:s',
             'end_date'=> ['required_if:sale_type,E','date_format:Y-m-d H:i:s', new ProductGreatestDateValidation($request->input('start_date'))],
             'pay_off' => 'required_if:sale_type,E|numeric|min:1|max:99999999',
+            'taxes' => 'array',
+            'taxes.*.tax_id' => 'required|exists:taxes,id',
+            'taxes.*.percent' => 'required|numeric|between:-99,99|regex:/^-?\d+(\.\d{2,3})?$/'
        ]);
 
         if ($validator->fails()){

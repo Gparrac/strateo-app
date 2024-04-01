@@ -14,8 +14,6 @@ class UpdateMiddleware implements ValidateData
 {
     public function validate(Request $request)
     {
-        $thirdEmailRule = Rule::unique('thirds', 'email');
-        $thirdIdentificationRule = Rule::unique('thirds', 'identification');
         $validator = Validator::make($request->all(), [
             'invoice_id' => 'required|exists:invoices,id',
             //Third table
@@ -23,7 +21,6 @@ class UpdateMiddleware implements ValidateData
             //seller table
             'seller_id' => 'required|exists:users,id',
             //invoice Table
-            'further_discount' => 'required|numeric|min:0|max:9999999',
             'note' => 'string',
             'sale_type' => 'required|in:P,E',
             // -- planments table
@@ -31,9 +28,9 @@ class UpdateMiddleware implements ValidateData
             'end_date' => ['required_if:state_type,E', 'date_format:Y-m-d H:i:s', new ProductGreatestDateValidation($request->input('start_date'))],
             'pay_off' => 'required_if:state_type,E|numeric|min:0|max:99999999',
             'stage' => ['required_if:state_type,E', new InvoicePlanmentStageValidationRule()],
-
-
-
+            'taxes' => 'array',
+            'taxes.*.tax_id' => 'required|exists:taxes,id',
+            'taxes.*.percent' => 'required|numeric|between:-99,99|regex:/^-?\d+(\.\d{2,3})?$/'
         ]);
 
         if ($validator->fails()) {

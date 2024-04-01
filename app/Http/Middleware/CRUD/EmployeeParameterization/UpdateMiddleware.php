@@ -34,8 +34,6 @@ class UpdateMiddleware implements ValidateData
         if(!$typeRequest){
             $contentRules = [];
             $recordServices = $request['services'] ?? [];
-            Log::info('ARRAVING');
-            Log::info($recordServices);
             foreach ($recordServices as  $skey => $service) {
                 if (count($service['fields']) != Service::find($service['service_id'])->fields()->count()) {
                     return ['error' => TRUE, 'message' => ['Campos' => 'La cantidad de campos no coincide con el servicio seleccionado.']];

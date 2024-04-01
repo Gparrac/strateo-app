@@ -16,6 +16,7 @@ class CreateMiddleware implements ValidateData
             'status' => 'required|in:A,I',
             'type' => 'required|in:I,D',
             'default_percent' => 'required|numeric|between:-99,99|regex:/^-?\d+(\.\d{2,3})?$/',
+            'context' => 'required|in:I,P'
         ]);
 
         if ($validator->fails()){

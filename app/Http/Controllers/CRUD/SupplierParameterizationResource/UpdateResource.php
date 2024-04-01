@@ -92,7 +92,6 @@ class UpdateResource implements CRUD
             $savedServices = DynamicService::where('supplier_id', $supplier['id'])->pluck('service_id')->toArray();
             $newServices = array_column($request['services'], 'service_id');
             $inactiveServices = array_diff($savedServices, $newServices);
-            Log::info($inactiveServices);
             DynamicService::where('supplier_id', $supplier['id'])->whereIn('service_id',$inactiveServices)->update(['status'=> 'I', 'users_update_id' => $userId]);
 
             foreach ($request['services'] as $svalue => $service) {

@@ -25,7 +25,7 @@ class ReadResource implements CRUD, RecordOperations
     public function singleRecord($id)
     {
         try {
-            $data = Tax::where('id', $id)->select('id', 'name', 'acronym', 'status', 'default_percent','type')->first();
+            $data = Tax::where('id', $id)->select('id', 'name', 'acronym', 'status', 'default_percent','type', 'context')->first();
             return response()->json(['message' => 'read: ' . $id, 'data' => $data], 200);
         } catch (QueryException $ex) {
             Log::error('Query error TaxResource@read:singleRecord: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
@@ -51,13 +51,15 @@ class ReadResource implements CRUD, RecordOperations
                     case 'status':
                         $data = $data->orWhere('status', $filter['value']);
                         break;
+                    case 'context':
+                        $data = $data->where('context', $filter['value']);
                     default: // id
                         $data = $data->orWhere('id', 'LIKE', '%' . $filter['value'] . '%');
                         break;
                 }
             }
             if ($format == 'short') {
-                $data = $data->where('status', 'A')->select('id', 'acronym', 'name', 'default_percent','type')->take(10)->get();
+                $data = $data->where('status', 'A')->select('id', 'acronym', 'name', 'default_percent','type', 'context')->take(10)->get();
             } else {
 
                 //append shorters to query

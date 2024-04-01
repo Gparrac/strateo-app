@@ -16,6 +16,7 @@ class UpdateMiddleware implements ValidateData
             'acronym' => 'required|string|min:1|max:5',
             'status' => 'required|in:A,I',
             'type' => 'required|in:I,D',
+            'context' => 'required|in:I,P',
             'default_percent' => 'required|numeric|between:-99,99|regex:/^-?\d+(\.\d{1,3})?$/',
         ]);
 

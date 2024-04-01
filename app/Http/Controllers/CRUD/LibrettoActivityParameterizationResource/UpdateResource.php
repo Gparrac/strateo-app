@@ -71,32 +71,34 @@ class UpdateResource implements CRUD
         }
     }
     protected function connectInvoice($userId, $request){
-        Log::info('entry?');
+
         $planment = Invoice::find($request['invoice_id'])->planment;
-        $planment->librettoActivities()->get()->each(function($la) use ($userId, $planment){
-            $planment->librettoActivities()->updateExistingPivot($la,[
-                'status' => 'I',
-                'users_update_id' => $userId,
-            ]);
-        });
+        $planment->librettoActivities()->detach();
+        // $planment->librettoActivities()->get()->each(function($la) use ($userId, $planment){
+        //     $planment->librettoActivities()->updateExistingPivot($la,[
+        //         'status' => 'I',
+        //         'users_update_id' => $userId,
+        //     ]);
+        // });
 
         foreach ($request['libretto_activities'] ?? [] as $value) {
-            $query = DB::table('libretto_activities_planments')->where('libretto_activity_id', $value['libretto_activity_id'])->where('planment_id',$planment['id']);
-            if ($query->count() == 0) {
+            // coment section while searching a new method to update librettos without deleting information
+            // $query = DB::table('libretto_activities_planments')->where('libretto_activity_id', $value['libretto_activity_id'])->where('planment_id',$planment['id']);
+            // if ($query->count() == 0) {
                 $planment->librettoActivities()->attach($value['libretto_activity_id'], [
                     'status' => 'A',
                     'users_id' => $userId,
                     'description' => $value['description'],
                     'order' => $value['order']
                 ]);
-            } else {
-                $query->update([
-                    'status' => 'A',
-                    'users_update_id' => $userId,
-                    'description' => $value['description'],
-                    'order' => $value['order']
-                ]);
-            }
+            // } else {
+            //     $query->update([
+            //         'status' => 'A',
+            //         'users_update_id' => $userId,
+            //         'description' => $value['description'],
+            //         'order' => $value['order']
+            //     ]);
+            // }
         }
     }
 }

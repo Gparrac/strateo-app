@@ -154,15 +154,12 @@ class UpdateResource implements CRUD
         if ($request->has('libretto_activity_ids')) {
             foreach ($request['libretto_activity_ids'] as $value) {
                 $query = DB::table('libretto_activities_products')->where('product_id', $product['id'])->where('libretto_activity_id', $value);
-                Log::info('entry each');
                 if ($query->count() == 0) {
-                    Log::info('entry ifcount');
                     $product->librettoActivities()->attach($value, [
                         'status' => 'A',
                         'users_id' => $userId,
                     ]);
                 } else {
-                    Log::info('entry else');
                     $query->update([
                         'status' => 'A',
                         'users_update_id' => $userId

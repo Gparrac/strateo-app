@@ -23,6 +23,7 @@ class UpdateResource implements CRUD
                 'acronym',
                 'status',
                 'type',
+                'context',
                 'default_percent',
             ]) + ['users_update_id' => $userId])->save();
 

@@ -24,6 +24,7 @@ class CreateResource implements CRUD
                 'type' => $request->input('type'),
                 'default_percent' => $request->input('default_percent'),
                 'users_id' => $userId,
+                'context' => $request->input('context')
             ]);
 
             return response()->json(['message' => 'Successful']);

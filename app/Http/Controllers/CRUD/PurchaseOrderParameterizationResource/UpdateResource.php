@@ -35,7 +35,6 @@ class UpdateResource implements CRUD
             $productIds = count($products) > 0 ? array_column($products,'product_id') : [];
 
             $productsToDetach = array_diff($attachedProductIds, $productIds);
-            Log::info($productsToDetach);
             DB::table('purchase_orders_products')
             ->where('purchase_order_id')
             ->whereIn('product_id',$productsToDetach)
@@ -61,8 +60,6 @@ class UpdateResource implements CRUD
 
 
 
-            Log::info('entrando?');
-            Log::info($products);
 
 
             // Determine the product IDs to remove

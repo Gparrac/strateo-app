@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Invoice extends Model
 {
     use HasFactory;
-    protected $fillable = ['client_id','note','seller_id','further_discount','status','sale_type', 'users_update_id', 'users_id'];
+    protected $fillable = ['client_id','note','seller_id','status','sale_type', 'users_update_id', 'users_id'];
 
     public function getSaleTypeAttribute(){
         $types =[
@@ -36,6 +36,10 @@ class Invoice extends Model
     public function client() : BelongsTo
     {
         return $this->belongsTo(Client::class,'client_id');
+    }
+    public function taxes() : BelongsToMany
+    {
+        return $this->belongsToMany(Tax::class,'products_taxes','invoice_id','tax_id')->withPivot('percent');
     }
 
 }

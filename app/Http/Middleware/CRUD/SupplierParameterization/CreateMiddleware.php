@@ -61,7 +61,6 @@ class CreateMiddleware implements ValidateData
                 $serviceRealeted = $fieldQuery->services()->where('services.id', $service['service_id'])->first();
 
                 if ($serviceRealeted['pivot']['required'] == 1) {
-                    Log::info($serviceRealeted);
                     array_push($contentRules, 'required');};
                 $recordServices[$skey]['fields'][$fkey]['type'] = $typeField;
 

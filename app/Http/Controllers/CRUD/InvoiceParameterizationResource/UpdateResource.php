@@ -24,8 +24,6 @@ class UpdateResource implements CRUD
     {
         DB::beginTransaction();
         try {
-            Log::info('test stage');
-            Log::info($request->stage);
             $userId = Auth::id();
             // -----------------------saving third ----------------------------
             $invoice = Invoice::findOrFail($request->input('invoice_id'));
@@ -36,21 +34,26 @@ class UpdateResource implements CRUD
                 'seller_id',
                 'date',
                 'sale_type',
-                'further_discount',
             ]) + ['users_update_id' => $userId])->save();
-
+            $invoice->taxes()->detach();
+            if ($request->has('taxes'))
+                foreach ($request['taxes'] as  $value) {
+                    $invoice->taxes()->attach($value['tax_id'], [
+                        'percent' => $value['percent'],
+                        'status' => 'A',
+                        'users_id' => $userId,
+                    ]);
+                }
             if ($invoice->sale_type['id'] == 'E') {
-                Log::info('----s');
-                Log::info($invoice->planment);
-                if($invoice->planment){
-                $invoice->planment->fill($request->only([
-                    'start_date',
-                    'end_date',
-                    'stage',
-                    'status',
-                    'pay_off'
-                ]) + ['users_update_id' => $userId])->save();
-                }else{
+                if ($invoice->planment) {
+                    $invoice->planment->fill($request->only([
+                        'start_date',
+                        'end_date',
+                        'stage',
+                        'status',
+                        'pay_off'
+                    ]) + ['users_update_id' => $userId])->save();
+                } else {
                     Planment::create([
                         'start_date' => $request['start_date'],
                         'end_date' => $request['end_date'],
@@ -59,7 +62,7 @@ class UpdateResource implements CRUD
                         'stage' => 'QUO',
                         'status' => 'A',
                         'invoice_id' => $invoice['id']
-                     ]);
+                    ]);
                 }
             }
 
@@ -76,5 +79,4 @@ class UpdateResource implements CRUD
             return response()->json(['message' => 'update u'], 500);
         }
     }
-
 }
