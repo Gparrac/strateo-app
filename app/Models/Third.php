@@ -35,11 +35,7 @@ class Third extends Model
 
     public function getFullnameAttribute()
     {
-        Log::info('first');
-        Log::info($this->names);
         $label = $this->type_document == 'NIT' ? $this->business_name : ($this->names ?? '') . ' ' . ($this->surnames ?? '');
-        Log::info($label);
-        Log::info('----------');
         return $label;
     }
 

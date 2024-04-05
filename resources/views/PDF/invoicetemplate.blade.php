@@ -5,15 +5,18 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Título de tu PDF</title>
-        <link rel="stylesheet" href="{{ asset('css/invoice-template.css') }}">
+        <link rel="stylesheet" href="{{ public_path('css/invoice-template-v2.css') }}">
     </head>
 
     <body>
-        <div class="header">
+        @php
+         use App\Http\Utils\PriceFormat;
+        @endphp
+        {{-- <div class="header">
             <table>
                 <tr>
                     <td class="company-logo">
-                        <img src="{{ $dataPDF['path_logo'] }}" alt="Logo de la empresa">
+
                     </td>
                     <td class="company-info">
                         {{$dataPDF['header']}}
@@ -28,7 +31,7 @@
                         <table >
                             <tr class="information-rows-client">
                                 <td class="left-client-data-information"><p><strong>Cliente</strong></p></td>
-                                <td><p>{{$client->business_name ? $client->business_name : $client->names.' '.$client->surnames}}</p></td>
+                                <td><p>{{$invoice['client']['third']['fullname']}}</p></td>
                             </tr>
                             <tr class="information-rows-client">
                                 <td class="left-client-data-information"><p><strong>Fecha de creación</strong></p></td>
@@ -36,38 +39,36 @@
                             </tr>
                             <tr class="information-rows-client">
                                 <td class="left-client-data-information"><p><strong>Ciudad</strong></p></td>
-                                <td><p>{{$client->city->name}}</p></td>
+                                <td><p>{{$invoice['client']['third']['city']['name']}}</p></td>
                             </tr>
                             <tr class="information-rows-client">
                                 <td class="left-client-data-information"><p><strong>C.C o NIT</strong></p></td>
-                                <td><p>{{$client->identification}}</p></td>
+                                <td><p>{{$invoice['client']['third']['identification']}}</p></td>
                             </tr>
                             <tr class="information-rows-client">
                                 <td class="left-client-data-information"><p><strong>Email</strong></p></td>
-                                <td><p>{{$client->email}}</p></td>
+                                <td><p>{{$invoice['client']['third']['email']}}</p></td>
                             </tr>
-                            
+
                         </table>
                     </td>
                     <td class="left-client-data">
                         <table cellspacing="0">
                             <tr class="information-rows-client">
                                 <td class="left-client-data-information"><p><strong>Vendedor</strong></p></td>
-                                <td><p>{{$client->userCreate->third->business_name ? 
-                                        $client->userCreate->third->business_name :
-                                        $client->userCreate->third->names . ' ' .  $client->userCreate->third->surnames}}</p></td>
+                                <td><p>{{$invoice['seller']['third']['fullname']}}</p></td>
                             </tr>
                             <tr class="information-rows-client">
                                 <td class="left-client-data-information"><p><strong>Fecha del evento</strong></p></td>
-                                <td><p>No se sabe</p></td>
+                                <td><p>{{$invoice['date']}}</p></td>
                             </tr>
                             <tr class="information-rows-client"class="information-rows-client">
                                 <td class="left-client-data-information"><p><strong>Celular</strong></p></td>
-                                <td><p>{{$client->mobile}}</p></td>
+                                <td><p>{{$invoice['client']['third']['mobile']}}</p></td>
                             </tr>
                             <tr class="information-rows-client">
-                                <td class="left-client-data-information"><p><strong>Dirección principal</strong></p></td>
-                                <td><p>{{$client->address}}</p></td>
+                                <td class="left-client-data-information"><p><strong>Dirección de contacto</strong></p></td>
+                                <td><p>{{$invoice['client']['third']['address']}}</p></td>
                             </tr>
                         </table>
                     </td>
@@ -79,7 +80,7 @@
             </table>
         </div>
         <div>
-            {{-- Productos contratados --}}
+
             <div class="products-invoice-table">
                 <h5>{{ $titlePDF }}</h5>
                 @foreach ( $products as $product )
@@ -103,7 +104,7 @@
                             </tr>
                         </tbody>
                     </table>
-                    @if (count($product->taxes) > 0 && !$productsPurchase['only_iva'])
+                    @if (count($product->taxes) > 0 )
                         <table>
                             <thead>
                                 <tr class="content-table-font-size-tax">
@@ -127,7 +128,7 @@
             @if ($furtherProducts && count($furtherProducts) > 0)
 
             <div class="products-invoice-table">
-                <h3>Productos adicionales</h3>
+                <h5>Productos adicionales</h5>
                 @foreach ( $furtherProducts as $product )
                     <table>
                         <thead>
@@ -143,13 +144,13 @@
                             <tr class="content-table-font-size">
                                 <td>{{$product->product->name}}</td>
                                 <td>{{$product->amount}}</td>
-                                <td>${{$product->fcost}}</td>
-                                <td>${{$product->fdiscount}}</td>
-                                <td>${{$product->total_format}}</td>
+                                <td>${{$product->cost}}</td>
+                                <td>${{$product->discount}}</td>
+                                <td>${{$product->total}}</td>
                             </tr>
                         </tbody>
                     </table>
-                    @if (count($product->taxes) > 0 && !$furtherProductsPurchase['only_iva'])
+                    @if (count($product->taxes) > 0)
                         <table>
                             <thead>
                                 <tr class="content-table-font-size-tax">
@@ -171,6 +172,7 @@
                 @endforeach
             </div>
             @endif
+
         </div>
         <div class="client-data">
             <table class="line-mark-table">
@@ -190,7 +192,7 @@
                             @if ($productsPurchase['total_tax_product'])
                                 <p><strong>+IVA</strong></p>
                             @endif
-                        @endif                        
+                        @endif
                         <p><strong>NETO COTIZACION </strong></p>
                     </td>
                     <td class="right-client-data-invoice-value table-padding-purchase">
@@ -198,8 +200,9 @@
                             <p>${{$productsPurchase['total_product']}}</p>
                             <p>${{$furtherProductsPurchase['total_discount'] + $productsPurchase['total_discount']}}</p>
                             <p>${{$furtherProductsPurchase['total_product']}}</p>
+                             <p>----- {{PriceFormat::getNumber($testPrice)}}</p>
                             <p>${{$furtherProductsPurchase['total_tax_product'] + $productsPurchase['total_tax_product']}}</p>
-                            <p>${{$furtherProductsPurchase['total_purchase'] + $productsPurchase['total_purchase']}}</p>
+                             <p>${{$furtherProductsPurchase['total_purchase'] + $productsPurchase['total_purchase']}}</p>
                         @else
                             <p>${{$productsPurchase['total_product']}}</p>
                             <p>${{$productsPurchase['total_discount']}}</p>
@@ -212,6 +215,34 @@
         </div>
         <footer>
             {{$dataPDF['footer']}}
-        </footer>
+        </footer> --}}
+                    {{--  starting taxes section --}}
+                    @if ($headTaxes && count($headTaxes) > 0)
+                    <h5>Impuestos</h5>
+                    @foreach ($headTaxes as $index => $tax)
+                    <div class="w-100">
+                        <h6>{{$tax['name']}} ({{$tax['acronym']}})</h6>
+
+                            <table class="w-100">
+                                <thead>
+                                    <tr class="content-table-font-size">
+                                        <th class="product-name left-aligned">Nombre del Producto</th>
+                                        <th class="left-aligned">Porcentaje</th>
+                                        <th class="left-aligned">total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($productTaxes[$index] as $product)
+                                    <tr class="content-table-font-size">
+                                        <td>{{$product['name']}}</td>
+                                        <td>{{$product['percent']}}</td>
+                                        <td>{{PriceFormat::getNumber($product['total'])}}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                    @endforeach
+                    @endif
+                    {{-- ending up taxes section --}}
     </body>
 </html>

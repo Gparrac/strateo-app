@@ -26,7 +26,7 @@ class UpdateMiddleware implements ValidateData
             // -- planments table
             'start_date' => 'required_if:state_type,E|date_format:Y-m-d H:i:s',
             'end_date' => ['required_if:state_type,E', 'date_format:Y-m-d H:i:s', new ProductGreatestDateValidation($request->input('start_date'))],
-            'pay_off' => 'required_if:state_type,E|numeric|min:0|max:99999999',
+            'pay_off' => 'numeric|min:0|max:99999999',
             'stage' => ['required_if:state_type,E', new InvoicePlanmentStageValidationRule()],
             'taxes' => 'array',
             'taxes.*.tax_id' => 'required|exists:taxes,id',

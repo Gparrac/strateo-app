@@ -30,7 +30,7 @@ class CreateResource implements CRUD
                 'email' => $request->input('email'),
                 'postal_code' => $request->input('postal_code') ?? null,
                 'city_id' => $request->input('city_id'),
-                'code_ciiu_id' => $request->input('code_ciiu_id'),
+                'code_ciiu_id' => $request->input('code_ciiu_id') ?? null,
                 'users_id' => $userId,
             ];
 
@@ -44,24 +44,32 @@ class CreateResource implements CRUD
 
             $client = Client::create([
                 'commercial_registry' => $request->input('commercial_registry') ?? null,
-                'commercial_registry_file' => $request->file('commercial_registry_file')
-                        ->storeAs(
-                            'commercial',
-                            FileFormat::formatName($request->file('commercial_registry_file')->getClientOriginalName(),
-                            $request->file('commercial_registry_file')->guessExtension())),
-                'rut_file' => $request->file('rut_file')
-                        ->storeAs(
-                            'rut',
-                            FileFormat::formatName($request->file('rut_file')->getClientOriginalName(),
-                            $request->file('rut_file')->guessExtension())),
-                'legal_representative_name' => $request->input('legal_representative_name'),
-                'legal_representative_id' => $request->input('legal_representative_id'),
+                'legal_representative_name' => $request->input('legal_representative_name') ?? null,
+                'legal_representative_id' => $request->input('legal_representative_id') ?? null,
                 'note' => $request->input('note') ?? null,
                 'status' => $request->input('status'),
                 'third_id' => $third->id,
                 'users_id' => $userId
             ]);
+            if($request->hasFile('commercial_registry_file')){
+                $client->update([
+                    'commercial_registry_file' => $request->file('commercial_registry_file')
+                    ->storeAs(
+                        'commercial',
+                        FileFormat::formatName($request->file('commercial_registry_file')->getClientOriginalName(),
+                        $request->file('commercial_registry_file')->guessExtension()))
+                ]);
+            }
 
+            if($request->hasFile('rut_file')){
+                $client->update([
+                    'rut' => $request->file('rut_file')
+                    ->storeAs(
+                        'commercial',
+                        FileFormat::formatName($request->file('rut_file')->getClientOriginalName(),
+                        $request->file('rut_file')->guessExtension()))
+                ]);
+            }
             DB::commit();
             return response()->json(['message' => 'Successful']);
         } catch (QueryException $ex) {

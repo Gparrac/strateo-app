@@ -46,7 +46,7 @@ class CreateResource implements CRUD
                 Planment::create([
                    'start_date' => $request['start_date'],
                    'end_date' => $request['end_date'],
-                   'pay_off' => $request['pay_off'],
+                   'pay_off' => $request['pay_off'] ?? null,
                    'users_id' => $userId,
                    'stage' => 'QUO',
                    'status' => 'A',

@@ -178,7 +178,7 @@ class UpdateResource implements CRUD
             Planment::find($planment->id)->furtherProducts()->attach($product['product_id'], [
                 'amount' => $product['amount'],
                 'status' => 'A',
-                'discount' => $product['discount'] ?? 0,
+                'discount' => $product['discount'] ?? null,
                 'cost' => $product['cost'],
                 'users_id' => $userId,
                 'warehouse_id' => $product['warehouse_id'] ?? null,
@@ -209,7 +209,7 @@ class UpdateResource implements CRUD
             Invoice::find($request['invoice_id'])->products()->attach($product['product_id'], [
                 'amount' => $product['amount'],
                 'cost' => $product['cost'],
-                'discount' => $product['discount'] ?? 0,
+                'discount' => $product['discount'] ?? null,
                 'status' => 'A',
                 'warehouse_id' => $product['warehouse_id'] ?? null,
                 'users_id' => $userId,
@@ -241,7 +241,7 @@ class UpdateResource implements CRUD
                 'product_id' => $event['product_id'],
                 'cost' => $event['cost'],
                 'amount' => $event['amount'],
-                'discount' => $event['discount'] ?? 0,
+                'discount' => $event['discount'] ?? null,
                 'users_id' => $userId
             ]);
             if(array_key_exists('taxes', $event))

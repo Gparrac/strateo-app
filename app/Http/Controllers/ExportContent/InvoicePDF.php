@@ -14,21 +14,33 @@ use App\Models\FurtherProductPlanment;
 use App\Models\Planment;
 use App\Models\Third;
 use App\Models\ProductPlanment;
+use App\Models\Tax;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
-
+use Illuminate\Support\Facades\Log;
 
 class InvoicePDF extends Controller
 {
+    private $taxesAdded = [];
+    private $productsTaxesAdded = [];
     /**
      * Handle the incoming request.
      */
     public function __invoke(Request $request)
     {
-        $invoiceId = 22;  // 43 => event, 22 => straight purchase
-        $invoice = Invoice::findOrFail($invoiceId);
+        //$invoiceId = 46;  // 43 => event, 22 => straight purchase
+        $invoice = Invoice::with(['taxes:id,name,acronym','client'=>function($query){
+            $query->with(['third' => function($query){
+                $query->with(['city:id,name']);
+                $query->select('thirds.id','names','surnames','identification','email','mobile','business_name','city_id','address');
+            }]);
+            $query->select('clients.id','clients.third_id');
+        }, 'seller' => function($query){
+            $query->with(['third:id,names,surnames']);
+            $query->select('users.id','users.third_id');
+        }])->findOrFail($request['invoice_id']);
 
         //Client Information
-        $client = Third::with('city', 'userCreate', 'userCreate.third')->findOrFail($invoice->client->third->id);
+        // $client = Third::with(['city:id,name'])->select('id','names','surnames','identification','email','mobile','business_name')->findOrFail($invoice->client->third->id);
         $furtherProducts = null;
         $furtherProductsPurchase = null;
         // Products with tax
@@ -39,29 +51,32 @@ class InvoicePDF extends Controller
             $productsPurchase = $this->getTotalPurchase($products);
         }else{
             $titlePDF = 'Eventos contratados';
-            $planmentId = Planment::where('invoice_id', $invoiceId)->first()->id;
-            $products = $this->getProducts(ProductPlanment::where('planment_id', $planmentId));
-            $furtherProducts = $this->getProducts(FurtherProductPlanment::where('planment_id', $planmentId));
+            $planment = Planment::where('invoice_id', $request['invoice_id'])->select()->first();
+            $products = $this->getProducts(ProductPlanment::select('cost', 'discount','products_planments.id','product_id','id', 'planment_id','amount')->where('planment_id', $planment['id']));
+            $furtherProducts = $this->getProducts(FurtherProductPlanment::where('planment_id', $planment['id']));
             $products = $this->setTotalTax($products);
-            $furtherProducts = $this->setTotalTax($furtherProducts);
             $productsPurchase = $this->getTotalPurchase($products);
+            $furtherProducts = $this->setTotalTax($furtherProducts);
             $furtherProductsPurchase = $this->getTotalPurchase($furtherProducts);
-            $productsPurchase['total_purchase'] =  PriceFormat::getNumber($furtherProductsPurchase['unformat_total_purchase'] + $productsPurchase['unformat_total_purchase']);
-            $productsPurchase['total_tax_product'] = PriceFormat::getNumber($productsPurchase['unformat_total_tax'] + $furtherProductsPurchase['unformat_total_tax']);
+            $productsPurchase['total_product'] =  $furtherProductsPurchase['total_product'] + $productsPurchase['total_product'];
+            $productsPurchase['total_purchase'] =  $furtherProductsPurchase['total_purchase'] + $productsPurchase['total_purchase'];
+            $productsPurchase['total_tax_product'] = $productsPurchase['total_tax_product'] + $furtherProductsPurchase['total_tax_product'];
         }
-
-        // Company Header and Footer
+        $headTaxes = Tax::whereIn('id',$this->taxesAdded)->select('id','name','acronym')->get();
+        $productTaxes = $this->productsTaxesAdded;
+        $this->setGlobalTaxes($invoice, $productsPurchase);
         $dataPDF = Company::first();
+        // Company Header and Footer
 
-        $pdf = PDF::loadView('PDF.invoicetemplate', compact('dataPDF', 'titlePDF', 'client', 'invoice', 'products', 'productsPurchase', 'furtherProducts', 'furtherProductsPurchase'));
-        // dd($pdf);
-        return $pdf->download('itsolutionstuff.pdf');
+        // return compact('dataPDF', 'titlePDF', 'client', 'invoice', 'products', 'productsPurchase', 'furtherProducts', 'furtherProductsPurchase');
+        $pdf = PDF::loadView('PDF.invoiceTemplateV2', compact('productTaxes','planment', 'headTaxes', 'dataPDF', 'titlePDF', 'invoice', 'products', 'productsPurchase', 'furtherProducts', 'furtherProductsPurchase'));
+        return $pdf->download('invoice.pdf');
     }
 
     private function getProducts( $query)
     {
         return $query
-        ->with('product', 'taxes')
+        ->with('product:id,name', 'taxes:id,name,acronym')
         ->get();
     }
 
@@ -70,16 +85,29 @@ class InvoicePDF extends Controller
         return $collection->map(function ($product)
         {
             $totalTaxProduct = 0;
-            $product->fcost = PriceFormat::getNumber($product->cost);
-            $product->fdiscount = PriceFormat::getNumber($product->discount);
             $product->taxes->each(function ($tax) use ($product, &$totalTaxProduct) {
                 $tax->total_tax = $product->total * ($tax->pivot->percent / 100);
                 $totalTaxProduct += $tax->total_tax;
-                $tax->total_tax = PriceFormat::getNumber($tax->total_tax);
 
+                $index = array_search($tax->id, $this->taxesAdded);
+
+                $templateProduct = [
+                    'id' => $product['product']['id'],
+                    'name' => $product['product']['name'],
+                    'percent' => $tax['pivot']['percent'],
+                    'total' => $tax['total_tax']
+                ];
+                if($index !== false){
+                    array_push($this->productsTaxesAdded[$index], $templateProduct);
+                }else{
+                    array_push($this->taxesAdded, $tax['id']);
+                    $newIndex = count($this->taxesAdded) - 1;
+                    $this->productsTaxesAdded[$newIndex] = [];
+                    array_push($this->productsTaxesAdded[$newIndex], $templateProduct);
+                }
             });
+
             $product->total_tax_product = $totalTaxProduct;
-            $product->total_format = PriceFormat::getNumber($product->total);
             return $product;
         });
     }
@@ -89,24 +117,29 @@ class InvoicePDF extends Controller
         $totalTaxProduct = 0;
         $totalProduct = 0;
         $totalDiscount = 0;
-        $onlyIva = TRUE;
         $products->each(function ($product) use(&$totalProduct, &$totalTaxProduct, &$totalDiscount){
-            $totalProduct += $product->total;
-            $totalTaxProduct += $product->total_tax_product;
-            $product->total_tax_product =  PriceFormat::getNumber($product->total_tax_product);
-            $totalDiscount += $product->discount;
+            $totalProduct += $product['total'];
+            $totalTaxProduct += $product['total_tax_product'];
+            $totalDiscount += $product['discount'];
 
             //This will help us know if the IVA is only printed once.
-            if(count($product->taxes) > 1 && isset($product->taxes[0]) && $product->taxes[0]->acronym == 'IVA' && $onlyIva) $onlyIva = FALSE;
+            // if(count($product->taxes) > 1 && isset($product->taxes[0]) && $product->taxes[0]->acronym == 'IVA' && $onlyIva) $onlyIva = FALSE;
         });
         return [
-            'only_iva' => $onlyIva,
-            'total_tax_product' => PriceFormat::getNumber($totalTaxProduct),
-            'total_product' => PriceFormat::getNumber($totalProduct),
-            'total_purchase' => PriceFormat::getNumber($totalTaxProduct + $totalProduct),
-            'total_discount' => PriceFormat::getNumber($totalDiscount),
-            'unformat_total_purchase' => $totalTaxProduct + $totalProduct,
-            'unformat_total_tax' => $totalTaxProduct
+            'total_tax_product' => $totalTaxProduct,
+            'total_product' => $totalProduct,
+            'total_purchase' => $totalTaxProduct + $totalProduct,
+            'total_discount' => $totalDiscount
         ];
+    }
+    private function setGlobalTaxes($invoice, &$totalPurchase){
+        $totalTaxes = 0;
+        $invoice->taxes->each(function($tax) use (&$totalPurchase, &$totalTaxes){
+            $tax['total'] = $totalPurchase['total_product'] * $tax['pivot']['percent'] / 100;
+            $totalTaxes += $tax['total'];
+        });
+        $totalPurchase['total_global_taxes'] = $totalTaxes;
+        $totalPurchase['total_purchase'] -= $totalTaxes;
+
     }
 }

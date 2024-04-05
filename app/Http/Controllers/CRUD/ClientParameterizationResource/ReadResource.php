@@ -45,7 +45,8 @@ class ReadResource implements CRUD, RecordOperations
     public function allRecords($ids = null, $pagination = 5, $sorters = [], $filters = [], $format = null)
     {
         try {
-            $data = new Client();
+            $data = Client::with('third:id,names,surnames,identification,email');;
+
             //filter query with keyword 🚨
             if ($filters) {
                 foreach ($filters as $filter) {
@@ -61,10 +62,17 @@ class ReadResource implements CRUD, RecordOperations
                 }
             }
             if($format == 'short'){
-                $data = $data->where('status','A')->select('clients.id', 'legal_representative_name as name','legal_representative_id as document')->take(10)->get();
+                $data = $data->where('status','A')->take(10)->get();
+                $data = $data->map(function($client){
+                    return [
+                        'id' => $client['id'],
+                        'name' => $client['third']['fullname'],
+                        'document' => $client['third']['identification']
+                    ];
+                });
             }else{
                 $data = $data->select('id', 'status', 'legal_representative_name', 'legal_representative_id', 'third_id', 'updated_at')
-                ->with('third:id,identification,email');
+                ->with('third:id,names,surnames,identification,email');
             //append shorters to query
             foreach ($sorters as $shorter) {
 
