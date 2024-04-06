@@ -12,7 +12,7 @@
     @php
         use App\Http\Utils\PriceFormat;
     @endphp
-    <img src="{{public_path('uploads/logos/iYXbDXlu15BRGyl1R8G0L7vVK9Mo8JzjVVqUPrIe.png')}}"a alt="" class="icon">
+    {{-- <img src="{{public_path('uploads/logos/iYXbDXlu15BRGyl1R8G0L7vVK9Mo8JzjVVqUPrIe.png')}}"a alt="" class="icon"> --}}
     <div class="w-100">
         <h1 class="text-center">{{ $dataPDF['header'] }}</h1>
         <!-- start invoice data section -->
