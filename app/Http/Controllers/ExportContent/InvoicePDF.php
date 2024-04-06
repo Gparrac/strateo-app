@@ -5,7 +5,6 @@ namespace App\Http\Controllers\ExportContent;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-
 use App\Models\Invoice;
 use App\Models\Company;
 use App\Models\ProductInvoice;
@@ -43,6 +42,8 @@ class InvoicePDF extends Controller
         // $client = Third::with(['city:id,name'])->select('id','names','surnames','identification','email','mobile','business_name')->findOrFail($invoice->client->third->id);
         $furtherProducts = null;
         $furtherProductsPurchase = null;
+        $planment = Planment::where('invoice_id', $request['invoice_id'])->select()->first();
+
         // Products with tax
         if($invoice->sale_type['id'] == 'P'){
             $titlePDF = 'Productos Contratados';
@@ -51,7 +52,6 @@ class InvoicePDF extends Controller
             $productsPurchase = $this->getTotalPurchase($products);
         }else{
             $titlePDF = 'Eventos contratados';
-            $planment = Planment::where('invoice_id', $request['invoice_id'])->select()->first();
             $products = $this->getProducts(ProductPlanment::select('cost', 'discount','products_planments.id','product_id','id', 'planment_id','amount')->where('planment_id', $planment['id']));
             $furtherProducts = $this->getProducts(FurtherProductPlanment::where('planment_id', $planment['id']));
             $products = $this->setTotalTax($products);
