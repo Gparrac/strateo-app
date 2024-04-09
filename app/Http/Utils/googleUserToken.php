@@ -2,12 +2,13 @@
 namespace App\Http\Utils;
 
 use App\Models\Company;
+use App\Models\GoogleUser;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class googleUserToken
+class GoogleUserToken
 {
-    public function refreshAccessToken($refreshToken)
+    public static function refreshAccessToken($refreshToken)
 {
     $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
         'client_id' => config('services.google.client_id'),
@@ -19,17 +20,18 @@ class googleUserToken
     return $response->json();
 
 }
-    public function useRefreshedToken()
+    public static function useRefreshedToken()
     {
         // Obtener el token de actualización de la base de datos
-        $googleUser = Company::first()->googleUser;
+        $googleUser = GoogleUser::find(Company::first()->google_user_id);
         $refreshToken = $googleUser->refresh_token;
-        if(time() >= $googleUser->time_expire){
+        $now = time();
+        if($now >= $googleUser->time_expire){
             Log::info('passing');
-            $response = $this->refreshAccessToken($refreshToken);
+            $response = self::refreshAccessToken($refreshToken);
             $googleUser->update([
                 'access_token' => $response['access_token'],
-                'time_expire' => time() + $response['expires_in']
+                'time_expire' => $now + $response['expires_in'] + $now
             ]);
         }
 

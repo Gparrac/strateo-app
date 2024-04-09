@@ -6,6 +6,7 @@ use App\Http\Controllers\invokes\TypedocumentUserServer;
 use App\Http\Utils\googleUserToken;
 use App\Models\Company;
 use App\Models\Field;
+use App\Models\Invoice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use GuzzleHttp\Client;
@@ -33,27 +34,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::get('/test', function (Request $request) {
 
-$googleUser = Company::first()->googleUser;
-$googleMethods = new googleUserToken();
-$googleMethods->useRefreshedToken();
-// Suponiendo que $accessToken contiene el token de acceso válido
-$client = new Client();
-$response = $client->post('https://www.googleapis.com/calendar/v3/calendars/primary/events', [
-    'headers' => [
-        'Authorization' => 'Bearer ' . $googleUser->access_token,
-    ],
-    'json' => [
-        'summary' => 'Evento prueba',
-        'start' => [
-            'dateTime' => '2024-04-08T10:00:00',
-            'timeZone' => 'America/Los_Angeles',
-        ],
-        'end' => [
-            'dateTime' => '2024-04-08T12:00:00',
-            'timeZone' => 'America/Los_Angeles',
-        ],
-    ]
-]);
-$data = json_decode($response->getBody(), true);
-return $data;
+$invoice = Invoice::find(25)->client->third;
+return $invoice;
 });

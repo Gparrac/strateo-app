@@ -12,6 +12,7 @@ use App\Models\Warehouse;
 use App\Models\Third;
 use App\Http\Utils\CastVerificationNit;
 use App\Http\Traits\DynamicUpdater;
+use App\Http\Utils\GoogleCalendar;
 use App\Models\Inventory;
 use App\Models\Invoice;
 use App\Models\Planment;
@@ -25,6 +26,7 @@ class UpdateResource implements CRUD
         DB::beginTransaction();
         try {
             $userId = Auth::id();
+            $googleEvent = null;
             // -----------------------saving third ----------------------------
             $invoice = Invoice::findOrFail($request->input('invoice_id'));
             //Save the new files
@@ -44,15 +46,37 @@ class UpdateResource implements CRUD
                         'users_id' => $userId,
                     ]);
                 }
+                Log::info($request->start_date);
+                Log::info($invoice->planment->start_date);
             if ($invoice->sale_type['id'] == 'E') {
-                if ($invoice->planment) {
-                    $invoice->planment->fill($request->only([
+                $planment = $invoice->planment;
+                if ($planment) {
+                    $planment->fill($request->only([
                         'start_date',
                         'end_date',
                         'stage',
                         'status',
                         'pay_off'
                     ]) + ['users_update_id' => $userId])->save();
+                    Log::info('after save');
+                    Log::info($planment);
+
+                if($planment['stage']['id'] == 'REA'){
+                    $googleEvent = GoogleCalendar::editEvent($planment, $invoice->client->third);
+                    $planment->update([
+                        'event_google_id' => $googleEvent['id'],
+                        'event_google_link' => $googleEvent['htmlLink']
+                    ]);
+                }else {
+                    Log::info('entry');
+                    if($planment['event_google_id']){
+                        $googleEvent = GoogleCalendar::deleteEvent($planment['event_google_id']);
+                        $planment->update([
+                            'event_google_id' => null,
+                            'event_google_link' => null
+                        ]);
+                    }
+                }
                 } else {
                     Planment::create([
                         'start_date' => $request['start_date'],
@@ -70,6 +94,9 @@ class UpdateResource implements CRUD
             DB::commit();
             return response()->json(['message' => 'Successful']);
         } catch (QueryException $ex) {
+            if($googleEvent){
+                GoogleCalendar::deleteEvent($googleEvent['id']);
+            }
             DB::rollback();
             Log::error('Query error WarehouseResource@update: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'update q'], 500);

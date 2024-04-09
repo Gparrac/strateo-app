@@ -11,7 +11,7 @@ class Planment extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['start_date', 'end_date', 'stage', 'status', 'users_id', 'users_update_id', 'invoice_id', 'pay_off'];
+    protected $fillable = ['start_date', 'end_date', 'stage', 'status', 'users_id', 'users_update_id', 'invoice_id', 'pay_off','event_google_id', 'event_google_link'];
 
     public function getStageAttribute(){
         $types =[
