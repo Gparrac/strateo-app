@@ -15,7 +15,8 @@ class Company extends Model
         'path_logo',
         'header',
         'footer',
-        'third_id'
+        'third_id',
+        'google_user_id'
     ];
 
     protected $casts = [
@@ -29,5 +30,9 @@ class Company extends Model
     public function third(): BelongsTo
     {
         return $this->belongsTo(Third::class);
+    }
+    public function googleUser(): BelongsTo
+    {
+        return $this->belongsTo(GoogleUser::class);
     }
 }

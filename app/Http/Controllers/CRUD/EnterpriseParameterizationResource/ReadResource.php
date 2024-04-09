@@ -16,7 +16,7 @@ class ReadResource implements CRUD
     public function resource(Request $request)
     {
         try {
-            $company = Company::firstOrFail(['path_logo', 'header', 'footer', 'third_id']);
+            $company = Company::with(['googleUser:id,name,email'])->firstOrFail(['path_logo', 'header', 'footer', 'third_id','google_user_id']);
 
             $third = Third::select('id', 'type_document', 'identification', 'verification_id',
             'names', 'surnames', 'business_name', 'address', 'mobile', 'email', 'email2',
