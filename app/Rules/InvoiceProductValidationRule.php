@@ -47,6 +47,11 @@ class InvoiceProductValidationRule implements ValidationRule
                     $fail('El producto :attribute no es apto para este tipo de orden.');
                 }
                 break;
+            case 'S':
+                if($invoice->sale_type['id'] == 'P'){
+                    $fail('El producto :attribute no es apto para este tipo de orden.');
+                }
+                break;
             default:
             $fail('Tipo de conección no valido.');
                 break;

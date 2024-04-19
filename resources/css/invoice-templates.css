@@ -37,6 +37,9 @@
    .pr-40{
        padding-right:  40px;
    }
+   .mx-auto{
+    margin:  0 auto;
+   }
    .p-20{
        padding: 20px;
    }
@@ -96,6 +99,6 @@
  .icon{
     position: absolute;
     width: 10px;
-    top: 10px;
-    left: 10px;
+    top: 70px;
+    left: 40px;
   }

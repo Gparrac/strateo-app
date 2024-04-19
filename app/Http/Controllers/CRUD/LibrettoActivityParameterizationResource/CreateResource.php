@@ -11,6 +11,7 @@ use App\Models\Warehouse;
 use App\Models\Third;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Utils\CastVerificationNit;
+use App\Http\Utils\FileFormat;
 use App\Models\LibrettoActivity;
 
 class CreateResource implements CRUD
@@ -20,7 +21,6 @@ class CreateResource implements CRUD
         DB::beginTransaction();
         try {
             $userId = Auth::id();
-
             $data = [
                 'name' => $request->input('name'),
                 'description' => $request->input('description') || null,
@@ -33,6 +33,15 @@ class CreateResource implements CRUD
                 'status' => 'A',
                 'users_id' => auth()->id()
             ]);
+            if($request->hasFile('file')){
+                $la->update([
+                    'path_file' => $request->file('file')
+                    ->storeAs(
+                        'librettoActivities',
+                        FileFormat::formatName($request->file('file')->getClientOriginalName(),
+                        $request->file('file')->guessExtension()))
+                ]);
+            }
             DB::commit();
             return response()->json(['message' => 'Successful']);
         } catch (QueryException $ex) {

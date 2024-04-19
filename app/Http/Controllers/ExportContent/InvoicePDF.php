@@ -65,9 +65,12 @@ class InvoicePDF extends Controller
         $headTaxes = Tax::whereIn('id',$this->taxesAdded)->select('id','name','acronym')->get();
         $productTaxes = $this->productsTaxesAdded;
         $this->setGlobalTaxes($invoice, $productsPurchase);
-        $dataPDF = Company::first();
-        // Company Header and Footer
 
+        $dataPDF = Company::with(['third' =>  function($query){
+            $query->with('city:id,name')->select('thirds.id','names','surnames','type_document','identification','business_name','address','mobile','email','postal_code','city_id');
+        }])->first();
+
+        // Company Header and Footer
         // return compact('dataPDF', 'titlePDF', 'client', 'invoice', 'products', 'productsPurchase', 'furtherProducts', 'furtherProductsPurchase');
         $pdf = PDF::loadView('PDF.invoiceTemplateV2', compact('productTaxes','planment', 'headTaxes', 'dataPDF', 'titlePDF', 'invoice', 'products', 'productsPurchase', 'furtherProducts', 'furtherProductsPurchase'));
         return $pdf->download('invoice.pdf');

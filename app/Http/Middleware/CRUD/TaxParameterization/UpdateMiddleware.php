@@ -17,7 +17,9 @@ class UpdateMiddleware implements ValidateData
             'status' => 'required|in:A,I',
             'type' => 'required|in:I,D',
             'context' => 'required|in:I,P',
-            'default_percent' => 'required|numeric|between:-99,99|regex:/^-?\d+(\.\d{1,3})?$/',
+            'values' => 'required|array',
+            'values.*.tax_value_id' =>  'required|exists:tax_values,id',
+            'values.*.percent' => 'required|numeric|between:-99,99|regex:/^-?\d+(\.\d{2,3})?$/'
         ]);
 
         if ($validator->fails()){

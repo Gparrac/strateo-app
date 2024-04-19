@@ -12,9 +12,18 @@
     @php
         use App\Http\Utils\PriceFormat;
     @endphp
-    {{-- <img src="{{public_path('uploads/logos/iYXbDXlu15BRGyl1R8G0L7vVK9Mo8JzjVVqUPrIe.png')}}"a alt="" class="icon"> --}}
-    <div class="w-100">
-        <h1 class="text-center">{{ $dataPDF['header'] }}</h1>
+    <img src="{{public_path('images/joyFactory.png')}}"a alt="" class="icon">
+    <div class="w-100" >
+        <h1 class="text-center w-60 mx-auto" style="margin: 0 auto;">
+            {{ $dataPDF['header'] }}
+            {{$dataPDF['type_document'] . ': ' . $dataPDF['identification'] . 'IMPUESTO SOBRE EL VALOR DE LA VENTA IVA' }}<br>
+            {{'Actividad Económica' . '####'. ' Tarifa Renta 0.80%'}}
+            {{$dataPDF['address'] . ' - '. $dataPDF['third']['city']['name'] }}<br>
+            {{'Teléfono: ' . $dataPDF['third']['mobile']}}<br>
+            No Somos Autorretenedores - No somos Grandes Contribuyentes
+            Régimen IVA: IMPUESTO SOBRE LAS VENTAS - IVA Actividad ICA: 304 9.60 x mil
+
+        </h1>
         <!-- start invoice data section -->
 
         <table class="w-100 border-2 my-20">
@@ -181,14 +190,7 @@
                 <!-- observations -->
                 <td class="w-70 pl-10 py-10">
                     <h5 class="">Observaciones</h5>
-                    <p >Lorem ipsum dolor sit amet consectetur, adipisicing elit. Voluptatum, totam? Magni dignissimos
-                        quidem harum soluta fugiat blanditiis mollitia sed quo pariatur, consectetur saepe expedita
-                        beatae debitis eius odio ipsum voluptatem? Lorem ipsum dolor sit amet, consectetur adipisicing
-                        elit. Rerum exercitationem recusandae sit, debitis praesentium aliquam voluptas tempore delectus
-                        labore totam vero itaque nobis nesciunt laborum vitae eaque incidunt blanditiis perspiciatis!
-                        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ducimus consequuntur nesciunt optio
-                        voluptatem sint perferendis beatae quod accusamus quaerat ratione assumenda autem, voluptatibus
-                        laboriosam quisquam! Sint totam voluptatibus laudantium fuga?</p>
+                    <p >{{$invoice['note'] ?? 'No presenta.'}}</p>
                 </td>
                 <td class="w-30 align-top py-10 border-2">
                     <table class="w-100 ">

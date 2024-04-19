@@ -33,6 +33,7 @@ class UpdateMiddleware implements ValidateData
             'libretto_activity_id' => 'required|exists:libretto_activities,id',
             'name' => 'required|string',
             'description' => 'string',
+            'file' => 'file|mimes:pdf,docx,jpg,jpeg,png|max:2048',
             'status' => 'required|in:A,I',
             'products_ids' => 'array',
             'products_ids.*' => 'numeric|exists:products,id',
@@ -43,7 +44,8 @@ class UpdateMiddleware implements ValidateData
             'invoice_id' => 'required|exists:invoices,id',
             'libretto_activities' => 'required|array',
             'libretto_activities.*.libretto_activity_id' => 'required|exists:libretto_activities,id',
-            'libretto_activities.*.description' => 'required|string'
+            'libretto_activities.*.description' => 'required|string',
+            'libretto_activities.*.file' => 'file|mimes:pdf,docx,jpg,jpeg,png|max:2048',
         ];
     }
 }

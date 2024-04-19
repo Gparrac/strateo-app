@@ -23,22 +23,33 @@ class ReadResource implements CRUD, RecordOperations
     private $typeContent;
     public function resource(Request $request)
     {
+        try{
         if ($request->has('product_id')) {
-            return $this->singleRecord($request->input('product_id'));
+            $data = $this->singleRecord($request->input('product_id'));
         } else {
             $this->types = $request->input('types') ?? null;
             $this->warehouseFilter = $request->input('warehouseFilter') ?? null;
             $this->typeContent = $request->input('typeContent') ?? null;
             $this->supply = $request->input('supply') ?? null;
-            return $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('filters') ?? [], $request->input('format'));
+            $data = $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('filters') ?? [], $request->input('format'));
         }
+        return response()->json(['message', 'data' => $data], 200);
+    } catch (QueryException $ex) {
+        Log::error('Query error ProductResource@readResource - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
+        return response()->json(['message' => 'read q'], 500);
+    } catch (\Exception $ex) {
+        Log::error('unknown error ProductResource@readResource - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
+        return response()->json(['message' => 'read u'], 500);
+    }
     }
 
     public function singleRecord($id)
     {
-        try {
             $data = Product::with([
-                'taxes:id,name,acronym,default_percent,type',
+                'taxes' => function ($query){
+                    $query->with('taxValues:id,percent');
+                    $query->select('taxes.id','name','acronym','type');
+                },
                 'librettoActivities' => function($query){
                     $query->where('libretto_activities_products.status', 'A')->select('libretto_activities.id','name', 'description');
                 },
@@ -108,21 +119,11 @@ class ReadResource implements CRUD, RecordOperations
                 });
                 return $product;
             });
-
-
-            return response()->json(['message' => 'read: ' . $id, 'data' => $data], 200);
-        } catch (QueryException $ex) {
-            Log::error('Query error ClientResource@readResource:singleRecord: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
-            return response()->json(['message' => 'read q'], 500);
-        } catch (\Exception $ex) {
-            Log::error('unknown error ClientResource@readResource:singleRecord: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
-            return response()->json(['message' => 'read u'], 500);
-        }
+            return $data;
     }
 
     public function allRecords($ids = null, $pagination = 5, $sorters = [], $filters = null, $format = null)
     {
-        try {
             $data = new Product();
             //filter query with keyword 🚨
 
@@ -145,7 +146,11 @@ class ReadResource implements CRUD, RecordOperations
                 }
             }
             if ($format == 'short') {
-                $data = $data->with(['taxes:id,name,acronym,default_percent,type',
+                $data = $data->withCount('subproducts')->with([
+                    'taxes' => function ($query){
+                        $query->with('taxValues:id,percent');
+                        $query->select('taxes.id','name','acronym','type');
+                    },
                     'brand:id,name', 'measure:id,symbol',
                     'categories:id,name',
                     'subproducts' => function ($query) {
@@ -229,13 +234,6 @@ class ReadResource implements CRUD, RecordOperations
                 }
                 $data = $data->paginate($pagination);
             }
-            return response()->json(['message' => 'read', 'data' => $data], 200);
-        } catch (QueryException $ex) {
-            Log::error('Query error ClientResource@readResource:allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
-            return response()->json(['message' => 'read q'], 500);
-        } catch (\Exception $ex) {
-            Log::error('unknown error ClientResource@readResource:allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
-            return response()->json(['message' => 'read u'], 500);
-        }
+            return $data;
     }
 }

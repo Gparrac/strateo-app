@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Rules\InvoiceProductValidationRule;
 use App\Rules\ProductPlanmentValidationRule;
 use App\Rules\ProductSubproductValidation;
+use App\Rules\ProductTracingRule;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -67,7 +68,7 @@ class UpdateMiddleware implements ValidateData
     }
     protected function typeConnectionValidation($typeConnection){
         $this->rules = [
-            'type_connection' => 'required|in:I,F,E',
+            'type_connection' => 'required|in:I,F,E,S',
             'products' => 'required|array',
             'products.*.product_id' => ['required','exists:products,id', new InvoiceProductValidationRule($typeConnection)],
             'products.*.cost' => 'required|numeric|min:1|max:99999999',
@@ -81,16 +82,24 @@ class UpdateMiddleware implements ValidateData
         if ($typeConnection == 'F' || $typeConnection = 'I') {
             array_merge($this->rules, [
                 'products.*.warehouse_id' => 'exists:warehouses,id',
-                'products.*.tracing' => 'required|boolean'
+                'products.*.tracing' => 'required|boolean',
+                'products.*.events' => 'required|array',
+                'products.*.events.*.product_id' => 'required|exists:products,id',
+                'products.*.events.*.amount' => 'required|numeric|min:1|max:9999'
+
             ]);
         }
-        if ($typeConnection == 'E') {
+        if($typeConnection == 'E') {
             $this->rules = array_merge($this->rules, [
-                'products.*.sub_products' => 'required|array',
-                'products.*.sub_products.*.product_id' => 'required|exists:products,id',
-                'products.*.sub_products.*.amount' => ['numeric','min:1','max:9999'],
-                'products.*.sub_products.*.tracing' => 'required|boolean',
+                'subproducts' => 'array',
+                'subproducts.*.product_id' => ['required','exists:products,id'],
+                'subproducts.*.amount' => 'required|numeric|min:1|max:9999',
+                'subproducts.*.events' => 'required|array',
+                'subproducts.*.events.*.product_id' => 'required|exists:products,id',
+                'subproducts.*.tracing' => 'required|boolean',
+                'subproducts.*.warehouse_id' => [ProductTracingRule::class]
             ]);
         }
+
     }
 }

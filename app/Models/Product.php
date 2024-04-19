@@ -67,6 +67,10 @@ class Product extends Model
     {
         return $this->belongsTo(Brand::class);
     }
+    public function events(): BelongsToMany
+    {
+        return $this->belongsToMany(Product::class,'products_products','child_product_id', 'parent_product_id')->withPivot(['amount']);
+    }
     public function subproducts(): BelongsToMany
     {
         return $this->belongsToMany(Product::class,'products_products','parent_product_id', 'child_product_id')->withPivot(['amount']);
@@ -81,7 +85,14 @@ class Product extends Model
     {
         return $this->belongsToMany(Planment::class,'products_planments', 'product_id', 'planment_id')->withPivot(['cost', 'descount', 'amount']);
     }
-
+    public function subproductPlanments(): HasMany
+    {
+        return $this->hasMany(SubproductPlanment::class, 'product_id');
+    }
+    public function productPlanments(): HasMany
+    {
+        return $this->hasMany(ProductPlanment::class, 'product_id');
+    }
     public function invoices(): BelongsToMany
     {
         return $this->belongsToMany(Invoice::class,'products_invoices', 'product_id', 'invoices_id')->withPivot(['cost', 'descount', 'amount']);

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\CRUD\TaxParameterizationResource;
+namespace App\Http\Controllers\CRUD\TaxValueParameterizationResource;
 
 use App\Http\Controllers\CRUD\Interfaces\CRUD;
 use Illuminate\Http\Request;
@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Tax;
+use App\Models\TaxValue;
 
 class UpdateResource implements CRUD
 {
@@ -16,18 +17,13 @@ class UpdateResource implements CRUD
     {
         try {
             $userId = Auth::id();
-            $tax = Tax::where('id', $request->input('tax_id'))->firstOrFail();
+            $tax = TaxValue::where('id', $request->input('tax_value_id'))->firstOrFail();
 
             $tax->fill($request->only([
-                'name',
-                'acronym',
-                'status',
-                'type',
-                'context'
+                'percent',
             ]) + ['users_update_id' => $userId])->save();
-            $tax->taxValues()->detach();
             foreach ($request->input('values') as $value) {
-                $tax->taxValues()->attach($value['tax_value_id']);
+                Tax::taxValues()->sync($value['tax_value_id']);
             }
             return response()->json(['message' => 'Successful']);
         } catch (QueryException $ex) {

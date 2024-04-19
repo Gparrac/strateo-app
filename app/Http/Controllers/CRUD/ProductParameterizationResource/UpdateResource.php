@@ -10,6 +10,7 @@ use App\Models\Planment;
 use App\Models\Product;
 use App\Models\ProductPlanment;
 use App\Models\PurchaseOrder;
+use App\Models\SubproductPlanment;
 use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
@@ -23,17 +24,15 @@ class UpdateResource implements CRUD
         DB::beginTransaction();
         try {
             $userId = Auth::id();
-            if($request->has('type_connection')){
+            if ($request->has('type_connection')) {
                 if ($request['type_connection'] == 'F') {
                     $this->updateFurtherEvent($userId, $request);
-                }
-                elseif ($request['type_connection'] == 'I') {
+                } elseif ($request['type_connection'] == 'I') {
                     $this->updateProductInvoice($userId, $request);
-                }
-                elseif ($request['type_connection'] == 'E') {
+                } elseif ($request['type_connection'] == 'E') {
                     $this->updateProductPlanments($userId, $request);
                 }
-            }else{
+            } else {
                 $this->update($request, $userId);
             }
 
@@ -107,12 +106,12 @@ class UpdateResource implements CRUD
             ]);
         });
         $product->librettoActivities()
-        ->get()->each(function ($la) use ($userId, $product) {
-            $product->librettoActivities()->updateExistingPivot($la, [
-                'status' => 'I',
-                'users_update_id' => $userId,
-            ]);
-        });
+            ->get()->each(function ($la) use ($userId, $product) {
+                $product->librettoActivities()->updateExistingPivot($la, [
+                    'status' => 'I',
+                    'users_update_id' => $userId,
+                ]);
+            });
         // filling out taxes
         if ($request->has('taxes')) {
             foreach ($request['taxes'] as $value) {
@@ -168,7 +167,8 @@ class UpdateResource implements CRUD
             }
         }
     }
-    protected function updateFurtherEvent($userId, Request $request){
+    protected function updateFurtherEvent($userId, Request $request)
+    {
         $planment = Invoice::find($request['invoice_id'])->planment;
 
 
@@ -185,25 +185,20 @@ class UpdateResource implements CRUD
                 'tracing' =>  $product['tracing'],
             ]);
             $pivotId = FurtherProductPlanment::where('planment_id', $planment['id'], $product['product_id'])->first()->id;
-            if(array_key_exists('taxes', $product))
-            foreach ($product['taxes'] as $tax) {
-                DB::table('products_taxes')->insert([
-                    'tax_id' => $tax['tax_id'],
-                    'further_product_planment_id' => $pivotId,
-                    'percent' => $tax['percent'],
-                    'users_id' => $userId
-                ]);
-            }
+            if (array_key_exists('taxes', $product))
+                foreach ($product['taxes'] as $tax) {
+                    DB::table('products_taxes')->insert([
+                        'tax_id' => $tax['tax_id'],
+                        'further_product_planment_id' => $pivotId,
+                        'percent' => $tax['percent'],
+                        'users_id' => $userId
+                    ]);
+                }
             // dd(Planment::find($planment->id)->furtherProducts()->get());
         }
-
-
     }
     protected function updateProductInvoice($userId, Request $request)
     {
-
-
-
         Invoice::find($request['invoice_id'])->products()->detach();
         foreach ($request['products'] as $product) {
             Invoice::find($request['invoice_id'])->products()->attach($product['product_id'], [
@@ -217,24 +212,22 @@ class UpdateResource implements CRUD
             ]);
 
             $pivotId = DB::table('products_invoices')->where('product_id', $product['product_id'])->where('invoice_id', $request['invoice_id'])->first()->id;
-            if(array_key_exists('taxes', $product))
-            foreach ($product['taxes'] as $tax) {
-                DB::table('products_taxes')->insert([
-                    'tax_id' => $tax['tax_id'],
-                    'product_invoice_id' => $pivotId,
-                    'percent' => $tax['percent'],
-                    'users_id' => $userId,
-                ]);
-            }
+            if (array_key_exists('taxes', $product))
+                foreach ($product['taxes'] as $tax) {
+                    DB::table('products_taxes')->insert([
+                        'tax_id' => $tax['tax_id'],
+                        'product_invoice_id' => $pivotId,
+                        'percent' => $tax['percent'],
+                        'users_id' => $userId,
+                    ]);
+                }
         }
-
     }
     protected function updateProductPlanments($userId, Request $request)
     {
-
         $planment = Invoice::find($request['invoice_id'])->planment;
-            $checkState = in_array($planment->stage, ['REA', 'FIN']);
-            ProductPlanment::where('planment_id', $planment['id'])->delete();
+        $checkState = in_array($planment->stage, ['REA', 'FIN']);
+        ProductPlanment::where('planment_id', $planment['id'])->delete();
         foreach ($request['products'] as $event) {
             $productPlanment = ProductPlanment::create([
                 'planment_id' => $planment['id'],
@@ -244,28 +237,36 @@ class UpdateResource implements CRUD
                 'discount' => $event['discount'] ?? null,
                 'users_id' => $userId
             ]);
-            if(array_key_exists('taxes', $event))
-            foreach ($event['taxes'] as $tax) {
-                DB::table('products_taxes')->insert([
-                    'tax_id' => $tax['tax_id'],
-                    'product_planment_id' => $productPlanment['id'],
-                    'percent' => $tax['percent'],
-                    'users_id' => $userId
-                ]);
-            }
-            foreach ($event['sub_products'] as  $subproduct) {
-
-                ProductPlanment::find($productPlanment['id'])->subproducts()->attach($subproduct['product_id'], [
-                    'product_activity_id' => $productPlanment['id'],
-                    'product_id' => $subproduct['product_id'],
-                    'amount' => $subproduct['amount'],
-                    'users_id' => $userId,
-                    'warehouse_id' => $subproduct['warehouse_id'] ?? null,
-                    'tracing' => $subproduct['tracing']
-                ]);
-                if ($checkState && $subproduct['tracing']) {
-
+            if (array_key_exists('taxes', $event))
+                foreach ($event['taxes'] as $tax) {
+                    DB::table('products_taxes')->insert([
+                        'tax_id' => $tax['tax_id'],
+                        'product_planment_id' => $productPlanment['id'],
+                        'percent' => $tax['percent'],
+                        'users_id' => $userId
+                    ]);
                 }
+        }
+        // Updating subproducts
+        SubproductPlanment::where('planment_id', $planment['id'])->delete();
+        foreach ($request['subproducts'] as $subproduct) {
+            $subproductPlanment = SubproductPlanment::create([
+                'planment_id' => $planment['id'],
+                'product_id' => $subproduct['product_id'],
+                'tracing' => $subproduct['tracing'],
+                'warehouse_id' => $subproduct['warehouse_id'] ?? null,
+                'users_id' => $userId
+            ]);
+            foreach ($subproduct['events'] as  $event) {
+                $pp = ProductPlanment::where('product_id', $event['product_id'])
+                    ->where('planment_id', $planment['id'])
+                    ->first();
+                Log::info('foreach');
+                Log::info($pp);
+
+                $pp->subproductPlanments()->attach($subproductPlanment['id'], [
+                    'amount' => $event['amount']
+                ]);
             }
         }
     }

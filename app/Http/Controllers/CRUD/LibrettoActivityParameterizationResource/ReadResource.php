@@ -73,7 +73,7 @@ class ReadResource implements CRUD, RecordOperations
             }
             //end filter query with keyword 🚨
             if ($format == 'short') {
-                $data = $data->where('status', 'A')->select('id', 'name', 'description')->take(10)->get();
+                $data = $data->where('status', 'A')->select('id', 'name', 'description', 'path_file')->take(10)->get();
             } else {
                 $data = $data->withCount('products');
                 //append shorters to query

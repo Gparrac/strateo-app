@@ -30,9 +30,9 @@ class ProductPlanment extends Model
     {
         return $this->belongsTo(Planment::class);
     }
-    public function subproducts() : BelongsToMany
+    public function subproductPlanments() : BelongsToMany
     {
-        return $this->belongsToMany(Product::class, 'products_planments_products', 'product_activity_id', 'product_id')->withPivot(['amount','warehouse_id']);
+        return $this->belongsToMany(SubproductPlanment::class, 'product_planments_subproduct_planments', 'product_planment_id', 'subproduct_planment_id')->withPivot(['amount']);
     }
     public function taxes() : BelongsToMany
     {

@@ -12,6 +12,7 @@ use App\Models\Warehouse;
 use App\Models\Third;
 use App\Http\Utils\CastVerificationNit;
 use App\Http\Traits\DynamicUpdater;
+use App\Http\Utils\FileFormat;
 use App\Models\Invoice;
 use App\Models\LibrettoActivity;
 
@@ -48,13 +49,24 @@ class UpdateResource implements CRUD
         $la->fill($request->only([
             'name',
             'description',
-        ]) + ['users_update_id' => $userId])->save();
+        ]) + ['users_update_id' => $userId]);
+
+        if($request->hasFile('file')){
+            Log::info('entry file lb');
+            $la->path_file = $request->file('file')
+            ->storeAs(
+                'librettoActivities',
+                FileFormat::formatName($request->file('file')->getClientOriginalName(),
+                $request->file('file')->guessExtension()));
+        }
+        $la->save();
         $la->products()->get()->each(function($rCategory) use ($userId, $la){
             $la->products()->updateExistingPivot($rCategory,[
                 'status' => 'I',
                 'users_update_id' => $userId,
             ]);
         });
+
         foreach ($request['product_ids'] ?? [] as $value) {
             $query = DB::table('libretto_activities_products')->where('libretto_activity_id', $la['id'])->where('product_id',$value);
             if ($query->count() == 0) {
@@ -81,14 +93,28 @@ class UpdateResource implements CRUD
         //     ]);
         // });
 
-        foreach ($request['libretto_activities'] ?? [] as $value) {
+        foreach ($request['libretto_activities'] ?? [] as $lvalue => $value) {
             // coment section while searching a new method to update librettos without deleting information
             // $query = DB::table('libretto_activities_planments')->where('libretto_activity_id', $value['libretto_activity_id'])->where('planment_id',$planment['id']);
             // if ($query->count() == 0) {
+                $la = LibrettoActivity::find($value['libretto_activity_id']);
+                $file = null;
+                if(array_key_exists('file', $value)){
+                    $pathFileRequest = 'libretto_activities.' . $lvalue . '.file';
+                    Log::info('entry file lb');
+                    $file = $request->file($pathFileRequest)
+                    ->storeAs(
+                        'librettoActivities',
+                        FileFormat::formatName('plan_' . $lvalue . '_' . $request->file($pathFileRequest)->getClientOriginalName(),
+                        $request->file($pathFileRequest)->guessExtension()));
+                }elseif($la->path_file != null){
+                    $file = $la->path_file;
+                }
                 $planment->librettoActivities()->attach($value['libretto_activity_id'], [
                     'status' => 'A',
                     'users_id' => $userId,
                     'description' => $value['description'],
+                    'path_file' => $file,
                     'order' => $value['order']
                 ]);
             // } else {

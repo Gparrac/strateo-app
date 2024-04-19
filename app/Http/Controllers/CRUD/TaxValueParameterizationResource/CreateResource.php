@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\CRUD\TaxParameterizationResource;
+namespace App\Http\Controllers\CRUD\TaxValueParameterizationResource;
 
 use App\Http\Controllers\CRUD\Interfaces\CRUD;
+use App\Models\TaxValue;
 use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Auth;
@@ -16,19 +17,13 @@ class CreateResource implements CRUD
     {
         try {
             $userId = Auth::id();
-
-            Tax::create([
-                'name' => $request->input('name'),
-                'acronym' => $request->input('acronym'),
-                'status' => $request->input('status'),
-                'type' => $request->input('type'),
-                'users_id' => $userId,
-                'context' => $request->input('context')
+            $taxValue =  TaxValue::create([
+                'percent' => $request->input('percent'),
+                'users_id' => $userId
             ]);
-            foreach ($request->input('values') as $value) {
-                Tax::taxValues()->attach($value['tax_value_id']);
-            }
-            return response()->json(['message' => 'Successful']);
+
+            $taxValue = ['id' => $taxValue['id'], 'percent' => $taxValue['percent']];
+            return response()->json(['message' => 'Successful', 'data'=>$taxValue ]);
         } catch (QueryException $ex) {
             Log::error('Query error TaxResource@create: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'create q'], 500);

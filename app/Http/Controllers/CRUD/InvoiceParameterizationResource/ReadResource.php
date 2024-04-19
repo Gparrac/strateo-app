@@ -4,14 +4,17 @@ namespace App\Http\Controllers\CRUD\InvoiceParameterizationResource;
 
 use App\Http\Controllers\CRUD\Interfaces\CRUD;
 use App\Http\Controllers\CRUD\Interfaces\RecordOperations;
+use App\Http\Utils\FileFormat;
 use App\Models\FurtherProductPlanment;
 use App\Models\Inventory;
 use App\Models\Invoice;
 use App\Models\LibrettoActivity;
 use App\Models\Planment;
-
+use App\Models\Product;
 use App\Models\ProductInvoice;
 use App\Models\ProductPlanment;
+use App\Models\ProductPlanmentProduct;
+use App\Models\SubproductPlanment;
 use App\Models\Warehouse;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
@@ -40,6 +43,9 @@ class ReadResource implements CRUD, RecordOperations
                         case 'L': // E
                             $data = $this->getLibrettoActivies($request->input('invoice_id'), $request->input('type_service'));
                             break;
+                        case 'S':
+                            $data = $this->getSubproducts($request->input('invoice_id'));
+                            break;
                         default:
                             $data = $this->getEmployees($request->input('invoice_id'));
                     }
@@ -63,7 +69,10 @@ class ReadResource implements CRUD, RecordOperations
     public function singleRecord($id)
     {
         $data = Invoice::where('id', $id)
-            ->with(['planment:id,start_date,end_date,pay_off,invoice_id,stage', 'taxes:id,name,acronym,default_percent,type','seller' => function ($query) {
+            ->with(['planment:id,start_date,end_date,pay_off,invoice_id,stage', 'taxes' => function ($query) {
+                $query->with('taxValues:id,percent');
+                $query->select('taxes.id', 'name', 'acronym', 'type');
+            }, 'seller' => function ($query) {
                 $query->with('third:id,names,surnames,identification,type_document');
                 $query->select('users.id', 'users.third_id', 'users.name');
             }, 'client' => function ($query) {
@@ -71,7 +80,7 @@ class ReadResource implements CRUD, RecordOperations
             }]);
 
         $data = $data->first();
-        $data['taxes']->each(function($item){
+        $data['taxes']->each(function ($item) {
             $item['percent'] = $item['pivot']['percent'];
             unset($item['pivot']);
         });
@@ -126,8 +135,8 @@ class ReadResource implements CRUD, RecordOperations
             $data = $data->where('status', 'A')->select('warehouses.id', 'warehouses.address', 'warehouses.city_id')->take(10)->get();
         } else {
             $data = $data->withCount('products');
-            if($this->typeSale)
-            $data = $data->where('sale_type', $this->typeSale);
+            if ($this->typeSale)
+                $data = $data->where('sale_type', $this->typeSale);
             //append shorters to query
             foreach ($sorters as $shorter) {
                 if ($shorter['key'] == 'stage') $shorter['key'] = 'planment.stage';
@@ -146,7 +155,10 @@ class ReadResource implements CRUD, RecordOperations
                 $query->select('products.id', 'products.name', 'products.consecutive', 'products.product_code', 'products.brand_id', 'products.measure_id', 'products.cost as defaultCost');
             }, 'warehouse' => function ($query) {
                 $query->with('city:id,name')->select('id', 'city_id', 'address');
-            }, 'taxes:id,name,acronym,default_percent,type'])->where('planment_id', $planment->id)
+            }, 'taxes' => function ($query) {
+                $query->with('taxValues:id,percent');
+                $query->select('taxes.id', 'name', 'acronym', 'type');
+            }])->where('planment_id', $planment->id)
                 //->select('further_products_planments.id as further_product_planment_id', 'further_products_planments.planment_id', 'further_products_planments.product_id', 'further_products_planments.tracing', 'further_products_planments.warehouse_id', 'further_products_planments.amount', 'further_products_planments.cost', 'further_products_planments.discount')
                 ->get();
             $products->each(function ($product, $key) use ($products) {
@@ -160,8 +172,7 @@ class ReadResource implements CRUD, RecordOperations
                     'tracing' => $product['tracing'] ?? 0
                 ];
                 $product['taxes']->map(function ($tax) {
-                    $tax['default_percent'] = $tax['pivot']['percent'];
-                    $tax['percent'] = $tax['default_percent'];
+                    $tax['percent'] = $tax['pivot']['percent'];;
                     unset($tax['pivot']);
                 });
                 $temp['taxes'] = $product['taxes'];
@@ -182,7 +193,10 @@ class ReadResource implements CRUD, RecordOperations
             }, 'warehouse' => function ($query) {
                 $query->with('city:id,name')->select('id', 'city_id', 'address');
             },
-            'taxes:id,name,acronym,default_percent,type'
+            'taxes' => function ($query) {
+                $query->with('taxValues:id,percent');
+                $query->select('taxes.id', 'name', 'acronym', 'type');
+            }
         ])->where('invoice_id', $invoice)
             ->select('products_invoices.id', 'products_invoices.invoice_id', 'products_invoices.product_id', 'products_invoices.tracing', 'products_invoices.warehouse_id', 'products_invoices.amount', 'products_invoices.cost', 'products_invoices.discount')
             ->get();
@@ -198,8 +212,7 @@ class ReadResource implements CRUD, RecordOperations
                 'tracing' => $product['tracing']
             ];
             $product['taxes']->map(function ($tax) {
-                $tax['default_percent'] = $tax['pivot']['percent'];
-                $tax['percent'] = $tax['default_percent'];
+                $tax['percent'] = $tax['pivot']['percent'];
                 unset($tax['pivot']);
             });
             $temp['taxes'] = $product['taxes'];
@@ -213,20 +226,21 @@ class ReadResource implements CRUD, RecordOperations
         $products = ProductPlanment::with(['product' => function ($query) {
             $query->with(['measure:id,symbol', 'brand:id,name']);
             $query->select('products.id', 'products.name', 'products.consecutive', 'products.product_code', 'products.brand_id', 'products.measure_id', 'products.cost as defaultCost');
-        }, 'subproducts' => function ($query) {
-            $query->with(['measure:id,symbol', 'brand:id,name']);
-            $query->select('products.id', 'products.name', 'products.consecutive', 'products.product_code', 'products.brand_id', 'products.measure_id', 'products_planments_products.warehouse_id', 'products_planments_products.tracing');
-        }, 'taxes:id,name,acronym,default_percent,type'])->where('planment_id', $planmentId)->get();
+        }, 'subproductPlanments:id,product_id,tracing,warehouse_id','taxes' => function ($query) {
+            $query->with('taxValues:id,percent');
+            $query->select('taxes.id', 'name', 'acronym', 'type');
+        }])->where('planment_id', $planmentId)->get();
         $products->each(function ($product, $key) use ($products) {
-            $product->subproducts->map(function ($subproduct) {
-
-                $subproduct['warehouse'] = Warehouse::where('id', $subproduct['pivot']['warehouse_id'])->with('city:id,name')->select('id', 'city_id', 'address')->first();
-
-                $inventory = ($subproduct['warehouse']) ? Inventory::where('product_id', $subproduct['id'])->where('warehouse_id', $subproduct['warehouse']['id'])->first() : 0;
-                $subproduct['id'] = $subproduct->pivot->product_id;
-                $subproduct['amount'] = $subproduct->pivot->product_id;
-                $subproduct['stock'] = $inventory ?? 0;
-                unset($subproduct['pivot']);
+            $product->subproductPlanments->each(function ($spp, $skey) use ($product) {
+                $event = Product::whereHas('subproductPlanments', function($query) use($spp){
+                    $query->where('subproducts_planments.product_id', $spp['product_id']);
+                })->select('id','name')->first();
+                 $product['subproductPlanments'][$skey] = $event->toArray() + [
+                    'amount' => $spp['pivot']['amount'],
+                    'warehouse_id' => $spp['warehouse_id'],
+                    'tracing' => $spp['tracing'],
+                 ];
+                 Log::info('ending');
             });
             $product->taxes->each(function ($tax) {
                 $tax['id'] = $tax['pivot']['tax_id'];
@@ -235,12 +249,10 @@ class ReadResource implements CRUD, RecordOperations
             });
             $temp = $product['product']->toArray() + [
                 'cost' => $product['cost'],
+                'amount' => $product['amount'],
                 'discount' => $product['discount'],
                 'taxes' => $product['taxes'],
-                'subproducts' => $product['subproducts'],
-                'amount' => $product['amount']
-
-
+                'temp' => $product['subproductPlanments']
             ];
             $products[$key] = $temp;
         });
@@ -272,10 +284,36 @@ class ReadResource implements CRUD, RecordOperations
                 ->join('products_planments', 'products.id', 'products_planments.product_id')
                 ->join('planments', 'products_planments.planment_id', 'planments.id')
                 ->where('planments.invoice_id', $invoice)
-                ->select('libretto_activities.id', 'libretto_activities.name', 'libretto_activities.description','products.name as service')->get();
+                ->select('libretto_activities.id', 'libretto_activities.name', 'libretto_activities.description', 'libretto_activities.path_file as pathFile', 'products.name as service')->get();
         return LibrettoActivity::join('libretto_activities_planments', 'libretto_activities.id', 'libretto_activities_planments.libretto_activity_id')
             ->join('planments', 'planments.id', 'libretto_activities_planments.planment_id')
             ->where('planments.invoice_id', $invoice)
-            ->select('libretto_activities.id', 'libretto_activities.name', 'libretto_activities_planments.description')->get();
+            ->select('libretto_activities.id', 'libretto_activities.name', 'libretto_activities_planments.description', 'libretto_activities_planments.path_file as pathFile')
+            ->get()->each(function ($la) {
+                $la['pathFile'] = FileFormat::downloadPath($la['pathFile']);
+            });
     }
+    protected function getSubproducts($invoice)
+    {
+        $planmentId = Invoice::find($invoice)->planment->id;
+        $products = SubproductPlanment::with(['product' => function ($query) {
+            $query->with(['measure:id,symbol', 'brand:id,name']);
+            $query->select('products.id', 'products.name', 'products.consecutive', 'products.product_code', 'products.brand_id', 'products.measure_id', 'products.cost as defaultCost');
+        },'productPlanments', 'warehouse' => function ($query) {
+            $query->with('city:id,name')->select('id', 'city_id', 'address');
+        }])->where('planment_id', $planmentId)->get();
+        $products->each(function ($product, $key) use ($products) {
+            $events = Product::join('products_planments', 'products.id', 'products_planments.product_id')
+            ->join('product_planments_subproduct_planments','product_planments_subproduct_planments.product_planment_id','products_planments.id')
+            ->where('product_planments_subproduct_planments.subproduct_planment_id', $product->id)
+            ->select('products.id','products.name', 'product_planments_subproduct_planments.amount')->get();
+            $temp = $product['product']->toArray() + [
+                'events' => $events
+            ];
+            $products[$key] = $temp;
+            });
+            return $products;
+        }
+
+
 }

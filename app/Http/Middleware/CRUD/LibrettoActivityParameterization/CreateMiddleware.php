@@ -17,7 +17,8 @@ class CreateMiddleware implements ValidateData
             'description' => 'string',
             'status' => 'required|in:A,I',
             'products_ids' => 'array',
-            'products_ids.*' => 'numeric|exists:products,id',
+            'file' => 'file|mimes:pdf,docx,jpg,jpeg,png|max:2048',
+            'products_ids.*' => 'numeric|exists:products,id'
         ]);
 
         if ($validator->fails()){
