@@ -225,7 +225,7 @@ class ReadResource implements CRUD, RecordOperations
         $planmentId = Invoice::find($invoice)->planment->id;
         $products = ProductPlanment::with(['product' => function ($query) {
             $query->with(['measure:id,symbol', 'brand:id,name']);
-            $query->select('products.id', 'products.name', 'products.consecutive', 'products.product_code', 'products.brand_id', 'products.measure_id', 'products.cost as defaultCost');
+            $query->select('products.id','products.size', 'products.name', 'products.consecutive', 'products.product_code', 'products.brand_id', 'products.measure_id', 'products.cost as defaultCost');
         }, 'subproductPlanments:id,product_id,tracing,warehouse_id','taxes' => function ($query) {
             $query->with('taxValues:id,percent');
             $query->select('taxes.id', 'name', 'acronym', 'type');
@@ -240,7 +240,6 @@ class ReadResource implements CRUD, RecordOperations
                     'warehouse_id' => $spp['warehouse_id'],
                     'tracing' => $spp['tracing'],
                  ];
-                 Log::info('ending');
             });
             $product->taxes->each(function ($tax) {
                 $tax['id'] = $tax['pivot']['tax_id'];
@@ -298,7 +297,7 @@ class ReadResource implements CRUD, RecordOperations
         $planmentId = Invoice::find($invoice)->planment->id;
         $products = SubproductPlanment::with(['product' => function ($query) {
             $query->with(['measure:id,symbol', 'brand:id,name']);
-            $query->select('products.id', 'products.name', 'products.consecutive', 'products.product_code', 'products.brand_id', 'products.measure_id', 'products.cost as defaultCost');
+            $query->select('products.id','products.size', 'products.name', 'products.consecutive', 'products.product_code', 'products.brand_id', 'products.measure_id', 'products.cost as defaultCost');
         },'productPlanments', 'warehouse' => function ($query) {
             $query->with('city:id,name')->select('id', 'city_id', 'address');
         }])->where('planment_id', $planmentId)->get();
