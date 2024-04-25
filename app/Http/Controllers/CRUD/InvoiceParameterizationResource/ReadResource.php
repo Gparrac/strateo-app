@@ -276,7 +276,6 @@ class ReadResource implements CRUD, RecordOperations
     }
     protected function getLibrettoActivies($invoice, $typeService)
     {
-        log::info('passing');
         if ($typeService)
             return LibrettoActivity::join('libretto_activities_products', 'libretto_activities.id', 'libretto_activities_products.libretto_activity_id')
                 ->join('products', 'libretto_activities_products.product_id', 'products.id')
@@ -288,9 +287,7 @@ class ReadResource implements CRUD, RecordOperations
             ->join('planments', 'planments.id', 'libretto_activities_planments.planment_id')
             ->where('planments.invoice_id', $invoice)
             ->select('libretto_activities.id', 'libretto_activities.name', 'libretto_activities_planments.description', 'libretto_activities_planments.path_file as pathFile')
-            ->get()->each(function ($la) {
-                $la['pathFile'] = FileFormat::downloadPath($la['pathFile']);
-            });
+            ->get();
     }
     protected function getSubproducts($invoice)
     {
