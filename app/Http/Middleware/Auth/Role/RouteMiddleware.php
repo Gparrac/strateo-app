@@ -39,6 +39,8 @@ class RouteMiddleware
             'tax-parameterization' => 72,
             'purchase-order-parameterization' => 73,
             'libretto-activity-parameterization' => 75,
+            'payment-parameterization' => 76,
+            'payment-method-parameterization' => 69,
             //Export
             'export-data/inventory-trades'=>66,
             'export-data/invoice-pdf'=>73,

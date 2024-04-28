@@ -7,14 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-use App\Models\Warehouse;
-use App\Models\Third;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Utils\CastVerificationNit;
 use App\Models\Invoice;
 use App\Models\Planment;
-use App\Models\Tax;
-use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class CreateResource implements CRUD
 {
@@ -23,7 +18,6 @@ class CreateResource implements CRUD
         DB::beginTransaction();
         try {
             $userId = Auth::id();
-
             // -----------------------saving invoice ----------------------------
             $invoice = Invoice::create([
                 'client_id' => $request['client_id'],

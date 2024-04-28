@@ -46,8 +46,6 @@ class UpdateResource implements CRUD
                         'users_id' => $userId,
                     ]);
                 }
-                Log::info($request->start_date);
-                Log::info($invoice->planment->start_date);
             if ($invoice->sale_type['id'] == 'E') {
                 $planment = $invoice->planment;
                 if ($planment) {

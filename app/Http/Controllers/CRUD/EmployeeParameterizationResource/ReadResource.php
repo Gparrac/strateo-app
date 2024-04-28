@@ -5,6 +5,7 @@ namespace App\Http\Controllers\CRUD\EmployeeParameterizationResource;
 use App\Http\Controllers\CRUD\Interfaces\CRUD;
 use App\Http\Controllers\CRUD\Interfaces\RecordOperations;
 use App\Http\Utils\FileFormat;
+use App\Models\DynamicService;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -38,11 +39,16 @@ class ReadResource implements CRUD, RecordOperations
             }, 'third' => function ($query) {
                 $query->with('city:id,name');
                 $query->select('id', 'type_document', 'identification', 'names', 'surnames', 'business_name', 'address', 'mobile', 'email', 'email2', 'postal_code', 'city_id');
-            }])->where('employees.id', $id)
+            }, 'paymentMethods:id,name,description'])->where('employees.id', $id)
                 ->select('employees.id', 'employees.status', 'employees.type_contract', 'employees.hire_date', 'employees.third_id', 'employees.end_date_contract', 'employees.rut_file', 'employees.resume_file')
                 ->first();
-
+            $data['paymentMethods']->map(function ($pm) {
+                $pm['reference'] = $pm['pivot']['reference'];
+                unset($pm['pivot']);
+            });
+            Log::info($data['DynamicServices']);
             $data['dynamicServices']->map(function ($ds, $dskey) use ($data) {
+                Log::info('passing');
                 $service = $ds['service'];
 
                 $service['fields'] = Service::find($service['id'])->fields()

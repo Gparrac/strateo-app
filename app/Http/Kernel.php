@@ -95,6 +95,8 @@ class Kernel extends HttpKernel
         'purchase.order.parameterization' => \App\Http\Middleware\CRUD\PurchaseOrderParameterization\PurchaseOrderParameterization::class,
         'libretto.activity.parameterization' => \App\Http\Middleware\CRUD\LibrettoActivityParameterization\LibrettoActivityParameterization::class,
         'tax.value.parameterization' => \App\Http\Middleware\CRUD\TaxValueParameterization\TaxValueParameterization::class,
+        'payment.parameterization' => \App\Http\Middleware\CRUD\PaymentParameterization\PaymentParameterization::class,
+        'payment.method.parameterization' => \App\Http\Middleware\CRUD\PaymentMethodParameterization\PaymentMethodParameterization::class,
         //INVOKES
         'validate.name.invoke' => \App\Http\Middleware\Invokes\ValidateNameParameter::class,
     ];

@@ -6,7 +6,6 @@ use App\Http\Controllers\CRUD\Interfaces\CRUD;
 use App\Http\Utils\FileFormat;
 use App\Models\DynamicService;
 use App\Models\Employee;
-use App\Models\Field;
 use App\Models\Invoice;
 use App\Models\Planment;
 use Illuminate\Http\Request;
@@ -28,6 +27,7 @@ class UpdateResource implements CRUD
             } else {
                 $this->updateResource($request, $userId);
             }
+            // DB::rollback();
             DB::commit();
             return response()->json(['message' => 'Successful']);
         } catch (QueryException $ex) {
@@ -89,12 +89,39 @@ class UpdateResource implements CRUD
             'postal_code',
             'city_id',
         ]) + ['users_update_id' => $userId])->save();
+        // updating payment methods
+        if($request->has('payment_methods')){
 
-        // update services and related fields
+
+        DB::table('employees_payment_methods')->where('employee_id',$employee['id'])->update(['status' => 'I', 'users_update_id' => $userId]);
+        foreach ($request['payment_methods'] as $svalue => $pm) {
+            $query = DB::table('employees_payment_methods')->where('employee_id', $employee['id'])->where('payment_method_id', $pm['payment_method_id'])->first();
+            if ($query) {
+                $query->update([
+                    'status' => 'A',
+                    'reference' => $pm['reference'],
+                    'users_update_id' => $userId
+                ]);
+            } else {
+                $query = DB::table('employees_payment_methods')->insert([
+                    'status' => 'A',
+                    'reference' => $pm['reference'],
+                    'employee_id' => $employee['id'],
+                    'payment_method_id' => $pm['payment_method_id'],
+                    'users_id' => $userId
+                ]);
+            }
+        }
+
+    }
+    if(count($request->input('services')) > 0){
+
+        // updating services and related fields
         $savedServices = DynamicService::where('employee_id', $employee['id'])->pluck('service_id')->toArray();
         $newServices = array_column($request['services'], 'service_id');
         $inactiveServices = array_diff($savedServices, $newServices);
         DynamicService::where('employee_id', $employee['id'])->whereIn('service_id',$inactiveServices)->update(['status'=> 'I', 'users_update_id' => $userId]);
+
 
         foreach ($request['services'] as $svalue => $service) {
             $query = DynamicService::where('employee_id', $employee['id'])->where('service_id', $service['service_id'])->first();
@@ -111,6 +138,9 @@ class UpdateResource implements CRUD
                     'users_id' => $userId
                 ]);
             }
+
+
+            // filling fields
             DB::table('fields_dynamic_services')->where('dynamic_service_id', $query['id'])->update(['status' => 'I', 'users_update_id' => $userId]);
             foreach ($service['fields'] as $fvalue => $field) {
                 if ($field['type'] == 'F') {
@@ -152,7 +182,7 @@ class UpdateResource implements CRUD
 
             }
         }
-
+    }
     }
     protected function updateEmployeePlanment(REquest $request, $userId)
     {

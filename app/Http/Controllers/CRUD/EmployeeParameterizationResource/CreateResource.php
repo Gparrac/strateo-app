@@ -94,7 +94,15 @@ class CreateResource implements CRUD
                     )
                 ) : null,
         ]);
-
+        foreach ($request['payment_methods'] as $svalue => $service) {
+            $dynamicService = DynamicService::create([
+                'employee_id' => $employee->id,
+                'payment_method_id' => $service['payment_method_id'],
+                'status' => 'A',
+                'users_id' => $userId,
+                'reference' => $service['reference']
+            ]);
+        }
         //relate services and its fields with employee record
         //append services and their fields to supplier's relationship
         foreach ($request['services'] as $svalue => $service) {

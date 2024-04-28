@@ -41,4 +41,8 @@ class Employee extends Model
         ];
         return $types[$this->attributes['type_contract']] ?? ['name' => 'Desconocido', 'icon' => 'icono-desconocido'];
     }
+    public function paymentMethods() : BelongsToMany
+    {
+        return $this->belongsToMany(PaymentMethod::class, 'employees_payment_methods', 'employee_id', 'payment_method_id')->withPivot(['reference']);
+    }
 }

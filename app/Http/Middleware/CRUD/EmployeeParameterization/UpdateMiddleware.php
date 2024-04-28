@@ -35,6 +35,8 @@ class UpdateMiddleware implements ValidateData
             $contentRules = [];
             $recordServices = $request['services'] ?? [];
             foreach ($recordServices as  $skey => $service) {
+                Log::info('passing services');
+                Log::info($recordServices);
                 if (count($service['fields']) != Service::find($service['service_id'])->fields()->count()) {
                     return ['error' => TRUE, 'message' => ['Campos' => 'La cantidad de campos no coincide con el servicio seleccionado.']];
                 }
@@ -67,7 +69,8 @@ class UpdateMiddleware implements ValidateData
                     }
                     $contentRules = [];
                 }
-            }
+            }Log::info('$recordServices');
+            Log::info($recordServices);
             $request->merge(['services' => $recordServices, 'email2' => $request['email2'] ?? null]);
         }
         return ['error' => FALSE];

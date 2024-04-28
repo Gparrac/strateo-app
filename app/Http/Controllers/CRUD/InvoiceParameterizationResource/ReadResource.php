@@ -5,6 +5,7 @@ namespace App\Http\Controllers\CRUD\InvoiceParameterizationResource;
 use App\Http\Controllers\CRUD\Interfaces\CRUD;
 use App\Http\Controllers\CRUD\Interfaces\RecordOperations;
 use App\Http\Utils\FileFormat;
+use App\Models\EmployeePlanment;
 use App\Models\FurtherProductPlanment;
 use App\Models\Inventory;
 use App\Models\Invoice;
@@ -134,7 +135,6 @@ class ReadResource implements CRUD, RecordOperations
         if ($format == 'short') {
             $data = $data->where('status', 'A')->select('warehouses.id', 'warehouses.address', 'warehouses.city_id')->take(10)->get();
         } else {
-            $data = $data->withCount('products');
             if ($this->typeSale)
                 $data = $data->where('sale_type', $this->typeSale);
             //append shorters to query
@@ -310,6 +310,7 @@ class ReadResource implements CRUD, RecordOperations
             });
             return $products;
         }
+
 
 
 }
