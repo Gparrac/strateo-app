@@ -44,7 +44,8 @@ class RouteMiddleware
             //Export
             'export-data/inventory-trades'=>66,
             'export-data/invoice-pdf'=>73,
-            'tax-value-parameterization' => 72
+            'tax-value-parameterization' => 72,
+            'charge-parameterization' => 69
         ];
 
         if (!array_key_exists($removeApiPrefix, $routesForm)) {

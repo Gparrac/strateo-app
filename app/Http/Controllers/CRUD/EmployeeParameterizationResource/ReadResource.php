@@ -6,6 +6,7 @@ use App\Http\Controllers\CRUD\Interfaces\CRUD;
 use App\Http\Controllers\CRUD\Interfaces\RecordOperations;
 use App\Http\Utils\FileFormat;
 use App\Models\DynamicService;
+use App\Models\PaymentMethod;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -46,11 +47,8 @@ class ReadResource implements CRUD, RecordOperations
                 $pm['reference'] = $pm['pivot']['reference'];
                 unset($pm['pivot']);
             });
-            Log::info($data['DynamicServices']);
             $data['dynamicServices']->map(function ($ds, $dskey) use ($data) {
-                Log::info('passing');
                 $service = $ds['service'];
-
                 $service['fields'] = Service::find($service['id'])->fields()
                     ->select('fields.id', 'fields.name', 'fields.type', 'fields.length', DB::raw('null as data'))
                     ->get()->map(function ($field) use ($ds) {
@@ -82,7 +80,7 @@ class ReadResource implements CRUD, RecordOperations
             $data = Employee::with(['third' =>
             function ($query) {
                 $query->select(['id', 'names', 'surnames', 'business_name', 'type_document', 'identification']);
-            }])->withCount(['dynamicServices']);
+            },'paymentMethods:id,name,description'])->withCount(['dynamicServices']);
             //filter query with keyword 🚨
             //filter query with keyword 🚨
             foreach ($filters as $filter) {
@@ -102,10 +100,16 @@ class ReadResource implements CRUD, RecordOperations
             }
             if ($format == 'short') {
                 $data = $data->where('status', 'A')->take(10)->get()->map(function ($query) {
+                    $query['PaymentMethods']->each(function($pm, $i) use (&$query){
+                         $query['paymentMethods'][$i] ['reference']= $pm['pivot']['reference'];
+                         unset($query['paymentMethods'][$i]['pivot']);
+                               });
+
                     return [
                         'id' => $query->id,
-                        'fullname' => $query->third->names,
-                        'identification' => $query->third->type_document . ': ' . $query->third->identification
+                        'fullname' => $query->third->fullname,
+                        'identification' => $query->third->type_document . ': ' . $query->third->identification,
+                        'payment_methods' => $query['paymentMethods']
                     ];
                 });
             } else {

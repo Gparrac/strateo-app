@@ -225,21 +225,21 @@ class ReadResource implements CRUD, RecordOperations
         $planmentId = Invoice::find($invoice)->planment->id;
         $products = ProductPlanment::with(['product' => function ($query) {
             $query->with(['measure:id,symbol', 'brand:id,name']);
-            $query->select('products.id','products.size', 'products.name', 'products.consecutive', 'products.product_code', 'products.brand_id', 'products.measure_id', 'products.cost as defaultCost');
-        }, 'subproductPlanments:id,product_id,tracing,warehouse_id','taxes' => function ($query) {
+            $query->select('products.id', 'products.size', 'products.name', 'products.consecutive', 'products.product_code', 'products.brand_id', 'products.measure_id', 'products.cost as defaultCost');
+        }, 'subproductPlanments:id,product_id,tracing,warehouse_id', 'taxes' => function ($query) {
             $query->with('taxValues:id,percent');
             $query->select('taxes.id', 'name', 'acronym', 'type');
         }])->where('planment_id', $planmentId)->get();
         $products->each(function ($product, $key) use ($products) {
             $product->subproductPlanments->each(function ($spp, $skey) use ($product) {
-                $event = Product::whereHas('subproductPlanments', function($query) use($spp){
+                $event = Product::whereHas('subproductPlanments', function ($query) use ($spp) {
                     $query->where('subproducts_planments.product_id', $spp['product_id']);
-                })->select('id','name')->first();
-                 $product['subproductPlanments'][$skey] = $event->toArray() + [
+                })->select('id', 'name')->first();
+                $product['subproductPlanments'][$skey] = $event->toArray() + [
                     'amount' => $spp['pivot']['amount'],
                     'warehouse_id' => $spp['warehouse_id'],
                     'tracing' => $spp['tracing'],
-                 ];
+                ];
             });
             $product->taxes->each(function ($tax) {
                 $tax['id'] = $tax['pivot']['tax_id'];
@@ -259,20 +259,30 @@ class ReadResource implements CRUD, RecordOperations
     }
     protected function getEmployees($invoice)
     {
-        $planment = Planment::with(['employees' =>  function ($query) {
-            $query->with('third:id,names,surnames,business_name,identification,type_document');
+        $planmentId = Invoice::find($invoice)->planment->id;
+        $eps = EmployeePlanment::with(['employee' =>  function ($query) {
+            $query->with('third:id,names,surnames,business_name,identification,type_document', 'paymentMethods:id,name,description');
             $query->select('employees.id', 'third_id');
-        }])->where('invoice_id', $invoice)->select('planments.id')->first();
-        // dd($planment);
-        $planment['employees']->each(function ($employee, $key) use ($planment) {
-            $planment['employees'][$key] = [
-                'id' => $employee['id'],
-                'fullname' => $employee['third']['names'],
-                'identification' => $employee['third']['type_document'] . ':' . $employee['third']['identification'],
-                'salary' => $employee['pivot']['salary']
+        },'paymentMethod:id,name,description','charges:id,name,description'])->where('planment_id', $planmentId)->select('employees_planments.id', 'employees_planments.planment_id', 'employees_planments.employee_id', 'employees_planments.salary', 'employees_planments.payment_method_id', 'employees_planments.reference')->get();
+        // dd($eps);
+
+        $eps = $eps->map(function ($p, $key) use ($eps) {
+            $p['employee']['PaymentMethods']->each(function($pm, $i) use (&$p){
+                $p['employee']['paymentMethods'][$i]['reference']= $pm['pivot']['reference'];
+                unset($p['employee']['paymentMethods'][$i]['pivot']);
+                      });
+            return  [
+                'id' => $p['employee']['id'],
+                'fullname' => $p['employee']['third']['fullname'],
+                'identification' => $p['employee']['third']['type_document'] . ':' . $p['employee']['third']['identification'],
+                'salary' => $p['salary'],
+                'payment_method_id' => $p['payment_method_id'],
+                'default_payment_methods' => $p['employee']['paymentMethods'],
+                'charges' => $p['charges'],
+                'reference' => $p['reference']
             ];
         });
-        return $planment->employees;
+        return $eps;
     }
     protected function getLibrettoActivies($invoice, $typeService)
     {
@@ -294,23 +304,20 @@ class ReadResource implements CRUD, RecordOperations
         $planmentId = Invoice::find($invoice)->planment->id;
         $products = SubproductPlanment::with(['product' => function ($query) {
             $query->with(['measure:id,symbol', 'brand:id,name']);
-            $query->select('products.id','products.size', 'products.name', 'products.consecutive', 'products.product_code', 'products.brand_id', 'products.measure_id', 'products.cost as defaultCost');
-        },'productPlanments', 'warehouse' => function ($query) {
+            $query->select('products.id', 'products.size', 'products.name', 'products.consecutive', 'products.product_code', 'products.brand_id', 'products.measure_id', 'products.cost as defaultCost');
+        }, 'productPlanments', 'warehouse' => function ($query) {
             $query->with('city:id,name')->select('id', 'city_id', 'address');
         }])->where('planment_id', $planmentId)->get();
         $products->each(function ($product, $key) use ($products) {
             $events = Product::join('products_planments', 'products.id', 'products_planments.product_id')
-            ->join('product_planments_subproduct_planments','product_planments_subproduct_planments.product_planment_id','products_planments.id')
-            ->where('product_planments_subproduct_planments.subproduct_planment_id', $product->id)
-            ->select('products.id','products.name', 'product_planments_subproduct_planments.amount')->get();
+                ->join('product_planments_subproduct_planments', 'product_planments_subproduct_planments.product_planment_id', 'products_planments.id')
+                ->where('product_planments_subproduct_planments.subproduct_planment_id', $product->id)
+                ->select('products.id', 'products.name', 'product_planments_subproduct_planments.amount')->get();
             $temp = $product['product']->toArray() + [
                 'events' => $events
             ];
             $products[$key] = $temp;
-            });
-            return $products;
-        }
-
-
-
+        });
+        return $products;
+    }
 }

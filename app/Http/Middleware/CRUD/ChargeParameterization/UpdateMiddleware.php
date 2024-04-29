@@ -24,14 +24,6 @@ class UpdateMiddleware implements ValidateData
             return ['error' => TRUE, 'message' => $validator->errors()];
         }
 
-        $names = $request->input('names');
-        $surnames = $request->input('surnames');
-        $business_name = $request->input('business_name');
-
-        if($names && $surnames && $business_name){
-            return ['error' => TRUE, 'message' => 'too much names fields for request'];
-        }
-
         return ['error' => FALSE];
     }
 }

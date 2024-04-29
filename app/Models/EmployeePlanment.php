@@ -11,7 +11,7 @@ class EmployeePlanment extends Model
 {
     use HasFactory;
     protected $table  = 'employees_planments';
-    protected $fillable = ['payment_method_id', 'reference','settled'];
+    protected $fillable = ['payment_method_id', 'employee_id','planment_id','salary','reference','settled', 'users_id', 'users_update_id'];
     public function paymentMethod() : BelongsTo
     {
         return $this->belongsTo(PaymentMethod::class);

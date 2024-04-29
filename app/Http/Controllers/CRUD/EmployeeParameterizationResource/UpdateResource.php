@@ -4,8 +4,10 @@ namespace App\Http\Controllers\CRUD\EmployeeParameterizationResource;
 
 use App\Http\Controllers\CRUD\Interfaces\CRUD;
 use App\Http\Utils\FileFormat;
+use App\Models\Charge;
 use App\Models\DynamicService;
 use App\Models\Employee;
+use App\Models\EmployeePlanment;
 use App\Models\Invoice;
 use App\Models\Planment;
 use Illuminate\Http\Request;
@@ -194,11 +196,23 @@ class UpdateResource implements CRUD
         Planment::find($planment->id)->employees()->detach($savedEmployees);
 
         foreach ($request['employees'] as $employee) {
-            Planment::find($planment->id)->employees()->attach($employee['employee_id'], [
+            $epId = EmployeePlanment::where('planment_id',$planment->id)
+            ->where('employee_id',$employee['employee_id'])->create([
                 'salary' => $employee['salary'],
                 'users_id' => $userId,
-                'status' => 'A'
+                'status' => 'A',
+                'payment_method_id' => $employee['payment_method_id'] ?? null,
+                'employee_id' => $employee['employee_id'],
+                'planment_id' => $planment['id'],
+                'reference' => $employee['reference'] ?? null
             ]);
+            foreach ($employee['charges'] as  $charge) {
+                Charge::find($charge)->employeePlanments()->attach($epId, [
+                    'users_id'=> $userId
+                ]);
+            }
+
+
         }
     }
 }

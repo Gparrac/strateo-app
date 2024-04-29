@@ -109,7 +109,11 @@ class UpdateMiddleware implements ValidateData
             'invoice_id' => 'required|exists:invoices,id',
             'employees' => ['array'],
             'employees.*.employee_id' => ['required','exists:employees,id'],
-            'employees.*.salary' => 'required|numeric|min:0|max:99999999'
+            'employees.*.salary' => 'required|numeric|min:0|max:99999999',
+            'charges' => 'array',
+            'charges.*' => 'numeric|exists:charges,id',
+            'payment_method_id' => 'required_with:reference|numeric|exists:payment_methods,id',
+            'reference' => 'required_with:payment_method_id|string|exists:payment_methods,id',
         ];
     }
 }

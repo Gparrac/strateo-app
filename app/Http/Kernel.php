@@ -97,6 +97,7 @@ class Kernel extends HttpKernel
         'tax.value.parameterization' => \App\Http\Middleware\CRUD\TaxValueParameterization\TaxValueParameterization::class,
         'payment.parameterization' => \App\Http\Middleware\CRUD\PaymentParameterization\PaymentParameterization::class,
         'payment.method.parameterization' => \App\Http\Middleware\CRUD\PaymentMethodParameterization\PaymentMethodParameterization::class,
+        'charge.parameterization' => \App\Http\Middleware\CRUD\ChargeParameterization\ChargeParameterization::class,
         //INVOKES
         'validate.name.invoke' => \App\Http\Middleware\Invokes\ValidateNameParameter::class,
     ];
