@@ -81,8 +81,6 @@ class UpdateMiddleware implements ValidateData
             'invoice_id' => 'required|exists:invoices,id'
         ];
         if ($typeConnection == 'F' || $typeConnection = 'I') {
-            Log::info('entry validation###');
-            Log::info($typeConnection);
             array_merge($this->rules, [
                 'products.*.warehouse_id' => 'exists:warehouses,id',
                 'products.*.tracing' => 'required|boolean',
@@ -93,7 +91,6 @@ class UpdateMiddleware implements ValidateData
             ]);
         }
         if($typeConnection == 'E') {
-            Log::info('entry validationLolll');
             $this->rules = array_merge($this->rules, [
                 'subproducts' => 'array',
                 'subproducts.*.product_id' => ['required','exists:products,id'],

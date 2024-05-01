@@ -261,8 +261,6 @@ class UpdateResource implements CRUD
                 $pp = ProductPlanment::where('product_id', $event['product_id'])
                     ->where('planment_id', $planment['id'])
                     ->first();
-                Log::info('foreach');
-                Log::info($pp);
 
                 $pp->subproductPlanments()->attach($subproductPlanment['id'], [
                     'amount' => $event['amount']

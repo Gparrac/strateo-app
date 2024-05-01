@@ -56,8 +56,6 @@ class UpdateResource implements CRUD
                         'status',
                         'pay_off'
                     ]) + ['users_update_id' => $userId])->save();
-                    Log::info('after save');
-                    Log::info($planment);
 
                 if($planment['stage']['id'] == 'REA'){
                     $googleEvent = GoogleCalendar::editEvent($planment, $invoice->client->third);
@@ -66,7 +64,6 @@ class UpdateResource implements CRUD
                         'event_google_link' => $googleEvent['htmlLink']
                     ]);
                 }else {
-                    Log::info('entry');
                     if($planment['event_google_id']){
                         $googleEvent = GoogleCalendar::deleteEvent($planment['event_google_id']);
                         $planment->update([

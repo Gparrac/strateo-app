@@ -35,7 +35,6 @@ class GoogleController extends Controller
     public function callback(){
         DB::beginTransaction();
         try {
-            Log::info('starting');
         $user = Socialite::driver('google')->stateless()->user() ;
         $company = Company::first();
         if($company->googleUser){
@@ -48,7 +47,6 @@ class GoogleController extends Controller
                 'time_expire' => time() + $user->expiresIn
             ]);
         }else{
-            Log::info('creating!!');
            $googleUser =  GoogleUser::create([
                 'name' => $user->getName(),
                 'email' => $user->getEmail(),
@@ -61,11 +59,10 @@ class GoogleController extends Controller
                 'google_user_id' => $googleUser->id
             ]);
         }
-        Log::info('passing');
         DB::commit();
-        
+
         return redirect('http://localhost:3000/enterprises');
-        
+
      }catch (Exception $ex) {
             // In case of error, roll back the transaction
             DB::rollback();

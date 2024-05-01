@@ -106,12 +106,9 @@ class ReadResource implements CRUD, RecordOperations
         }
         if ($filters) {
             foreach ($filters as  $value) {
-                Log::info('test');
-                Log::info($value['key']);
                 if (in_array($value['key'], ['client', 'client_id'])) {
                     $data = $data->whereHas('client', function ($query) use ($value) {
                         $query->whereHas('third', function ($query) use ($value) {
-                            Log::info('test');
                             ($value['key'] == 'client') ?
                                 $query->whereRaw("UPPER(CONCAT(names, ' ', surnames)) LIKE ?", ['%' . strtoupper($value['value']) . '%'])
                                 :
@@ -128,14 +125,12 @@ class ReadResource implements CRUD, RecordOperations
                     });
                 }
                 if ($value['key'] == 'stages' && $this->typeSale = 'E') {
-                    Log::info($value['value']);
                     $data = $data->whereHas('planment', function ($query) use ($value) {
                         $query->whereIn('stage', $value['value']);
                     });
                 }
             }
         }
-        Log::info('ASDF');
         if ($format == 'short') {
             $data = $data->where('status', 'A')->select('warehouses.id', 'warehouses.address', 'warehouses.city_id')->take(10)->get();
         } else {

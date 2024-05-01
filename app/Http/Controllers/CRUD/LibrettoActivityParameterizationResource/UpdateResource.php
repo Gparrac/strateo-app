@@ -52,7 +52,6 @@ class UpdateResource implements CRUD
         ]) + ['users_update_id' => $userId]);
 
         if($request->hasFile('file')){
-            Log::info('entry file lb');
             $la->path_file = $request->file('file')
             ->storeAs(
                 'librettoActivities',
@@ -101,7 +100,6 @@ class UpdateResource implements CRUD
                 $file = null;
                 if(array_key_exists('file', $value)){
                     $pathFileRequest = 'libretto_activities.' . $lvalue . '.file';
-                    Log::info('entry file lb');
                     $file = $request->file($pathFileRequest)
                     ->storeAs(
                         'librettoActivities',

@@ -51,7 +51,7 @@ Route::get('/test', function (Request $request) {
     }]);
     $invoice = $data->whereHas('employee', function ($query) use ($filter) {
         $query->whereHas('third', function ($query) use ($filter) {
-            Log::info($filter['value']);
+
             $query->whereRaw("UPPER(CONCAT(IFNULL(thirds.surnames,''),IFNULL(thirds.names,''),IFNULL(thirds.business_name,''),IFNULL(thirds.identification,''))) LIKE ?", ['%' . strtoupper($filter['value']) . '%']);
         });
     })->get();

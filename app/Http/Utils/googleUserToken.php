@@ -27,7 +27,6 @@ class GoogleUserToken
         $refreshToken = $googleUser->refresh_token;
         $now = time();
         if($now >= $googleUser->time_expire){
-            Log::info('passing');
             $response = self::refreshAccessToken($refreshToken);
             $googleUser->update([
                 'access_token' => $response['access_token'],
