@@ -25,7 +25,7 @@ class UpdateResource implements CRUD
             $userId = Auth::id();
             foreach ($request['employee_planments'] as  $value) {
                 EmployeePlanment::where('id', $value['employee_planment_id'])->update([
-                    'settled' => true,
+                    'settled' => !$value['settled'] ,
                     'users_update_id' => $userId
                 ]);
             }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\ExportContent;
 use App\Http\Controllers\Controller;
 use App\Http\Utils\FileFormat;
 use App\Models\Company;
+use App\Models\EmployeePlanment;
 use App\Models\Invoice;
 use App\Models\LibrettoActivity;
 use App\Models\Planment;
@@ -41,11 +42,12 @@ class PlantmentCompanyPDF extends Controller
         // $client = Third::with(['city:id,name'])->select('id','names','surnames','identification','email','mobile','business_name')->findOrFail($invoice->client->third->id);
         $furtherProducts = null;
         $furtherProductsPurchase = null;
-        $planment = Planment::with(['employees' =>  function ($query) {
+        $planment = Planment::where('invoice_id', $request['invoice_id'])->select()->first();
+
+        $employees = EmployeePlanment::with(['employee' =>  function ($query) {
             $query->with('third:id,names,surnames,business_name,identification,type_document');
             $query->select('employees.id', 'third_id');
-        }])->where('invoice_id', $request['invoice_id'])->select()->first();
-
+        },'charges:id,name','paymentMethod:id,name'])->where('planment_id', $planment->id)->select()->get();
         // Subproducts
         $products = SubproductPlanment::with(['product' => function ($query) {
             $query->with(['measure:id,symbol', 'brand:id,name']);
@@ -68,21 +70,21 @@ class PlantmentCompanyPDF extends Controller
             }])->first();
             $indexPublic = strpos($dataPDF['path_logo'], 'uploads');
             // $dataPDF['path_logo'] = substr($dataPDF['path_logo'], $indexPublic);
-            Log::info('amor');
-            Log::info($indexPublic);
-            Log::info(substr($dataPDF['path_logo'], $indexPublic));
             $dataPDF['path_logo2'] = substr($dataPDF['path_logo'], $indexPublic);
         // Employees
         // dd($planment);
-        $planment['employees']->each(function ($employee, $key) use ($planment) {
-            $planment['employees'][$key] = [
-                'id' => $employee['id'],
-                'fullname' => $employee['third']['names'],
-                'identification' => $employee['third']['type_document'] . ':' . $employee['third']['identification'],
-                'salary' => $employee['pivot']['salary']
+        $employees = $employees->map(function ($employee, $key)  {
+            return [
+                'id' => $employee['employee']['id'],
+                'fullname' => $employee['employee']['third']['fullname'],
+                'identification' => $employee['employee']['third']['type_document'] . ':' . $employee['employee']['third']['identification'],
+                'charges'=> $employee['charges'],
+                'salary'=> $employee['salary'],
+                'payment_method' => $employee['paymentMethod']['name'],
+                'reference' => $employee['reference']
             ];
         });
-        $employees= $planment->employees;
+
         //Libretto activities
         $las = LibrettoActivity::join('libretto_activities_planments', 'libretto_activities.id', 'libretto_activities_planments.libretto_activity_id')
         ->join('planments', 'planments.id', 'libretto_activities_planments.planment_id')

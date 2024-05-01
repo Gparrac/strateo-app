@@ -42,6 +42,7 @@ class RouteMiddleware
             'payment-parameterization' => 76,
             'payment-method-parameterization' => 69,
             //Export
+            'export-data/payments'=>66,
             'export-data/inventory-trades'=>66,
             'export-data/invoice-pdf'=>73,
             'tax-value-parameterization' => 72,

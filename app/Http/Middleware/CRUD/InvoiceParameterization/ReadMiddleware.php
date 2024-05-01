@@ -21,7 +21,7 @@ class ReadMiddleware implements ValidateData
                 'page' => 'numeric|min:0',
                 'pagination' => 'numeric|max:100',
                 'filters' => 'array',
-                'filters.*.key' => 'required|in:client,client_id,id,seller,stage,status',
+                'filters.*.key' => 'required|in:client,client_id,id,seller,stages,status',
                 'filters.*.value' => 'required',
                 'sorters' => 'array',
                 'sorters.order' => 'nullable|in:asc,desc',

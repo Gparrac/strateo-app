@@ -25,15 +25,15 @@ class TypeInvoice extends Controller
                     $types = [
                         ['name' => 'Cotización',  'id' => 'QUO'],
                         ['name' => 'Listo',  'id' => 'REA'],
-                        ['name' => 'Finalizado',  'id' => 'COM'],
+                        ['name' => 'Finalizado',  'id' => 'FIN'],
                         ['name' => 'Cancelado',  'id' => 'CAN']
                     ];
                     break;
-                case 'COM':
+                case 'FIN':
                     $types = [
                         ['name' => 'Cotización',  'id' => 'QUO'],
                         ['name' => 'Listo',  'id' => 'REA'],
-                        ['name' => 'Finalizado',  'id' => 'COM'],
+                        ['name' => 'Finalizado',  'id' => 'FIN'],
                         ['name' => 'Cancelado',  'id' => 'CAN']
                     ];
                     break;

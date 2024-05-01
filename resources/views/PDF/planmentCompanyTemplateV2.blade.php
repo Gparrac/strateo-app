@@ -74,7 +74,7 @@
                                 <td class="w-20 text-bold ">Inicio</td>
                                 <td class="w-30 text-right pr-40">{{ $planment['start_date'] }}</td>
                                 <td class="w-20 text-bold ">Finalización</td>
-                                <td class="w-30 text-right pr-40">{{ $planment['start_date'] }} </td>
+                                <td class="w-30 text-right pr-40">{{ $planment['end_date'] }} </td>
                             </tr>
                             <tr>
                                 <td class="w-20 text-bold ">Abono</td>
@@ -118,7 +118,7 @@
                                     </span>
                                 </td>
 
-                                <td class="w-30 text-center">
+                                <td class="w-30 text-left">
                                     <span class="block">
                                         - {{$product['brand']['name']}}
                                     </span><span class="block">
@@ -131,7 +131,7 @@
                                   <table class="w-100">
                                     @foreach ($product['events'] as $event)
                                     <tr>
-                                      <td class="w-80 text-left">{{$event['name']}}</td>
+                                      <td class="w-80 text-left">- {{$event['name']}}</td>
                                       <td class="w-20 text-right"> {{$event['amount']}} </th>
                                     </tr>
                                     @endforeach
@@ -175,6 +175,9 @@
                                         <thead>
                                             <tr>
                                                 <th class="text-left">Trabajador</th>
+                                                <th class="text-center">Cargo</th>
+                                                <th class="text-center">Metodo de pago</th>
+                                                <th class="text-center">Referencia</th>
                                                 <th class="text-right">Salario</th>
                                             </tr>
                                         </thead>
@@ -186,7 +189,18 @@
                                                         <span class="block">{{$employee['identification']}}</span>
 
                                                     </td>
-                                                    <td class="w-20 text-right">{{ PriceFormat::getNumber($employee['salary']) }}</td>
+                                                    <td class="w-30 text-left">
+                                                        @foreach($employee['charges'] as $charge)
+                                                        <span>- {{$charge['name']}}</span><br>
+                                                        @endforeach
+                                                    </td>
+                                                    <td class="w-10 text-center">
+                                                        {{$employee['payment_method']}}
+                                                    </td>
+                                                    <td class="w-10 text-center">
+                                                        {{$employee['reference']}}
+                                                    </td>
+                                                    <td class="w-10 text-right">{{ PriceFormat::getNumber($employee['salary']) }}</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>

@@ -31,14 +31,18 @@ class Third extends Model
         'users_id',
         'users_update_id'
     ];
-    protected $appends = ['fullname'];
+    protected $appends = ['fullname','fullid'];
 
     public function getFullnameAttribute()
     {
         $label = $this->type_document == 'NIT' ? $this->business_name : ($this->names ?? '') . ' ' . ($this->surnames ?? '');
         return $label;
     }
-
+    public function getFullidAttribute()
+    {
+        $label =    ($this->type_document ?? '') . ': ' . ($this->identification ?? '');
+        return $label;
+    }
     //Relationship
     public function user(): HasOne
     {
