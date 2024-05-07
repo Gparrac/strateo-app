@@ -14,7 +14,7 @@ use App\Models\Third;
 
 use App\Http\Utils\FileFormat;
 use App\Models\Employee;
-
+use App\Models\EmployeePaymentMethod;
 
 class CreateResource implements CRUD
 {
@@ -95,12 +95,13 @@ class CreateResource implements CRUD
                 ) : null,
         ]);
         foreach ($request['payment_methods'] as $svalue => $service) {
-            $dynamicService = DynamicService::create([
+            $dynamicService = EmployeePaymentMethod::create([
                 'employee_id' => $employee->id,
                 'payment_method_id' => $service['payment_method_id'],
                 'status' => 'A',
                 'users_id' => $userId,
-                'reference' => $service['reference']
+                'reference' => $service['reference'],
+                'users_update_id' => $userId
             ]);
         }
         //relate services and its fields with employee record

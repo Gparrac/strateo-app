@@ -31,6 +31,7 @@ class DeleteResource implements CRUD, RecordOperations
             //     'status' => 'I',
             //     'users_update_id' => $userId,
             // ]);
+            TaxValue::where('id', $id)->delete();
             return response()->json(['message' => 'Delete: '. $id], 200);
         } catch (QueryException $ex) {
             Log::error('Query error TaxResource@delete:singleRecord: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
@@ -45,10 +46,7 @@ class DeleteResource implements CRUD, RecordOperations
         try {
             // $userId = auth()->id();
 
-            // // TaxValue::whereIn('id', $ids)->update([
-            // //     'status' => 'I',
-            // //     'users_update_id' => $userId,
-            // // ]);
+            TaxValue::whereIn('id', $ids)->delete();
             return response()->json(['message' => 'Delete: '.join(',',$ids)], 200);
         } catch (QueryException $ex) {
             Log::error('Query error TaxResource@allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());

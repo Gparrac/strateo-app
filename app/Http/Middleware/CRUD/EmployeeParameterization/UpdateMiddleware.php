@@ -69,9 +69,10 @@ class UpdateMiddleware implements ValidateData
                     }
                     $contentRules = [];
                 }
-
+            }
 
             $request->merge(['services' => $recordServices, 'email2' => $request['email2'] ?? null]);
+
         }
         return ['error' => FALSE];
     }

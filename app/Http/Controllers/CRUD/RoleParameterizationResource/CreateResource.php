@@ -17,7 +17,8 @@ class CreateResource implements CRUD
     public function resource(Request $request)
     {
         DB::beginTransaction();
-        try {
+        try
+        {
             $userId = Auth::id() || 1; //meanwhile implement auth module
             $role = Role::create([
                 'name' =>  $request['name'],
@@ -25,11 +26,12 @@ class CreateResource implements CRUD
                 'users_id' => $userId,
                 'users_update_id' => $userId,
             ]);
+
             //datos entrada [role_id=>roleId,forms=>[forms=> form_id, permissions_id => [1,2,..]]
             foreach ($request['forms'] as $key => $form) {
                 if (isset($request['forms'][$key]['permissions_id'])) {
                     foreach ($form['permissions_id'] as $key => $permission) {
-                        Role::findOrFail($role['id'])->permissions()->attach($permission, [
+                        $role->permissions()->attach($permission, [
                             'status' => 'A',
                             'form_id' => $form['form_id'],
                             'users_id' => $userId,

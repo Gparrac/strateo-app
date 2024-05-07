@@ -7,6 +7,7 @@ use App\Http\Utils\FileFormat;
 use App\Models\Charge;
 use App\Models\DynamicService;
 use App\Models\Employee;
+use App\Models\EmployeePaymentMethod;
 use App\Models\EmployeePlanment;
 use App\Models\Invoice;
 use App\Models\Planment;
@@ -97,7 +98,7 @@ class UpdateResource implements CRUD
 
         DB::table('employees_payment_methods')->where('employee_id',$employee['id'])->update(['status' => 'I', 'users_update_id' => $userId]);
         foreach ($request['payment_methods'] as $svalue => $pm) {
-            $query = DB::table('employees_payment_methods')->where('employee_id', $employee['id'])->where('payment_method_id', $pm['payment_method_id'])->first();
+            $query = EmployeePaymentMethod::where('employee_id', $employee['id'])->where('payment_method_id', $pm['payment_method_id'])->first();
             if ($query) {
                 $query->update([
                     'status' => 'A',
@@ -105,7 +106,7 @@ class UpdateResource implements CRUD
                     'users_update_id' => $userId
                 ]);
             } else {
-                $query = DB::table('employees_payment_methods')->insert([
+                $query = EmployeePaymentMethod::create([
                     'status' => 'A',
                     'reference' => $pm['reference'],
                     'employee_id' => $employee['id'],

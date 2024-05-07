@@ -23,6 +23,9 @@ class TaxValueParameterization
             case 'GET':
                 $strategy = new ValidateDataMiddlewareContext(new ReadMiddleware());
                 break;
+            case 'PUT':
+                $strategy = new ValidateDataMiddlewareContext(new UpdateMiddleware());
+                break;
             case 'DELETE':
                 $strategy = new ValidateDataMiddlewareContext(new DeleteMiddleware());
                 break;

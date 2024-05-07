@@ -4,17 +4,15 @@ namespace App\Http\Middleware\CRUD\TaxValueParameterization;
 
 use Illuminate\Http\Request;
 use App\Http\Middleware\CRUD\Interfaces\ValidateData;
-use App\Rules\TaxValueDeleteRule;
 use Illuminate\Support\Facades\Validator;
 
-class DeleteMiddleware implements ValidateData
+class UpdateMiddleware implements ValidateData
 {
     public function validate(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'tax_value_ids' => 'required_without:tax_value_id|array|not_in:1|distinct',
-            'tax_value_ids.*' => ['integer','exists:tax_values,id',new TaxValueDeleteRule()],
-            'tax_value_id' => 'required_without:tax_value_ids|integer|exists:tax_values,id',
+            'tax_value_id' => 'required|exists:tax_values,id',
+            'percent' => 'required|numeric|between:-99,99|regex:/^-?\d+(\.\d{2,3})?$/|unique:tax_values,percent',
         ]);
 
         if ($validator->fails()){

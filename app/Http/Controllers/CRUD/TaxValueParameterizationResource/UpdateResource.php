@@ -22,9 +22,6 @@ class UpdateResource implements CRUD
             $tax->fill($request->only([
                 'percent',
             ]) + ['users_update_id' => $userId])->save();
-            foreach ($request->input('values') as $value) {
-                Tax::taxValues()->sync($value['tax_value_id']);
-            }
             return response()->json(['message' => 'Successful']);
         } catch (QueryException $ex) {
             Log::error('Query error TaxResource@update: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());

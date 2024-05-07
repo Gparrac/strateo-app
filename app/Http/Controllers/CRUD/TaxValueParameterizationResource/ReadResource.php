@@ -40,7 +40,20 @@ class ReadResource implements CRUD, RecordOperations
     public function allRecords($ids = null, $pagination = 5, $sorters = [], $filters = [], $format = null)
     {
         try {
-            $data = TaxValue::select('id','percent')->take(10)->get();
+            $data = new TaxValue();
+            if ($format == 'short') {
+                $data = $data->select('id','percent')->take(10)->get();
+            } else {
+                $data = $data->with('taxes:id,acronym')->select('id','percent');
+                //append shorters to query
+                foreach ($sorters as $shorter) {
+                    $data = $data->orderBy($shorter['key'], $shorter['order']);
+                }
+                $data = $data->paginate($pagination);
+            }
+
+
+
             return response()->json(['message' => 'read', 'data' => $data], 200);
         } catch (QueryException $ex) {
             Log::error('Query error TaxResource@readResource:allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
