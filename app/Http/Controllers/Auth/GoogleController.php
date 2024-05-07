@@ -26,7 +26,7 @@ class GoogleController extends Controller
             ->redirect()->getTargetUrl();
             return response()->json(['message'=> 'success','data' => $redirectUrl]);
 
-        } catch (Exception $e) {
+        } catch (Exception $ex) {
             Log::error('unknown error GoogleAuth@redirect: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'create ug'], 500);
         }
