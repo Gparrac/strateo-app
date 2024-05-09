@@ -174,6 +174,9 @@ class UpdateResource implements CRUD
 
 
         Planment::find($planment->id)->furtherProducts()->detach();
+        if($request->has('products')){
+
+
         foreach ($request['products'] as $product) {
             Planment::find($planment->id)->furtherProducts()->attach($product['product_id'], [
                 'amount' => $product['amount'],
@@ -196,6 +199,7 @@ class UpdateResource implements CRUD
                 }
             // dd(Planment::find($planment->id)->furtherProducts()->get());
         }
+    }
     }
     protected function updateProductInvoice($userId, Request $request)
     {
@@ -249,23 +253,26 @@ class UpdateResource implements CRUD
         }
         // Updating subproducts
         SubproductPlanment::where('planment_id', $planment['id'])->delete();
-        foreach ($request['subproducts'] as $subproduct) {
-            $subproductPlanment = SubproductPlanment::create([
-                'planment_id' => $planment['id'],
-                'product_id' => $subproduct['product_id'],
-                'tracing' => $subproduct['tracing'],
-                'warehouse_id' => $subproduct['warehouse_id'] ?? null,
-                'users_id' => $userId
-            ]);
-            foreach ($subproduct['events'] as  $event) {
-                $pp = ProductPlanment::where('product_id', $event['product_id'])
-                    ->where('planment_id', $planment['id'])
-                    ->first();
-
-                $pp->subproductPlanments()->attach($subproductPlanment['id'], [
-                    'amount' => $event['amount']
+        if($request['$subproducts']){
+            foreach ($request['subproducts'] as $subproduct) {
+                $subproductPlanment = SubproductPlanment::create([
+                    'planment_id' => $planment['id'],
+                    'product_id' => $subproduct['product_id'],
+                    'tracing' => $subproduct['tracing'],
+                    'warehouse_id' => $subproduct['warehouse_id'] ?? null,
+                    'users_id' => $userId
                 ]);
+                foreach ($subproduct['events'] as  $event) {
+                    $pp = ProductPlanment::where('product_id', $event['product_id'])
+                        ->where('planment_id', $planment['id'])
+                        ->first();
+
+                    $pp->subproductPlanments()->attach($subproductPlanment['id'], [
+                        'amount' => $event['amount']
+                    ]);
+                }
             }
         }
+
     }
 }

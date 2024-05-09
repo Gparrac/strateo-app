@@ -89,6 +89,8 @@ class UpdateMiddleware implements ValidateData
                 'products.*.events.*.amount' => 'required|numeric|min:1|max:9999'
 
             ]);
+            if($typeConnection == 'F')
+                $this->rules['products'] ='array';
         }
         if($typeConnection == 'E') {
             $this->rules = array_merge($this->rules, [
