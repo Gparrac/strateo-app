@@ -17,7 +17,7 @@ class UpdateMiddleware implements ValidateData
             //Third table
             'role_id' => 'required|integer|exists:roles,id',
             'name' => 'required|string|min:3|max:40|regex:/^[\p{L}\s]+$/u',
-            'description' => 'required|string|min:3|max:40|regex:/^[\p{L}\s]+$/u',
+            'description' => 'string|max:300|regex:/^[\p{L}\s]+$/u',
             'forms' => 'required|array',
             'forms.*.form_id' => 'required|integer|exists:forms,id',
             'forms.*.permissions_id' => 'array',

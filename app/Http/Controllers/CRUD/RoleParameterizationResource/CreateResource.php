@@ -22,7 +22,7 @@ class CreateResource implements CRUD
             $userId = Auth::id() || 1; //meanwhile implement auth module
             $role = Role::create([
                 'name' =>  $request['name'],
-                'description' => $request['description'],
+                'description' => $request['description'] ?? null,
                 'users_id' => $userId,
                 'users_update_id' => $userId,
             ]);

@@ -24,7 +24,7 @@ class CreateMiddleware implements ValidateData
             'seller_id' => 'required|exists:users,id',
             'sale_type' => 'required|in:P,E',
             'date' => 'required|date_format:Y-m-d H:i:s',
-            'note' => 'string',
+            'note' => 'string|max:300',
             // -- planments table
             'start_date' => 'required_if:sale_type,E|date_format:Y-m-d H:i:s',
             'end_date'=> ['required_if:sale_type,E','date_format:Y-m-d H:i:s', new ProductGreatestDateValidation($request->input('start_date'))],

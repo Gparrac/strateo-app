@@ -21,7 +21,7 @@ class UpdateMiddleware implements ValidateData
             //seller table
             'seller_id' => 'required|exists:users,id',
             //invoice Table
-            'note' => 'string',
+            'note' => 'string|max:300',
             'sale_type' => 'required|in:P,E',
             // -- planments table
             'start_date' => 'required_if:state_type,E|date_format:Y-m-d H:i:s',

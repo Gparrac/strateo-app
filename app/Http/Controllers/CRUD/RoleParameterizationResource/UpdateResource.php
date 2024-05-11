@@ -23,7 +23,7 @@ class UpdateResource implements CRUD
 
             Role::find($request['role_id'])->update([
                 'name' =>  $request['name'],
-                'description' => $request['description'],
+                'description' => $request['description'] ?? null,
                 'users_update_id' => $userId,
             ]);
             if(!$adminRole){

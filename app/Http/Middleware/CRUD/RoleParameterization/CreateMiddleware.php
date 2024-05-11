@@ -17,7 +17,7 @@ class CreateMiddleware implements ValidateData
             //Third table
 
             'name' => 'required|string|min:3|max:40|regex:/^[\p{L}\s]+$/u',
-            'description' => 'required|string|max:240|regex:/^[\p{L}\s]+$/u',
+            'description' => 'string|max:300|regex:/^[\p{L}\s]+$/u',
             'forms' => 'required|array',
             'forms.*.form_id' => 'required|integer|exists:forms,id',
             'forms.*.permissions_id' => 'array',
