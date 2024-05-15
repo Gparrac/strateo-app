@@ -79,4 +79,12 @@ class Third extends Model
     {
         return $this->belongsTo(User::class, 'users_id');
     }
+    // local Scopes
+    public function scopeActiveCity($query){
+        return $query->with('city', function($subquery){
+            $subquery->where('cities.status','A');
+            $subquery->select('cities.id','cities.name');
+        });
+    }
+
 }

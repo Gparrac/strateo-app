@@ -39,7 +39,7 @@ class DeleteResource implements CRUD, RecordOperations
         }
     }
 
-    public function allRecords($ids = null){
+    public function allRecords($ids = null,  $pagination=5, $sorters = [], $filters=[], $format = null){
         try {
             $idsArray = json_decode($ids, true);
             $userId = auth()->id();

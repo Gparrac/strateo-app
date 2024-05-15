@@ -25,7 +25,7 @@ class ReadResource implements CRUD, RecordOperations
     {
         $data = User::with(['third' => function ($query) {
             $query->with('city:id,name');
-        }, 'role:id,name', 'offices:id,name'])->find($id);
+        },'role:id,name','officeS:id,name'])->find($id);
         return response()->json(['message' => 'Read: ' . $id, 'data' => $data], 200);
     }
     public function allRecords($ids = null, $pagination = 5, $sorters = [], $filters = [], $format = null)
@@ -70,8 +70,8 @@ class ReadResource implements CRUD, RecordOperations
                     });
             } else {
                 $data = $data->with(['third' => function ($query) {
-                    $query->with('city:id,name');
-                }, 'role:id,name', 'offices:id,name']);
+                    $query->with('id','name');
+                },'role:id,name','officeS:id,name']);
 
                 //append shorters to query
                 foreach ($sorters as $shorter) {

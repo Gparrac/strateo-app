@@ -60,8 +60,7 @@ class GoogleController extends Controller
             ]);
         }
         DB::commit();
-
-        return redirect('http://localhost:3000/enterprises');
+        return redirect(config('app.front_redirect_url'));
 
      }catch (Exception $ex) {
             // In case of error, roll back the transaction

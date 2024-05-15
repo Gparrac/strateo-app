@@ -11,7 +11,7 @@ class Role extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'description'];
+    protected $fillable = ['name', 'description','users_id', 'users_udpate_id', 'status'];
 
     /**__________________________________________
      *                RELATIONSHIP

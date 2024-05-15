@@ -68,4 +68,16 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Office::class,'office_users','office_users_id','office_id')->withPivot('status');
     }
+    public function scopeActiveOffices($query){
+        return $query->with('offices', function($subquery){
+            $subquery->where('office_users.status','A');
+            $subquery->select('offices.id','offices.name');
+        });
+    }
+    public function scopeActiveRole($query){
+        return $query->with('role', function($subquery){
+            $subquery->where('roles.status','A');
+            $subquery->select('roles.id','roles.name');
+        });
+    }
 }

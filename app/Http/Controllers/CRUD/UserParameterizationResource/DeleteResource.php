@@ -27,7 +27,6 @@ class DeleteResource implements CRUD
                     'status' => $currentStatus
                 ]);
                 $offices = User::find($userId)->offices;
-                // return response()->json(['message' => User::find($userId)->offices]);
                 foreach ($offices as $key => $office) {
                     User::find($userId)->offices()->updateExistingPivot($office['id'],[
                         'status' => $currentStatus

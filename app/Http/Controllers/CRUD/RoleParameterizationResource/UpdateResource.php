@@ -48,14 +48,16 @@ class UpdateResource implements CRUD
                             ]);
                         } else {
                             $query->update([
-                                'status' => 'A'
+                                'status' => 'A',
+                                'users_update_id' => $userId
                             ]);
                         }
                     }
                 } else {
 
                     DB::table('permission_roles')->where('role_id', $request['role_id'])->where('form_id', $form['form_id'])->update([
-                        'status' => 'I'
+                        'status' => 'I',
+                        'users_update_id' => $userId
                     ]);
                 }
             }

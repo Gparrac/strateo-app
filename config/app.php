@@ -57,9 +57,12 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
     'files_url' => env('APP_FILES_URL', 'http://localhost'),
-
+     'test' =>  env('TEST','hollllwww'),
     'asset_url' => env('ASSET_URL'),
-
+    'google_client_id' => env('GOOGLE_CLIENT_ID'),
+    'google_client_secret' => env('GOOGLE_CLIENT_SECRET'),
+    'google_redirect_url' => env('GOOGLE_REDIRECT_URL'),
+    'front_redirect_url' => env('FRONT_REDIRECT_URL'),
     /*
     |--------------------------------------------------------------------------
     | Application Timezone

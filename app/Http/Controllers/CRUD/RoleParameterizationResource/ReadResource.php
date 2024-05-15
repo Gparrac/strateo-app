@@ -50,7 +50,7 @@ class ReadResource implements CRUD, RecordOperations
     {
         try {
             if ($format == 'short') {
-                $data = Role::select('id', 'name')->get();
+                $data = Role::where('status', 'A')->select('id', 'name')->get();
             } else {
 
                 $data = Role::withCount([

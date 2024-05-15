@@ -25,7 +25,7 @@ class ReadResource implements CRUD, RecordOperations
     {
         try {
             $data = Office::where('id', $id)
-                ->firstOrFail(['id', 'name', 'address', 'phone', 'city_id', 'status']);
+                ->with('city:id,name')->firstOrFail(['id', 'name', 'address', 'phone', 'city_id', 'status']);
             // Create a record in the Office table
             return response()->json(['message' => 'read: ' . $id, 'data' => $data], 200);
         } catch (QueryException $ex) {
@@ -41,7 +41,7 @@ class ReadResource implements CRUD, RecordOperations
     {
         try {
             if ($format == 'short') {
-                $data = Office::select('id', 'name')->get();
+                $data = Office::where('status','A')->select('id', 'name')->get();
             } else {
                 $data = Office::select('id', 'name', 'address', 'phone', 'status', 'city_id','updated_at')
                     ->with('city:id,name');

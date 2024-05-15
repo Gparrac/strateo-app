@@ -4,6 +4,7 @@ namespace App\Http\Controllers\CRUD\RoleParameterizationResource;
 
 use App\Http\Controllers\CRUD\Interfaces\CRUD;
 use App\Http\Controllers\CRUD\Interfaces\RecordOperations;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +20,10 @@ class DeleteResource implements CRUD
                 DB::table('permission_roles')->whereIn('role_id', $request['roles_id'])->update([
                     'status' => 'I',
                     'users_update_id' => $userId
+                ]);
+                Role::whereIn('role_id', $request['id'])->update([
+                    'status' => 'I',
+                    'users_update_id' =>$userId
                 ]);
             DB::commit();
 

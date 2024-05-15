@@ -24,7 +24,6 @@ class CreateResource implements CRUD
                 'name' =>  $request['name'],
                 'description' => $request['description'] ?? null,
                 'users_id' => $userId,
-                'users_update_id' => $userId,
             ]);
 
             //datos entrada [role_id=>roleId,forms=>[forms=> form_id, permissions_id => [1,2,..]]
@@ -35,7 +34,6 @@ class CreateResource implements CRUD
                             'status' => 'A',
                             'form_id' => $form['form_id'],
                             'users_id' => $userId,
-                            'users_update_id' => $userId,
                         ]);
                     }
                 }

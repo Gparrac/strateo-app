@@ -8,6 +8,8 @@ use App\Models\Company;
 use App\Models\EmployeePlanment;
 use App\Models\Field;
 use App\Models\Invoice;
+use App\Models\Office;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use GuzzleHttp\Client;
@@ -35,25 +37,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('/test', function (Request $request) {
-    $filter = ['value' => 'Juan'];
-    $data = EmployeePlanment::with(['charges:id,name', 'employee' => function ($query) {
-        $query->with('third:id,names,surnames,identification,type_document');
-        $query->select('employees.id', 'hire_date', 'end_date_contract', 'type_contract', 'employees.third_id');
-    }, 'paymentMethod:id,name', 'planment' => function ($query) {
-        $query->with(['invoice' => function ($query) {
-            $query->with(['client' => function ($query) {
-                $query->with('third:id,names,surnames');
-                $query->select('clients.id', 'clients.third_id');
-            }]);
-            $query->select('invoices.id', 'invoices.client_id');
-        }]);
-        $query->select('planments.id', 'planments.invoice_id');
-    }]);
-    $invoice = $data->whereHas('employee', function ($query) use ($filter) {
-        $query->whereHas('third', function ($query) use ($filter) {
+    Log::info(config('app.google_client_id'));
+    Log::info(config('app.google_client_secret'));
+    Log::info(config('app.google_redirect_url'));
+    Log::info(config('app.front_redirect_url'));
+    return env('DB_USERNAME');
 
-            $query->whereRaw("UPPER(CONCAT(IFNULL(thirds.surnames,''),IFNULL(thirds.names,''),IFNULL(thirds.business_name,''),IFNULL(thirds.identification,''))) LIKE ?", ['%' . strtoupper($filter['value']) . '%']);
-        });
-    })->get();
-    return $invoice;
 });
