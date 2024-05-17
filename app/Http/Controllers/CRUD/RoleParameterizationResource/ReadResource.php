@@ -67,9 +67,10 @@ class ReadResource implements CRUD, RecordOperations
                                 $data = $data->whereRaw("UPPER(name) LIKE ?", ['%' . strtoupper($filter['value']) . '%']);
                                 break;
                             case 'id':
-                                $data = $data->orWhere('id','LIKE', '%' . $filter['value'] . '%');
+                                $data = $data->Where('id','LIKE', '%' . $filter['value'] . '%');
+                                break;
                             default:
-                                # code...
+                                $data = $data->whereIn('status', $filter['value']);
                                 break;
                         }
                     }

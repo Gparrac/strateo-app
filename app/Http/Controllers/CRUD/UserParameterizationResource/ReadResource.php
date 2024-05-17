@@ -70,7 +70,7 @@ class ReadResource implements CRUD, RecordOperations
                     });
             } else {
                 $data = $data->with(['third' => function ($query) {
-                    $query->with('id','name');
+                    $query->with('city:id,name');
                 },'role:id,name','officeS:id,name']);
 
                 //append shorters to query
@@ -81,10 +81,10 @@ class ReadResource implements CRUD, RecordOperations
             }
             return response()->json(['message' => 'Read', 'data' => $data], 200);
         } catch (QueryException $ex) {
-            Log::error('Query error CompanyParameterization@readResource: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
+            Log::error('Query error UserParam@readResource: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'read q'], 500);
         } catch (\Exception $ex) {
-            Log::error('unknown error CompanyParameterization@readResource: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
+            Log::error('unknown error UserParam@readResource: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'read u'], 500);
         }
     }
