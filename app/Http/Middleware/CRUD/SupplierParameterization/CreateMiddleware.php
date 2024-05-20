@@ -37,7 +37,7 @@ class CreateMiddleware implements ValidateData
             'secondary_ciiu_ids' => 'array',
             'secondary_ciiu_ids.*' => 'numeric|exists:code_ciiu,id',
             // //--------------------- service attributes
-            'services' => ['required', 'array'],
+            'services' => ['array'],
             'services.*.service_id' => 'required|exists:services,id',
             'services.*.fields' => ['required', 'array'],
             'services.*.fields.*.field_id' => 'required|exists:fields,id'
@@ -50,7 +50,7 @@ class CreateMiddleware implements ValidateData
 
         $contentRules = [];
 
-        $recordServices = $request['services'];
+        $recordServices = $request['services'] ?? [];
         foreach ($recordServices as  $skey => $service) {
             if (count($service['fields']) != Service::find($service['service_id'])->fields()->count()) {
                 return ['error' => TRUE, 'message' => ['Campos' => 'La cantidad de campos no coincide con el servicio seleccionado.']];

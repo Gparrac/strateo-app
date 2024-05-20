@@ -19,17 +19,19 @@ class CreateResource implements CRUD
     public function resource(Request $request)
     {
         DB::beginTransaction();
+        Log::info('creando libreto');
+
         try {
             $userId = Auth::id();
             $data = [
                 'name' => $request->input('name'),
-                'description' => $request->input('description') || null,
+                'description' => $request->input('description') ?? null,
                 'users_id' => $userId,
                 'status' => $request->input('status')
             ];
             // Create a record in the Third table
             $la = LibrettoActivity::create($data);
-            $la->products()->attach($request->input('products_ids'), [
+            $la->products()->attach($request->input('product_ids'), [
                 'status' => 'A',
                 'users_id' => auth()->id()
             ]);

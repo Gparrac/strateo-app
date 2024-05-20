@@ -17,11 +17,11 @@ class DeleteResource implements CRUD
         //roles_id
         $userId = Auth::id(); //meanwhile implement auth module
         try {
-                DB::table('permission_roles')->whereIn('role_id', $request['roles_id'])->update([
-                    'status' => 'I',
-                    'users_update_id' => $userId
-                ]);
-                Role::whereIn('role_id', $request['id'])->update([
+                // DB::table('permission_roles')->whereIn('role_id', $request['roles_id'])->update([
+                //     'status' => 'I',
+                //     'users_update_id' => $userId
+                // ]);
+                Role::whereIn('id', $request['roles_id'])->update([
                     'status' => 'I',
                     'users_update_id' =>$userId
                 ]);

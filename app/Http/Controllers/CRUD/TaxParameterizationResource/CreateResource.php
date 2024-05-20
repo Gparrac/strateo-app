@@ -17,7 +17,7 @@ class CreateResource implements CRUD
         try {
             $userId = Auth::id();
 
-            Tax::create([
+            $tax = Tax::create([
                 'name' => $request->input('name'),
                 'acronym' => $request->input('acronym'),
                 'status' => $request->input('status'),
@@ -26,7 +26,7 @@ class CreateResource implements CRUD
                 'context' => $request->input('context')
             ]);
             foreach ($request->input('values') as $value) {
-                Tax::taxValues()->attach($value['tax_value_id']);
+                $tax->taxValues()->attach($value['tax_value_id']);
             }
             return response()->json(['message' => 'Successful']);
         } catch (QueryException $ex) {

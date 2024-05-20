@@ -87,7 +87,7 @@ class CreateMiddleware implements ValidateData
             // -------------------------enployee attributes
             'type_contract' => 'required|in:TF,TI,OL,PS,CA,OT',
             'hire_date' => 'required|date_format:Y-m-d H:i:s',
-            'end_date_contract' => 'required|date_format:Y-m-d H:i:s',
+            'end_date_contract' => 'date_format:Y-m-d H:i:s|after:hire_date',
             'rut_file' => ['file', 'mimes:pdf', 'max:2048'],
             'resume_file' => ['file', 'mimes:pdf,docx', 'max:2048'],
             'status' => 'required|in:A,I',

@@ -14,10 +14,10 @@ class DeleteResource implements CRUD, RecordOperations
 {
     public function resource(Request $request)
     {
-        if($request->has('client_id')){
-            return $this->singleRecord($request->input('client_id'));
+        if($request->has('service_id')){
+            return $this->singleRecord($request->input('service_id'));
         }else{
-            return $this->allRecords($request->input('client_ids'));
+            return $this->allRecords($request->input('service_ids'));
         }
     }
 
@@ -42,14 +42,13 @@ class DeleteResource implements CRUD, RecordOperations
 
     public function allRecords($ids = null,$pagination=5, $sorters = [], $keyword =null, $typeKeyword = null){
         try {
-            $idsArray = json_decode($ids, true);
             $userId = auth()->id();
 
-            Service::whereIn('id', $idsArray)->update([
+            Service::whereIn('id', $ids)->update([
                 'status' => 'I',
                 'users_update_id' => $userId,
             ]);
-            return response()->json(['message' => 'Delete: '.$ids], 200);
+            return response()->json(['message' => 'Delete: '. implode('-',$ids)], 200);
         } catch (QueryException $ex) {
             Log::error('Query error ClientParameterization@allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'delete q'], 500);

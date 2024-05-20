@@ -42,14 +42,13 @@ class DeleteResource implements CRUD, RecordOperations
 
     public function allRecords($ids = null,$pagination=5, $sorters = [], $keyword =null, $typeKeyword = null){
         try {
-            $idsArray = json_decode($ids, true);
             $userId = auth()->id();
 
-            Field::whereIn('id', $idsArray)->update([
+            Field::whereIn('id', $ids)->update([
                 'status' => 'I',
                 'users_update_id' => $userId,
             ]);
-            return response()->json(['message' => 'Delete: '.$ids], 200);
+            return response()->json(['message' => 'Delete: ' . implode('id', $ids)], 200);
         } catch (QueryException $ex) {
             Log::error('Query error fieldParameterization@allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'delete q'], 500);

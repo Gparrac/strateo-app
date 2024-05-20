@@ -13,6 +13,7 @@ class DeleteResource implements CRUD, RecordOperations
 {
     public function resource(Request $request)
     {
+        Log::info('entry delete s9ingle');
         if($request->has('office_id')){
             return $this->singleRecord($request->input('office_id'));
         }else{
@@ -25,6 +26,7 @@ class DeleteResource implements CRUD, RecordOperations
             $userId = auth()->id();
             $office = Office::where('id', $id)->firstOrFail();
             // Create a record in the Office table
+
             $office->update([
                 'status' => 'I',
                 'users_update_id' => $userId,

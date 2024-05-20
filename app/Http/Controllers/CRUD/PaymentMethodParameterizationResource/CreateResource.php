@@ -24,6 +24,7 @@ class CreateResource implements CRUD
             PaymentMethod::create([
                 'name' => $request['name'],
                 'description' => $request['description'],
+                'status' => $request['status'],
                 'users_id' => $userId
             ]);
 

@@ -8,6 +8,7 @@ use App\Http\Controllers\CRUD\OfficeParameterizationResource\CreateResource;
 use App\Http\Controllers\CRUD\OfficeParameterizationResource\ReadResource;
 use App\Http\Controllers\CRUD\OfficeParameterizationResource\UpdateResource;
 use App\Http\Controllers\CRUD\OfficeParameterizationResource\DeleteResource;
+use Illuminate\Support\Facades\Log;
 
 class OfficeParameterization extends Controller
 {
@@ -28,6 +29,7 @@ class OfficeParameterization extends Controller
                 $strategy = new CRUDContext(new UpdateResource());
                 break;
             case 'DELETE':
+                Log::info('delete ?');
                 $strategy = new CRUDContext(new DeleteResource());
                 break;
             default:

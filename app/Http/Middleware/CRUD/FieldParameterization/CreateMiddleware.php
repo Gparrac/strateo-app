@@ -12,7 +12,7 @@ class CreateMiddleware implements ValidateData
     {
         $validator = Validator::make($request->all(), [
             //--------------------- new attributes
-            'name' => 'required|string',
+            'name' => 'required|string|unique:fields,name',
             'type' =>'required|in:F,T,A,I',
             'length' => 'integer',
             'status' =>'required|in:A,I',

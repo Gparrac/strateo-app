@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\CRUD\EmployeeParameterizationResource;
 
 use App\Http\Controllers\CRUD\Interfaces\CRUD;
+use App\Models\Employee;
 use Illuminate\Http\Request;
 use App\Models\Supplier;
 use Illuminate\Database\QueryException;
@@ -14,11 +15,11 @@ class DeleteResource implements CRUD
     {
         try {
             $userId = auth()->id();
-            Supplier::whereIn('id', $request['employees_id'])->update([
+            Employee::whereIn('id', $request['employees_id'])->update([
                 'status' => 'I',
                 'users_update_id' => $userId,
             ]);
-            return response()->json(['message' => 'Delete: '. implode('id', $request['suppliers_id'])], 200);
+            return response()->json(['message' => 'Delete: '. implode('id', $request['employees_id'])], 200);
         } catch (QueryException $ex) {
             Log::error('Query error ClientParameterization@allRecords: - Line:' . $ex->getLine() . ' - message: ' . $ex->getMessage());
             return response()->json(['message' => 'delete q'], 500);

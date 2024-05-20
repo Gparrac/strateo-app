@@ -27,6 +27,7 @@ class UpdateResource implements CRUD
             PaymentMethod::find($request['payment_method_id'])->update([
                 'name' => $request['name'],
                 'description' => $request['description'],
+                'status' => $request['status'],
                 'users_id' => $userId,
             ]);
 

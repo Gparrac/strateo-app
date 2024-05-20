@@ -13,7 +13,8 @@ class CreateMiddleware implements ValidateData
         $validator = Validator::make($request->all(), [
             //Third table
             'name' => 'required|string|min:3|max:80',
-            'description' => 'string'
+            'description' => 'string',
+            'status' => 'required|in:A,I'
         ]);
 
         if ($validator->fails()){

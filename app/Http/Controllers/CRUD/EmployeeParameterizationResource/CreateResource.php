@@ -65,7 +65,7 @@ class CreateResource implements CRUD
         $employeeData = [
             'type_contract' => $request['type_contract'],
             'hire_date' => $request['hire_date'],
-            'end_date_contract' => $request['end_date_contract'],
+            'end_date_contract' => $request['end_date_contract'] ,
             'status' => $request['status'],
             'users_id' => $userId
         ];

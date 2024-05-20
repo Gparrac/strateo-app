@@ -28,6 +28,7 @@ class UpdateResource implements CRUD
             Charge::find($request['charge_id'])->update([
                 'name' => $request['name'],
                 'description' => $request['description'],
+                'status' => $request['status'],
                 'users_update_id' => $userId,
             ]);
 

@@ -4,7 +4,9 @@ namespace App\Http\Middleware\CRUD\FieldParameterization;
 
 use Illuminate\Http\Request;
 use App\Http\Middleware\CRUD\Interfaces\ValidateData;
+use App\Models\Field;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class UpdateMiddleware implements ValidateData
 {
@@ -12,7 +14,8 @@ class UpdateMiddleware implements ValidateData
     {
         $validator = Validator::make($request->all(), [
             //--------------------- new attributes
-            'name' => 'required|string',
+            'field_id' => 'required|exists:fields,id',
+            'name' => ['required','string', Rule::unique('fields', 'name')->ignore(Field::find($request['field_id']))],
             'type' =>'required|in:F,T,A,I',
             'length' => 'number',
             'status' =>'required|in:A,I',

@@ -17,7 +17,8 @@ class UpdateMiddleware implements ValidateData
             //Third table
             'payment_method_id' => 'required|exists:payment_methods,id',
             'name' => 'required|string|min:3|max:80',
-            'description' => 'string'
+            'description' => 'string',
+            'status' => 'required|in:A,I'
         ]);
 
         if ($validator->fails()){
