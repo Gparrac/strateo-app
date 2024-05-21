@@ -82,7 +82,7 @@ class UpdateMiddleware implements ValidateData
             //--------------------- third attributes
             'employee_id'=> 'required|exists:employees,id',
             'type_document' => 'required|in:CC,NIT,CE,PASAPORTE',
-            'identification' => ['required','numeric', 'digits_between:7,10', Rule::unique('thirds', 'identification')->ignore(Employee::find($request['employee_id'])->third->id)],
+            'identification' => ['required','string', 'digits_between:7,10', Rule::unique('thirds', 'identification')->ignore(Employee::find($request['employee_id'])->third->id)],
             'names' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'surnames' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'address' => 'required|string',
@@ -100,19 +100,19 @@ class UpdateMiddleware implements ValidateData
             'status' => 'required|in:A,I',
             // //--------------------- service attributes
             'services' => ['array'],
-            'services.*.service_id' => 'required|exists:services,id',
+            'services.*.service_id' => 'required|exists:services,id|distinct',
             'services.*.fields' => ['required', 'array', new ServiceFieldSizeValidationRule()],
-            'services.*.fields.*.field_id' => 'required|exists:fields,id',
+            'services.*.fields.*.field_id' => 'required|exists:fields,id|distinct',
         ];
     }
     public function typeConnectionValidation(){
         $this->rules = [
             'invoice_id' => 'required|exists:invoices,id',
             'employees' => ['array'],
-            'employees.*.employee_id' => ['required','exists:employees,id'],
+            'employees.*.employee_id' => ['required','exists:employees,id','distinct'],
             'employees.*.salary' => 'required|numeric|min:0|max:99999999',
             'charges' => 'array',
-            'charges.*' => 'numeric|exists:charges,id',
+            'charges.*' => 'numeric|exists:charges,id|distinct',
             'payment_method_id' => 'required_with:reference|numeric|exists:payment_methods,id',
             'reference' => 'required_with:payment_method_id|string|exists:payment_methods,id',
         ];

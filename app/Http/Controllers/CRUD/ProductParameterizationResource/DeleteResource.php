@@ -17,9 +17,9 @@ class DeleteResource implements CRUD
         //roles_id
         $userId = Auth::id(); //meanwhile implement auth module
         try {
-            Product::whereIn('id',$request['products_id'])->update([
+            Product::whereIn('id',$request['product_ids'])->update([
                 'status' => 'I',
-                'userId' => $userId
+                'users_update_id' => $userId
             ]);
             DB::commit();
             return response()->json(['message' => 'Usuarios eliminados correctamente']);

@@ -54,16 +54,16 @@ class UpdateMiddleware implements ValidateData
 
             //products
             'products' => 'array',
-            'products.*.product_id' => ['required', new ProductSubproductValidation(request()->input('type'), request()->input('type_content'))],
+            'products.*.product_id' => ['required', new ProductSubproductValidation(request()->input('type'), request()->input('type_content')),'distinct'],
             'products.*.amount' => 'required|integer',
-            'categories_id' => 'required|array',
-            'categories.*' => 'required|exists:categories,id',
+            'categories' => 'required|array',
+            'categories.*.category_id' => 'required|exists:categories,id|distinct',
             'taxes' => 'array',
-            'taxes.*.tax_id' => 'required|exists:taxes,id',
+            'taxes.*.tax_id' => 'required|exists:taxes,id|distinct',
             'taxes.*.percent' => 'required|numeric|min:0|max:100',
             'tracing' => 'required_if:type,T|boolean',
             'libretto_activity_ids' => 'array',
-            'libretto_activity_ids*' => 'required|exists:libretto_activities,id',
+            'libretto_activity_ids*' => 'required|exists:libretto_activities,id|distinct',
         ];
     }
     protected function typeConnectionValidation($typeConnection){
@@ -71,12 +71,12 @@ class UpdateMiddleware implements ValidateData
         $this->rules = [
             'type_connection' => 'required|in:I,F,E,S',
             'products' => 'required|array',
-            'products.*.product_id' => ['required','exists:products,id', new InvoiceProductValidationRule($typeConnection)],
+            'products.*.product_id' => ['required','exists:products,id', new InvoiceProductValidationRule($typeConnection),'distinct'],
             'products.*.cost' => 'required|numeric|min:1|max:99999999',
             'products.*.discount' => 'numeric|min:1|max:99999999',
             'products.*.amount' => 'required|numeric|min:1|max:9999',
             'products.*.taxes' => 'array',
-            'products.*.taxes.*.tax_id' => 'required|exists:taxes,id',
+            'products.*.taxes.*.tax_id' => 'required|exists:taxes,id|distinct',
             'products.*.taxes.*.percent' => 'required|numeric|min:1|max:99',
             'invoice_id' => 'required|exists:invoices,id'
         ];
@@ -85,7 +85,7 @@ class UpdateMiddleware implements ValidateData
                 'products.*.warehouse_id' => 'exists:warehouses,id',
                 'products.*.tracing' => 'required|boolean',
                 'products.*.events' => 'required|array',
-                'products.*.events.*.product_id' => 'required|exists:products,id',
+                'products.*.events.*.product_id' => 'required|exists:products,id|distinct',
                 'products.*.events.*.amount' => 'required|numeric|min:1|max:9999'
 
             ]);
@@ -98,7 +98,7 @@ class UpdateMiddleware implements ValidateData
                 'subproducts.*.product_id' => ['required','exists:products,id'],
                 'subproducts.*.amount' => 'required|numeric|min:1|max:9999',
                 'subproducts.*.events' => 'required|array',
-                'subproducts.*.events.*.product_id' => 'required|exists:products,id',
+                'subproducts.*.events.*.product_id' => 'required|exists:products,id|distinct',
                 'subproducts.*.tracing' => 'required|boolean',
                 'subproducts.*.warehouse_id' => [ProductTracingRule::class]
             ]);

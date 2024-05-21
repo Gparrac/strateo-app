@@ -75,7 +75,7 @@ class CreateMiddleware implements ValidateData
     {
         $this->rules = [
             'type_document' => 'required|in:CC,NIT,CE,PASAPORTE',
-            'identification' => 'required|numeric|digits_between:7,10|unique:thirds,identification',
+            'identification' => 'required|string|digits_between:7,10|unique:thirds,identification',
             'names' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'surnames' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'address' => 'required|string',
@@ -93,9 +93,9 @@ class CreateMiddleware implements ValidateData
             'status' => 'required|in:A,I',
             // //--------------------- service attributes
             'services' => ['array'],
-            'services.*.service_id' => 'required|exists:services,id',
+            'services.*.service_id' => 'required|exists:services,id|distinct',
             'services.*.fields' => ['required', 'array', new ServiceFieldSizeValidationRule()],
-            'services.*.fields.*.field_id' => 'required|exists:fields,id',
+            'services.*.fields.*.field_id' => 'required|exists:fields,id|distinct',
         ];
     }
     public function typeConnectionValidation()
@@ -103,7 +103,7 @@ class CreateMiddleware implements ValidateData
         $this->rules = [
             'planment_id' => 'required|exists:planments,id',
             'employees' => ['array'],
-            'employees.*.employee_id' => ['required', 'exists:employees,id'],
+            'employees.*.employee_id' => ['required', 'exists:employees,id|distinct'],
             'employees.*.salary' => 'required|numeric|min:|max:99999999'
         ];
     }

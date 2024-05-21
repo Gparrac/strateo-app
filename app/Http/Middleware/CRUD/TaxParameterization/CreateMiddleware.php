@@ -17,7 +17,7 @@ class CreateMiddleware implements ValidateData
             'type' => 'required|in:I,D',
             'context' => 'required|in:I,P',
             'values' => 'required|array',
-            'values.*.tax_value_id' =>  'required|exists:tax_values,id',
+            'values.*.tax_value_id' =>  'required|exists:tax_values,id|distinct',
             'values.*.percent' => 'required|numeric|between:-99,99|regex:/^-?\d+(\.\d{2,3})?$/'
         ]);
 

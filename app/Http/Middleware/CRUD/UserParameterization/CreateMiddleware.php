@@ -16,7 +16,7 @@ class CreateMiddleware implements ValidateData
         $validator = Validator::make($request->all(), [
             //Third table
             'type_document' => 'required|in:CC,CE,PASAPORTE,NIT',
-            'identification' => 'required|digits_between:7,12|unique:thirds,identification',
+            'identification' => 'required|string|digits_between:7,12|unique:thirds,identification',
             'names' => ['string','min:3','max:40','regex:/^[\p{L}\s]+$/u',Rule::when($request->type_document != 'NIT', ['required'])],
             'surnames' => ['string','min:3','max:40','regex:/^[\p{L}\s]+$/u',Rule::when($request->type_document != 'NIT', ['required'])],
             'business_name' => ['string','min:3','max:40','regex:/^[\p{L}\s]+$/u',Rule::when($request->type_document == 'NIT', ['required'])],
@@ -26,7 +26,7 @@ class CreateMiddleware implements ValidateData
             'email2' => 'email',
             'city_id' => 'required|exists:cities,id',
             'offices_id' => 'required|array',
-            'offices_id.*' => 'integer|exists:offices,id',
+            'offices_id.*' => 'integer|exists:offices,id|distinct',
 
             //Company users
             'name' => 'required|string',

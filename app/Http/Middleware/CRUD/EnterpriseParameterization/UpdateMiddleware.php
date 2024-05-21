@@ -28,7 +28,7 @@ class UpdateMiddleware implements ValidateData
             'code_ciiu_id' => 'required|exists:code_ciiu,id',
             'postal_code' => 'numeric',
             'secondary_ciiu_ids' => 'array',
-            'secondary_ciiu_ids.*' => 'numeric|exists:code_ciiu,id',
+            'secondary_ciiu_ids.*' => 'numeric|exists:code_ciiu,id|distinct',
 
             //Company Table
             'path_logo' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',

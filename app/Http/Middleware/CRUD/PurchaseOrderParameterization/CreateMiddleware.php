@@ -23,7 +23,8 @@ class CreateMiddleware implements ValidateData
             ],
             'products.*.product_id' => [
                 'required',
-                'exists:products,id'
+                'exists:products,id',
+                'distinct'
             ],
             'products.*.amount' => [
                 'required',

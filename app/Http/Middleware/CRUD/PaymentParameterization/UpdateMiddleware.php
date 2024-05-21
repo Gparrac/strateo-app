@@ -15,7 +15,7 @@ class UpdateMiddleware implements ValidateData
     {
         $validator = Validator::make($request->all(), [
             'employee_planments' => 'array',
-            'employee_planments.*.employee_planment_id' => 'required|exists:employees_planments,id',
+            'employee_planments.*.employee_planment_id' => 'required|exists:employees_planments,id|distinct',
             'employee_planments.*.settled' => 'required|boolean'
         ]);
 

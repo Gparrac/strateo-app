@@ -25,7 +25,7 @@ class UpdateMiddleware implements ValidateData
             'email2' => 'email',
             'city_id' => 'required|exists:cities,id',
             'offices_id' => 'required|array',
-            'offices_id.*' => 'integer|exists:offices,id',
+            'offices_id.*' => 'integer|exists:offices,id|distinct',
 
             //Users table
             'user_id' => 'required|exists:users,id',
@@ -33,7 +33,7 @@ class UpdateMiddleware implements ValidateData
             'role_id' => 'required|exists:roles,id',
             'status' => 'required|in:A,I',
             'password' => 'string',
-            'identification' => ['required','digits_between:7,10', Rule::unique('thirds', 'identification')->ignore(User::find($request['user_id'])->third->id),],
+            'identification' => ['required','string','digits_between:7,10', Rule::unique('thirds', 'identification')->ignore(User::find($request['user_id'])->third->id),],
         ]);
         if ($validator->fails()){
             return [

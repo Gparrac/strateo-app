@@ -29,7 +29,7 @@ class UpdateMiddleware implements ValidateData
             'pay_off' => 'numeric|min:0|max:99999999',
             'stage' => ['required_if:state_type,E', new InvoicePlanmentStageValidationRule()],
             'taxes' => 'array',
-            'taxes.*.tax_id' => 'required|exists:taxes,id',
+            'taxes.*.tax_id' => 'required|exists:taxes,id|distinct',
             'taxes.*.percent' => 'required|numeric|between:-99,99|regex:/^-?\d+(\.\d{2,3})?$/'
         ]);
 

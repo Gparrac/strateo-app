@@ -12,7 +12,7 @@ class DeleteMiddleware implements ValidateData
     {
         $validator = Validator::make($request->all(), [
             'warehouse_ids' => 'required_without:warehouse_id|array|not_in:1|distinct',
-            'warehouse_ids.*' => 'integer|exists:warehouses,id',
+            'warehouse_ids.*' => 'integer|exists:warehouses,id|distinct',
             'warehouse_id' => 'required_without:warehouse_ids|integer|exists:warehouses,id',
         ]);
 

@@ -20,13 +20,13 @@ class ReadMiddleware implements ValidateData
                 'page' => 'numeric|min:0',
                 'pagination' => 'numeric|max:100',
                 'filters' => 'array',
-                'filters.*.key' => 'required|in:id,name,status,non-subproducts',
+                'filters.*.key' => 'required|in:id,name,status,non-subproducts|distinct',
                 'filters.*.value' => 'required',
                 'warehouseFilter' => 'exists:warehouses,id',
                 'sorters' => 'array',
                 'sorters.order' => 'nullable|in:asc,desc',
                 'types' => 'array',
-                'types.*' => 'required|in:T,I'
+                'types.*' => 'required|in:T,I|distinct'
             ]);
         }
 

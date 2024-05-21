@@ -23,7 +23,7 @@ class CreateMiddleware implements ValidateData
             'status' => 'required|in:A,I',
             //--------------------- third attributes
             'type_document' => 'required|in:CC,NIT,CE,PASAPORTE',
-            'identification' => 'required|numeric|digits_between:7,10|unique:thirds,identification',
+            'identification' => 'required|string|digits_between:7,10|unique:thirds,identification',
             'names' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'surnames' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'business_name' => 'required_without:names,surnames|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
@@ -35,12 +35,12 @@ class CreateMiddleware implements ValidateData
             'city_id' => 'required|exists:cities,id',
             'code_ciiu_id' => 'exists:code_ciiu,id',
             'secondary_ciiu_ids' => 'array',
-            'secondary_ciiu_ids.*' => 'numeric|exists:code_ciiu,id',
+            'secondary_ciiu_ids.*' => 'numeric|exists:code_ciiu,id|distinct',
             // //--------------------- service attributes
             'services' => ['array'],
-            'services.*.service_id' => 'required|exists:services,id',
+            'services.*.service_id' => 'required|exists:services,id|distinct',
             'services.*.fields' => ['required', 'array'],
-            'services.*.fields.*.field_id' => 'required|exists:fields,id'
+            'services.*.fields.*.field_id' => 'required|exists:fields,id|distinct'
             //--------------------- others
         ]);
 

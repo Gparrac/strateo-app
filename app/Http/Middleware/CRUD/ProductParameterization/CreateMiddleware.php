@@ -43,17 +43,17 @@ class CreateMiddleware implements ValidateData
             'photo3' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'status' =>'required|in:A,I',
             'taxes' => 'array',
-            'taxes.*.tax_id' => 'required|exists:taxes,id',
+            'taxes.*.tax_id' => 'required|exists:taxes,id|distinct',
             'taxes.*.percent' => 'required|numeric|min:0|max:100',
             'tracing' => 'required_if:type,T|boolean',
             //products
             'products' => 'array',
-            'products.*.product_id' => ['required', new ProductSubproductValidation(request()->input('type'), request()->input('type_content'))],
+            'products.*.product_id' => ['required', new ProductSubproductValidation(request()->input('type'), request()->input('type_content')),'distinct'],
             'products.*.amount' => 'required|integer',
-            'categories_id' => 'required|array',
-            'categories.*' => 'required|exists:categories,id',
+            'categories' => 'required|array',
+            'categories.*.category_id' => 'required|exists:categories,id|distinct',
             'libretto_activity_ids' => 'array',
-            'libretto_activity_ids*' => 'required|exists:libretto_activities,id',
+            'libretto_activity_ids*' => 'required|exists:libretto_activities,id|distinct',
         ];
     }
 }

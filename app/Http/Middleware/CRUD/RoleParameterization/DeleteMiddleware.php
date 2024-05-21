@@ -16,7 +16,7 @@ class DeleteMiddleware implements ValidateData
         $validator = Validator::make($request->all(), [
             //Third table
             'roles_id' => 'required|array|not_in:1',
-            'roles_id.*' => ['integer','exists:roles,id', new deleteRecordsValidationRule(new User(), 'role_id', null, 'Role', 'usuarios')],
+            'roles_id.*' => ['integer','exists:roles,id', new deleteRecordsValidationRule(new User(), 'role_id', null, 'Role', 'usuarios'),'distinct'],
 
         ]);
 

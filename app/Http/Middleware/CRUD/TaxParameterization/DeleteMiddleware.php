@@ -12,7 +12,7 @@ class DeleteMiddleware implements ValidateData
     {
         $validator = Validator::make($request->all(), [
             'tax_ids' => 'required_without:tax_id|array|not_in:1|distinct',
-            'tax_ids.*' => 'integer|exists:taxes,id',
+            'tax_ids.*' => 'integer|exists:taxes,id|distinct',
             'tax_id' => 'required_without:tax_ids|integer|exists:taxes,id',
         ]);
 

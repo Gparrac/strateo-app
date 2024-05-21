@@ -32,6 +32,10 @@ class CreateResource implements CRUD
                     'status' => 'A'
                 ]);
             foreach ($request['products'] as $value) {
+                $totalCost = 0;
+                $totalAmount = 0;
+                $totalCost += $value['cost'];
+                $totalAmount += $value['cost'];
             if(Inventory::where('product_id', $value['product_id'])->where('warehouse_id',$request['warehouse_id'])->get()->count() == 0){
                 $inventory = Inventory::create([
                     'stock' => $value['amount'],
@@ -57,6 +61,10 @@ class CreateResource implements CRUD
                 'amount' => $value['amount'],
                 'users_id' => $userId,
                 'status' => 'A'
+            ]);
+            $inventory->update([
+                'total_cost' => $totalCost,
+                'total_amount' => $totalAmount
             ]);
             }
             DB::commit();

@@ -103,7 +103,26 @@ class ReadResource implements CRUD, RecordOperations
             foreach ($sorters as $shorter) {
                 $data = $data->orderBy($shorter['key'], $shorter['order']);
             }
-            $data = $format == 'short' ? $data->where('status', 'A')->take(10)->get() : $data->paginate($pagination);
+             if($format == 'short'){
+                $data = $data->where('status', 'A')->take(10)->get();
+             } else{
+
+                $data = $data->paginate($pagination);
+                // $transformedData = $data->getCollection()->map(function($item){
+                //     $total  = 0;
+                //     $amount = 0;
+                //     $item['inventories']->each(function($inventory) use (&$total, &$amount){
+                //         $total += $inventory['pivot']['cost'] * $inventory['pivot']['amount'];
+                //         $amount += $inventory['pivot']['amount'];
+                //     });
+                //     $item['total'] = $total;
+                //     $item['amount'] = $amount;
+                //     return $item;
+                // });
+
+                // $data->setCollection($transformedData);
+            }
+
 
             return response()->json(['message' => 'read', 'data' => $data], 200);
         } catch (QueryException $ex) {

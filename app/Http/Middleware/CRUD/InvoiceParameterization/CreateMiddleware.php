@@ -30,7 +30,7 @@ class CreateMiddleware implements ValidateData
             'end_date'=> ['required_if:sale_type,E','date_format:Y-m-d H:i:s', new ProductGreatestDateValidation($request->input('start_date'))],
             'pay_off' => 'numeric|min:1|max:99999999',
             'taxes' => 'array',
-            'taxes.*.tax_id' => 'required|exists:taxes,id',
+            'taxes.*.tax_id' => 'required|exists:taxes,id|distinct',
             'taxes.*.percent' => 'required|numeric|between:-99,99|regex:/^-?\d+(\.\d{2,3})?$/'
        ]);
 

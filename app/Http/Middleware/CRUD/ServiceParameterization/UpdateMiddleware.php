@@ -16,7 +16,7 @@ class UpdateMiddleware implements ValidateData
             'status' => 'required|in:A,I',
             'description' =>'required|string|min:3|max:3000',
             'fields' => 'required|array',
-            'fields.*.field_id' => 'required|exists:fields,id',
+            'fields.*.field_id' => 'required|exists:fields,id|distinct',
             'fields.*.required' => 'required|numeric|in:1,2',
 
             //--------------------- others

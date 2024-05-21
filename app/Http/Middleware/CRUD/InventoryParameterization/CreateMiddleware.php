@@ -23,7 +23,7 @@ class CreateMiddleware implements ValidateData
             //--------------------- inventory attributes
             'warehouse_id' => 'required|exists:warehouses,id',
             'products' => 'required|array',
-            'products.*.product_id' => 'required|exists:products,id',
+            'products.*.product_id' => 'required|exists:products,id|distinct',
             'products.*.cost' => 'required|numeric|min:0',
             'products.*.amount' => ['required','integer','min:1', new InventoryProductAmountValidation],
 

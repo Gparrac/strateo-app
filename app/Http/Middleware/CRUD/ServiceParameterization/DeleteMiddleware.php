@@ -13,7 +13,7 @@ class DeleteMiddleware implements ValidateData
         $validator = Validator::make($request->all(), [
             //Third table
             'service_ids' => 'required|array',
-            'service_ids.*' => 'integer|exists:services,id',
+            'service_ids.*' => 'integer|exists:services,id|distinct',
 
         ]);
 

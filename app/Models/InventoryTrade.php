@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class InventoryTrade extends Model
 {
     use HasFactory;
-    protected $fillable = ['status', 'note', 'transaction_date', 'supplier_id', 'users_id', 'users_update_id', 'transaction_type', 'purpose','further_discount','purchase_order_id', 'invoice_id'];
+    protected $fillable = ['status', 'note','total_cost','total_amount', 'transaction_date', 'supplier_id', 'users_id', 'users_update_id', 'transaction_type', 'purpose','further_discount','purchase_order_id', 'invoice_id'];
 
     public function inventories() : BelongsToMany
     {

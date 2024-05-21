@@ -15,7 +15,7 @@ class DeleteMiddleware implements ValidateData
         $validator = Validator::make($request->all(), [
             'office_id' => ['required_without:office_ids', 'integer', 'exists:offices,id', new deleteRecordsValidationRule(new User(), 'office_users.office_id', 'offices','Oficina', 'usuarios')],
             'office_ids' => 'required_without:office_id|array',
-            'office_ids.*' => ['integer','exists:offices,id', new deleteRecordsValidationRule(new User(), 'office_users.office_id', 'offices','Oficina', 'usuarios')],
+            'office_ids.*' => ['integer','exists:offices,id', new deleteRecordsValidationRule(new User(), 'office_users.office_id', 'offices','Oficina', 'usuarios'),'distinct'],
         ]);
 
         if ($validator->fails()){

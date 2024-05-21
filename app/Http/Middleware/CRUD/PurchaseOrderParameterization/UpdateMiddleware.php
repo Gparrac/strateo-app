@@ -22,10 +22,12 @@ class UpdateMiddleware implements ValidateData
             'products' => [
                 'required',
                 'array',
-            ],
+
+                        ],
             'products.*.product_id' => [
                 'required',
-                'exists:products,id'
+                'exists:products,id',
+                'distinct'
             ],
             'products.*.amount' => [
                 'required',
