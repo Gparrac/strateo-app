@@ -49,21 +49,21 @@ class ReadResource implements CRUD, RecordOperations
             //filter query with keyword 🚨
             foreach ($filters as $filter) {
                 switch ($filter['key']) {
-                        case 'name':
-                            $data = $data->where('name','LIKE', '%' . $filter['value'] . '%');
-                            break;
-                    case 'id':
-                        $data = $data->where('id','LIKE', '%' . $filter['value'] . '%');
+                    case 'name':
+                        $data = $data->whereRaw("UPPER(name) LIKE ?", ['%' . strtoupper($filter['value']) . '%']);
+                        break;
+                    case 'status':
+                        $data = $data->whereIn('status', $filter['value']);
                         break;
                     default:
-                        # code...
+                        $data = $data->where('id', 'LIKE', '%' . $filter['value'] . '%');
+
                         break;
                 }
             }
-            if($format == 'short'){
-                $data = $data->where('status','A')->select('payment_methods.id','payment_methods.name', 'payment_methods.description')->take(10)->get();
-
-            }else{
+            if ($format == 'short') {
+                $data = $data->where('status', 'A')->select('payment_methods.id', 'payment_methods.name', 'payment_methods.description')->take(10)->get();
+            } else {
                 //append shorters to query
                 foreach ($sorters as $shorter) {
                     $data = $data->orderBy($shorter['key'], $shorter['order']);

@@ -55,7 +55,7 @@ class ReadResource implements CRUD, RecordOperations
                 }
             } else {
                 $this->typeSale = $request->input('type');
-                $data = $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('filters') ?? [] ,$request->input('keyword') ?? [], $request->input('format'));
+                $data = $this->allRecords(null, $request->input('pagination') ?? 5, $request->input('sorters') ?? [], $request->input('filters') ?? [] , $request->input('format'));
             }
             return response()->json(['message' => 'read', 'data' => $data], 200);
         } catch (QueryException $ex) {
@@ -121,7 +121,7 @@ class ReadResource implements CRUD, RecordOperations
                 }
                 if ($value['key'] == 'seller') {
                     $data = $data->whereHas('seller', function ($query) use ($value) {
-                        $query->where('name', 'like', '%' . $value['value'] . '%');
+                        $query->whereRaw("UPPER(sellers.name) LIKE ?", ['%' . strtoupper($value['value']) . '%']);
                     });
                 }
                 if ($value['key'] == 'stages' && $this->typeSale = 'E') {
@@ -129,6 +129,8 @@ class ReadResource implements CRUD, RecordOperations
                         $query->whereIn('stage', $value['value']);
                     });
                 }
+                if($value['key'] == 'status')
+                    $data = $data->whereIn('status', $value['value']);
             }
         }
         if ($format == 'short') {

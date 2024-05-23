@@ -23,7 +23,7 @@ class CreateMiddleware implements ValidateData
             'status' => 'required|in:A,I',
             //--------------------- third attributes
             'type_document' => 'required|in:CC,NIT,CE,PASAPORTE',
-            'identification' => 'required|string|digits_between:7,10|unique:thirds,identification',
+            'identification' => 'required|string|min:5|max:12|unique:thirds,identification',
             'names' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'surnames' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'business_name' => 'required_without:names,surnames|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',

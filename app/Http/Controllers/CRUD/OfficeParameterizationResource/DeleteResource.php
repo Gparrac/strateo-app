@@ -13,7 +13,6 @@ class DeleteResource implements CRUD, RecordOperations
 {
     public function resource(Request $request)
     {
-        Log::info('entry delete s9ingle');
         if($request->has('office_id')){
             return $this->singleRecord($request->input('office_id'));
         }else{

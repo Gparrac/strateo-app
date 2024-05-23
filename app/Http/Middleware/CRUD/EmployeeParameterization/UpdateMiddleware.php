@@ -82,7 +82,7 @@ class UpdateMiddleware implements ValidateData
             //--------------------- third attributes
             'employee_id'=> 'required|exists:employees,id',
             'type_document' => 'required|in:CC,NIT,CE,PASAPORTE',
-            'identification' => ['required','string', 'digits_between:7,10', Rule::unique('thirds', 'identification')->ignore(Employee::find($request['employee_id'])->third->id)],
+            'identification' => ['required','string', 'min:5','max:12', Rule::unique('thirds', 'identification')->ignore(Employee::find($request['employee_id'])->third->id)],
             'names' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'surnames' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'address' => 'required|string',

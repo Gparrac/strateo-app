@@ -7,6 +7,7 @@ use App\Http\Utils\googleUserToken;
 use App\Models\Company;
 use App\Models\EmployeePlanment;
 use App\Models\Field;
+use App\Models\InventoryTrade;
 use App\Models\Invoice;
 use App\Models\Office;
 use App\Models\User;
@@ -37,10 +38,14 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('/test', function (Request $request) {
-    Log::info(config('app.google_client_id'));
-    Log::info(config('app.google_client_secret'));
-    Log::info(config('app.google_redirect_url'));
-    Log::info(config('app.front_redirect_url'));
-    return env('DB_USERNAME');
-
+    $filter = ['value' => 'stra'];
+    $data = InventoryTrade::whereHas('supplier',function($query) use ($filter){
+        $query->whereHas('third', function($query2) use($filter){
+            $query2->whereRaw(
+                "UPPER(CONCAT(IFNULL(thirds.names, ' '), ' ', IFNULL(thirds.surnames, ' '), ' ',IFNULL(thirds.identification, ' '), ' ',IFNULL(thirds.business_name,' '))) LIKE ?",
+                ['%' . strtoupper($filter['value']) . '%']
+            );
+        });
+    });
+    return $data->get();
 });

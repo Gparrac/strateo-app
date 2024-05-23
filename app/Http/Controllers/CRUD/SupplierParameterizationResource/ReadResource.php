@@ -31,24 +31,24 @@ class ReadResource implements CRUD, RecordOperations
     {
         try {
             $data = Supplier::with(['dynamicServices' => function ($query) {
-                $query->with(['service:id,name,description', 'fields' => function ($query){
+                $query->with(['service:id,name,description', 'fields' => function ($query) {
                     $query->wherePivot('status', 'A')->select(['fields.id', 'fields.name', 'fields.type', 'fields.length']);
                 }]);
-                $query->where('status', 'A')->select('dynamic_services.id','service_id','supplier_id');
+                $query->where('status', 'A')->select('dynamic_services.id', 'service_id', 'supplier_id');
             }, 'third' => function ($query) {
                 $query->with(['secondaryCiius:id,code,description', 'ciiu:id,code,description', 'city:id,name']);
                 $query->select('id', 'type_document', 'identification', 'code_ciiu_id', 'verification_id', 'names', 'surnames', 'business_name', 'address', 'mobile', 'email', 'email2', 'postal_code', 'city_id');
             }])
                 ->where('suppliers.id', $id)
-                ->select('suppliers.id','suppliers.status', 'suppliers.note', 'suppliers.note', 'suppliers.third_id', 'suppliers.commercial_registry', 'suppliers.commercial_registry_file', 'suppliers.rut_file')
+                ->select('suppliers.id', 'suppliers.status', 'suppliers.note', 'suppliers.note', 'suppliers.third_id', 'suppliers.commercial_registry', 'suppliers.commercial_registry_file', 'suppliers.rut_file')
                 ->first();
             $data['dynamicServices']->each(function ($ds, $dskey) use ($data) {
                 $service = $ds['service'];
 
                 $service['fields'] = Service::find($service['id'])->fields()
                     ->select('fields.id', 'fields.name', 'fields.type', 'fields.length', DB::raw('null as data'))
-                    ->get()->map(function ($field) use ( $ds ) {
-                        $ds['fields']->each(function ($dsfield) use ( $field )  {
+                    ->get()->map(function ($field) use ($ds) {
+                        $ds['fields']->each(function ($dsfield) use ($field) {
                             if ($field['id'] == $dsfield['id']) {
                                 ($field['type']['id'] == 'F' && $dsfield->pivot['path_info']) ? $field['pathFile'] = FileFormat::downloadPath($dsfield->pivot['path_info']) : $field['data'] = $dsfield->pivot['path_info'];
                             }
@@ -56,8 +56,7 @@ class ReadResource implements CRUD, RecordOperations
                         $field['required'] = $field->pivot['required'];
                         unset($field->pivot);
                         return $field;
-
-                });
+                    });
                 $data['services'][$dskey] = $service;
             });
             unset($data->dynamicServices);
@@ -76,31 +75,33 @@ class ReadResource implements CRUD, RecordOperations
         try {
             $data = Supplier::with(['third' =>
             function ($query) {
-                $query->select(['id', DB::raw('IFNULL(names, business_name) as supplier'), 'type_document', 'identification']);
+                $query->select(['id', 'names', 'surnames', 'business_name', 'type_document', 'identification']);
             }])->withCount(['dynamicServices']);
             //filter query with keyword 🚨
             foreach ($filters as $filter) {
                 switch ($filter['key']) {
                     case 'third':
-                        $data = $data->whereHas('third', function ($query) use ( $filter) {
-                            $query->whereRaw("UPPER(CONCAT(IFNULL(surnames,''),IFNULL(names,''),business_name)) LIKE ?", ['%' . strtoupper($filter['value']) . '%']);
+                        $data = $data->whereHas('third', function ($query) use ($filter) {
+                            $query->whereRaw("UPPER(CONCAT(IFNULL(thirds.surnames,''),IFNULL(thirds.names,''),IFNULL(thirds.business_name,''))) LIKE ?", ['%' . strtoupper($filter['value']) . '%']);
                         });
                         break;
+                    case 'status':
+                        $data = $data->whereIn('status', $filter['value']);
+                        break;
                     default:
-                    $data = $data->orWhere('id','LIKE', '%' . $filter['value'] . '%');
+                        $data = $data->where('id', 'LIKE', '%' . $filter['value'] . '%');
                         break;
                 }
             }
             // dd($data->get());
 
-            if($format == 'short'){
-                $data = $data->where('status','A')->select('suppliers.id', 'suppliers.commercial_registry','suppliers.third_id')->take(10)->get()->map(function($supplier){
+            if ($format == 'short') {
+                $data = $data->where('status', 'A')->select('suppliers.id', 'suppliers.commercial_registry', 'suppliers.third_id')->take(10)->get()->map(function ($supplier) {
                     $supplier['supplier'] = $supplier['third']['supplier'];
                     unset($supplier['third']);
                     return $supplier;
                 });
-
-            }else{
+            } else {
                 //append shorters to query
                 foreach ($sorters as  $shorter) {
                     $data = $data->orderBy($shorter['key'], $shorter['order']);

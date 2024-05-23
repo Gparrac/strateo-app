@@ -29,7 +29,6 @@ class OfficeParameterization extends Controller
                 $strategy = new CRUDContext(new UpdateResource());
                 break;
             case 'DELETE':
-                Log::info('delete ?');
                 $strategy = new CRUDContext(new DeleteResource());
                 break;
             default:

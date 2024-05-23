@@ -18,7 +18,7 @@ class ReadMiddleware implements ValidateData
             $query->with('ciiu:id,code,description');
         }])->first();
         if(!$company){
-            return ['error' => TRUE, 'message' => 'Entreprise not exist', 'statusResponse' => 404];
+            return ['error' => TRUE, 'message' => 'Enterprise not exist', 'statusResponse' => 404];
         }
 
         return ['error' => FALSE];

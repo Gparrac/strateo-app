@@ -75,7 +75,7 @@ class CreateMiddleware implements ValidateData
     {
         $this->rules = [
             'type_document' => 'required|in:CC,NIT,CE,PASAPORTE',
-            'identification' => 'required|string|digits_between:7,10|unique:thirds,identification',
+            'identification' => 'required|string|min:5|max:12|unique:thirds,identification',
             'names' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'surnames' => 'required_without:business_name|string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'address' => 'required|string',

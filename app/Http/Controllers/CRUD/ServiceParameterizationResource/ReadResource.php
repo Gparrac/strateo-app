@@ -28,7 +28,7 @@ class ReadResource implements CRUD, RecordOperations
             $data = Service::with(['fields' => function ($query) {
                 $query->where('fields_services.status', '=', 'A')->select('fields.id', 'fields.name', 'type', 'length', 'fields.status');
             }])
-            ->where('services.id', $id)
+                ->where('services.id', $id)
                 ->first();
 
             return response()->json(['message' => 'read: ' . $id, 'data' => $data], 200);
@@ -50,22 +50,23 @@ class ReadResource implements CRUD, RecordOperations
                 foreach ($filters as $filter) {
                     switch ($filter['key']) {
                         case 'name':
-                            $data = $data->orWhereRaw('UPPER(name) LIKE ?', ['%' . strtoupper($filter['value']) . '%']);
-
+                            $data = $data->whereRaw('UPPER(name) LIKE ?', ['%' . strtoupper($filter['value']) . '%']);
                             break;
-                        case 'id':
-                            $data = $data->orWhereRaw('UPPER(id) LIKE ?', ['%' . strtoupper($filter['value']) . '%']);
+                        case 'status':
+                            $data = $data->whereIn('status', $filter['value']);
+                            break;
                         default:
-                            # code...
+                            $data = $data->whereRaw('UPPER(id) LIKE ?', ['%' . strtoupper($filter['value']) . '%']);
+
                             break;
                     }
                 }
             }
             if ($format == 'short') {
-                $data = $data->with(['fields' => function($query){
-                    $query->select('fields.id','fields.name','fields.type', 'fields.length');
+                $data = $data->with(['fields' => function ($query) {
+                    $query->select('fields.id', 'fields.name', 'fields.type', 'fields.length');
                     $query->where('fields_services.status', '=', 'A');
-                }])->select('services.id','services.name','services.description')->take(10)->get();
+                }])->select('services.id', 'services.name', 'services.description')->take(10)->get();
 
                 $data->map(function ($service) {
                     $service->fields->each(function ($field) {
@@ -76,9 +77,9 @@ class ReadResource implements CRUD, RecordOperations
                     return $service;
                 });
             } else {
-                $data = $data->with('fields:id,name,type,length,status')->withCount(['fields' => function($query){
+                $data = $data->with('fields:id,name,type,length,status')->withCount(['fields' => function ($query) {
                     $query->where('fields_services.status', '=', 'A');
-                }])->withCount(['suppliers','fields','employees']);
+                }])->withCount(['suppliers', 'fields', 'employees']);
                 //append shorters to query
                 foreach ($sorters as $shorter) {
                     $data = $data->orderBy($shorter['key'], $shorter['order']);

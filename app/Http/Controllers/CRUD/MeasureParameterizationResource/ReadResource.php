@@ -44,19 +44,18 @@ class ReadResource implements CRUD, RecordOperations
             foreach ($filters as $filter) {
                 switch ($filter['key']) {
                     case 'name':
-                        $data = $data->orWhereRaw('UPPER(name) LIKE ?', ['%' . strtoupper($filter['value']) . '%'])
-                                    ->orWhereRaw('UPPER(symbol) LIKE ?', ['%' . strtoupper($filter['value']) . '%']);
+                        $data = $data->whereRaw('UPPER(CONCAT(name," ",symbol)) LIKE ?', ['%' . strtoupper($filter['value']) . '%']);
                         break;
-                    case 'id':
-                        $data = $data->orWhere('id','LIKE', '%' . $filter['value'] . '%');
+                    case 'status':
+                        $data = $data->whereIn('status', $filter['value']);
                         break;
                     default:
-                        # code...
+                        $data = $data->where('id', 'LIKE', '%' . $filter['value'] . '%');
                         break;
                 }
             }
             if ($format == 'short') {
-                $data = $data->where('status','A')->select('id', 'name','symbol','type')->get();
+                $data = $data->where('status', 'A')->select('id', 'name', 'symbol', 'type')->get();
             } else {
                 $data->select('id', 'name', 'type', 'symbol', 'status');
                 //append shorters to query

@@ -16,7 +16,7 @@ class UpdateMiddleware implements ValidateData
         $validator = Validator::make($request->all(), [
             //Third table
             'type_document' => 'required|in:CC,NIT,CE,PASAPORTE',
-            'identification' => ['required','digits_between:7,10', Rule::unique('thirds', 'identification')->ignore(Company::first()->third_id),],
+            'identification' => ['required','min:5','max:12', Rule::unique('thirds', 'identification')->ignore(Company::first()->third_id),],
             'names' => 'string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'surnames' => 'string|min:3|max:80|regex:/^[\p{L}\s]+$/u',
             'business_name' => 'string|min:3|max:80|regex:/^[\p{L}\s]+$/u',

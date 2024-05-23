@@ -19,7 +19,6 @@ class CreateResource implements CRUD
     public function resource(Request $request)
     {
         DB::beginTransaction();
-        Log::info('creando libreto');
 
         try {
             $userId = Auth::id();

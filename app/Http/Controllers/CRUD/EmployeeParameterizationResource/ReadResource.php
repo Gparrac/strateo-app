@@ -85,16 +85,16 @@ class ReadResource implements CRUD, RecordOperations
             //filter query with keyword 🚨
             foreach ($filters as $filter) {
                 switch ($filter['key']) {
-                    case 'third':
+                    case 'name':
                         $data = $data->whereHas('third', function ($query) use ($filter) {
-                            $query->whereRaw('UPPER(CONCAT(names," ",surnames)) LIKE ?', ['%' . strtoupper($filter['value']) . '%']);
+                            $query->whereRaw('UPPER(CONCAT(thirds.names," ",thirds.surnames)) LIKE ?', ['%' . strtoupper($filter['value']) . '%']);
                         });
                         break;
                     case 'status':
                         $data = $data->whereIn('status', $filter['value']);
                         break;
                     default:
-                        $data = $data->orWhere('id', 'LIKE', '%' . $filter['value'] . '%');
+                        $data = $data->where('id', 'LIKE', '%' . $filter['value'] . '%');
                         break;
                 }
             }

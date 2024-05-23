@@ -70,19 +70,15 @@ class ReadResource implements CRUD, RecordOperations
                     case 'supplier':
                         $data->whereHas('supplier', function ($query) use ($filter) {
                             $query->whereHas('third', function ($query) use ($filter) {
-                                $query->orWhere('UPPER(CONCAT(names," ",surnames))', 'LIKE', '%' . strtoupper($filter['value']) . '%');
-                                $query->orWhere('identification', 'LIKE', $filter['value']);
+                                $query->where('UPPER(CONCAT(names," ",surnames," ",identification))', 'LIKE', '%' . strtoupper($filter['value']) . '%');
                             });
                         });
-                        break;
-                    case 'date':
-                        $data = $data->whereIn('date',  $filter['value']);
                         break;
                     case 'status':
                         $data = $data->whereIn('status', $filter['value']);
                         break;
                     default:
-                        $data = $data->orWhere('id', 'LIKE', '%' . $filter['value'] . '%');
+                        $data = $data->where('id', 'LIKE', '%' . $filter['value'] . '%');
                         break;
                 }
             }
@@ -92,7 +88,7 @@ class ReadResource implements CRUD, RecordOperations
                 $data = $data->with(['supplier' => function ($query) {
                     $query->with(['third' =>
                     function ($query) {
-                        $query->select(['id', DB::raw('IFNULL(names, business_name) as supplier'), 'type_document', 'identification']);
+                        $query->select(['id', 'names', 'surnames','business_name', 'type_document', 'identification']);
                     }]);
                     $query->select('suppliers.id', 'suppliers.third_id');
                 }]);

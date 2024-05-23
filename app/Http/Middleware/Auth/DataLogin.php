@@ -25,7 +25,7 @@ class DataLogin
         try {
             $validator = Validator::make($request->all(), [
                 'email' => 'required_without:identification|string|email',
-                'identification' => 'required_without:email|digits_between:7,10|exists:thirds,identification',
+                'identification' => 'required_without:email|min:5|max:12|exists:thirds,identification',
                 'password' => 'required|string',
             ]);
 

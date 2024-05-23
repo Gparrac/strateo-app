@@ -73,7 +73,7 @@ class ReadResource implements CRUD, RecordOperations
         try {
             $data = InventoryTrade::with(['supplier' => function ($query) {
                 $query->select('id', 'commercial_registry', 'third_id');
-                $query->with('third:id,business_name');
+                $query->with('third:id,business_name,names,surnames,identification,type_document');
             }, 'inventories' => function ($query) {
                 $query->select('inventory_id', 'inventory_trade_id');
             }]);
@@ -81,20 +81,25 @@ class ReadResource implements CRUD, RecordOperations
             //filter query with keyword 🚨
             foreach ($filters as $filter) {
                 switch ($filter['key']) {
-                    case 'name':
-                        $data = $data->orWhere('UPPER(name)', 'LIKE', '%' . strtoupper($filter['value']) . '%');
-                        break;
-                    case 'id':
-                        $data = $data->orWhere('id', 'LIKE', '%' . $filter['value'] . '%');
+                    case 'supplier':
+                        $data = $data->whereHas('supplier',function($query) use ($filter){
+                            $query->whereHas('third',function($query2) use($filter){
+                                $query2->whereRaw(
+                                    "UPPER(CONCAT(IFNULL(thirds.names, ' '), ' ', IFNULL(thirds.surnames, ' '), ' ',IFNULL(thirds.identification, ' '), ' ',IFNULL(thirds.business_name,' '))) LIKE ?",
+                                    ['%' . strtoupper($filter['value']) . '%']
+                                );
+                            });
+                        });
+
                         break;
                     case 'transaction_type':
                         $data = $data->whereIn('transaction_type',  $filter['value']);
                         break;
-                    case 'status':
-                        $data = $data->whereIn('status', $filter['value']);
-                        break;
+                    // case 'status':
+                    //     $data = $data->whereIn('status', $filter['value']);
+                    //     break;
                     default:
-                        # code...
+                        $data = $data->where('id', 'LIKE', '%' . $filter['value'] . '%');
                         break;
                 }
             }
@@ -103,9 +108,9 @@ class ReadResource implements CRUD, RecordOperations
             foreach ($sorters as $shorter) {
                 $data = $data->orderBy($shorter['key'], $shorter['order']);
             }
-             if($format == 'short'){
+            if ($format == 'short') {
                 $data = $data->where('status', 'A')->take(10)->get();
-             } else{
+            } else {
 
                 $data = $data->paginate($pagination);
                 // $transformedData = $data->getCollection()->map(function($item){

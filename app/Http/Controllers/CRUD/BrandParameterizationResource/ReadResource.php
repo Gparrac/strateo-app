@@ -44,16 +44,13 @@ class ReadResource implements CRUD, RecordOperations
             foreach ($filters as $filter) {
                 switch ($filter['key']) {
                     case 'name':
-                        $data = $data->orWhere('UPPER(name)', 'LIKE', '%' . strtoupper($filter['value']) . '%');
-                        break;
-                    case 'id':
-                        $data = $data->orWhere('id','LIKE', '%' . $filter['value'] . '%');
+                        $data = $data->whereRaw("UPPER(CONCAT(name)) LIKE ?", ['%' . strtoupper($filter['value']) . '%']);
                         break;
                     case 'status':
-                        $data = $data->orWhere('status', $filter['value']);
+                        $data = $data->whereIn('status', $filter['value']);
                         break;
                     default:
-                        # code...
+                    $data = $data->where('id','LIKE', '%' . $filter['value'] . '%');
                         break;
                 }
             }

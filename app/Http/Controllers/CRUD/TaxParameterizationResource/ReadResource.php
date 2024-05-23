@@ -50,16 +50,15 @@ class ReadResource implements CRUD, RecordOperations
                 switch ($filter['key']) {
                     case 'tax':
                         $data =
-                            $data->whereRaw('UPPER(acronym) LIKE ?', ['%' . strtoupper($filter['value']) . '%']);
-
+                            $data->whereRaw('UPPER(acronym, name) LIKE ?', ['%' . strtoupper($filter['value']) . '%']);
                         break;
                     case 'status':
-                        $data = $data->orWhere('status', $filter['value']);
+                        $data = $data->whereIn('status', $filter['value']);
                         break;
                     case 'context':
-                        $data = $data->where('context', $filter['value']);
+                        $data = $data->whereIn('context', $filter['value']);
                     default: // id
-                        $data = $data->orWhere('id', 'LIKE', '%' . $filter['value'] . '%');
+                        $data = $data->where('id', 'LIKE', '%' . $filter['value'] . '%');
                         break;
                 }
             }

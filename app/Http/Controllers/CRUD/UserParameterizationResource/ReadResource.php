@@ -25,7 +25,7 @@ class ReadResource implements CRUD, RecordOperations
     {
         $data = User::with(['third' => function ($query) {
             $query->with('city:id,name');
-        },'role:id,name','officeS:id,name'])->find($id);
+        }, 'role:id,name', 'officeS:id,name'])->find($id);
         return response()->json(['message' => 'Read: ' . $id, 'data' => $data], 200);
     }
     public function allRecords($ids = null, $pagination = 5, $sorters = [], $filters = [], $format = null)
@@ -38,15 +38,20 @@ class ReadResource implements CRUD, RecordOperations
             if ($filters) {
                 foreach ($filters as $filter) {
                     switch ($filter['key']) {
+                        case 'name':
+                            $data = $data->whereRaw('UPPER(users.name) LIKE ?', ['%' . strtoupper($filter['value']) . '%']);
+                            break;
                         case 'third':
-                            $data = $data->whereHas('third', function ($query) use ( $filter) {
-                                $query->whereRaw('UPPER(CONCAT(names," ",surnames)) LIKE ?', ['%' . strtoupper($filter['value']) . '%']);
-                                $query->orwhereRaw('UPPER(identification) LIKE ?', ['%' . strtoupper($filter['value']) . '%']);
+                            $data = $data->whereHas('third', function ($query) use ($filter) {
+                                $query->whereRaw("UPPER(CONCAT(IFNULL(thirds.surnames,''),IFNULL(thirds.names,''),IFNULL(thirds.business_name,''),thirds.identification)) LIKE ?", ['%' . strtoupper($filter['value']) . '%']);
                             });
                             break;
-                        case 'id':
-                            $data = $data->orWhere('id','LIKE', '%' . $filter['value'] . '%');
+                        case 'status':
+                            $data = $data->whereIn('status', $filter['value']);
+                            break;
                         default:
+                        case 'id':
+                            $data = $data->where('id', 'LIKE', '%' . $filter['value'] . '%');
                             # code...
                             break;
                     }
@@ -71,7 +76,7 @@ class ReadResource implements CRUD, RecordOperations
             } else {
                 $data = $data->with(['third' => function ($query) {
                     $query->with('city:id,name');
-                },'role:id,name','officeS:id,name']);
+                }, 'role:id,name', 'officeS:id,name']);
 
                 //append shorters to query
                 foreach ($sorters as $shorter) {

@@ -28,10 +28,12 @@ class ReadResource implements CRUD, RecordOperations
             $data = Warehouse::where('id', $id)
                 ->with(['city:id,name', 'third' => function ($query) {
                     $query->select('id', 'type_document', 'identification', 'code_ciiu_id', 'verification_id', 'names', 'surnames', 'business_name', 'address', 'mobile', 'email', 'email2', 'postal_code', 'city_id');
-                    $query->with(['ciiu:id,code,description', 'city:id,name',
-                    'secondaryCiius' => function($query){
-                        $query->where('status', 'A')->select('code_ciiu_thirds.id','code','description');
-                    }]);
+                    $query->with([
+                        'ciiu:id,code,description', 'city:id,name',
+                        'secondaryCiius' => function ($query) {
+                            $query->where('status', 'A')->select('code_ciiu_thirds.id', 'code', 'description');
+                        }
+                    ]);
                 }])
                 ->first();
 
@@ -49,32 +51,30 @@ class ReadResource implements CRUD, RecordOperations
     {
         try {
             $data = Warehouse::select('id', 'note', 'status', 'city_id', 'address', 'updated_at')
-            ->with('city:id,name');
+                ->with('city:id,name');
 
             //filter query with keyword 🚨
             foreach ($filters as $filter) {
                 switch ($filter['key']) {
                     case 'city':
-                        $data = $data->whereHas('city', function ($query) use ( $filter) {
-                            $query->where('UPPER(cities.name)', 'LIKE', '%' . strtoupper($filter['value']) . '%');
-                            $query->orWhere('UPPER(address)', 'LIKE', '%' . strtoupper($filter['value']) . '%');
+                        $data = $data->whereHas('city', function ($query) use ($filter) {
+                            $query->whereRaw("UPPER(cities.name) LIKE ?", ['%' . strtoupper($filter['value']) . '%']);
                         });
                         break;
-                        case 'address':
-                            $data = $data->orWhere('address','LIKE', '%' . $filter['value'] . '%');
-                            break;
-                    case 'id':
-                        $data = $data->orWhere('id','LIKE', '%' . $filter['value'] . '%');
+                    case 'address':
+                        $data = $data->whereRaw("UPPER(warehouses.address) LIKE ?", ['%' . strtoupper($filter['value']) . '%']);
+                        break;
+                    case 'status':
+                        $data = $data->whereIn('status', $filter['value']);
                         break;
                     default:
-                        # code...
+                        $data = $data->where('id', 'LIKE', '%' . $filter['value'] . '%');
                         break;
                 }
             }
-            if($format == 'short'){
-                $data = $data->where('status','A')->select('warehouses.id','warehouses.address','warehouses.city_id')->take(10)->get();
-
-            }else{
+            if ($format == 'short') {
+                $data = $data->where('status', 'A')->select('warehouses.id', 'warehouses.address', 'warehouses.city_id')->take(10)->get();
+            } else {
                 //append shorters to query
                 foreach ($sorters as $shorter) {
                     $data = $data->orderBy($shorter['key'], $shorter['order']);

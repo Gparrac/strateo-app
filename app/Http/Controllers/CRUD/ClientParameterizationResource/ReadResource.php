@@ -51,9 +51,16 @@ class ReadResource implements CRUD, RecordOperations
             if ($filters) {
                 foreach ($filters as $filter) {
                     switch ($filter['key']) {
-                        case 'legal_credencials':
-                            $data = $data->whereRaw("UPPER(legal_representative_name) LIKE ?", ['%' . strtoupper($filter['value']) . '%']);
-
+                        case 'client':
+                            $data = $data->whereRaw("UPPER(CONCAT(clients.legal_representative_name,'',IFNULL(clients.legal_representative_id,''))) LIKE ?", ['%' . strtoupper($filter['value']) . '%']);
+                            break;
+                        case 'third':
+                            $data->whereHas('third', function($query) use ($filter){
+                                $query->whereRaw("UPPER(CONCAT(thirds.names, ' ',thirds.surnames, ' ' ,IFNULL(thirds.identification,''))) LIKE ?", ['%' . strtoupper($filter['value']) . '%']);
+                            });
+                            break;
+                        case 'status':
+                            $data = $data->whereIn('status', $filter['value']);
                             break;
                         default:
                             $data = $data->where('id','LIKE', '%' . $filter['value'] . '%');
@@ -72,7 +79,7 @@ class ReadResource implements CRUD, RecordOperations
                 });
             }else{
                 $data = $data->select('id', 'status', 'legal_representative_name', 'legal_representative_id', 'third_id', 'updated_at')
-                ->with('third:id,names,surnames,identification,email');
+                ->with('third:id,names,surnames,identification,email,type_document');
             //append shorters to query
             foreach ($sorters as $shorter) {
 

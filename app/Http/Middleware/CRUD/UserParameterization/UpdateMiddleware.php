@@ -33,7 +33,7 @@ class UpdateMiddleware implements ValidateData
             'role_id' => 'required|exists:roles,id',
             'status' => 'required|in:A,I',
             'password' => 'string',
-            'identification' => ['required','string','digits_between:7,10', Rule::unique('thirds', 'identification')->ignore(User::find($request['user_id'])->third->id),],
+            'identification' => ['required','string','min:5','max:12', Rule::unique('thirds', 'identification')->ignore(User::find($request['user_id'])->third->id),],
         ]);
         if ($validator->fails()){
             return [
