@@ -17,11 +17,9 @@
     @endif
     <div class="w-100" >
         <h1 class="text-center w-60 mx-auto" >
-            {{public_path('images/joyFactory.png')}}
-            {{ $dataPDF['path_logo']}}
             {{ $dataPDF['header'] }}
             {{$dataPDF['type_document'] . ': ' . $dataPDF['identification'] . 'IMPUESTO SOBRE EL VALOR DE LA VENTA IVA' }}<br>
-            {{'Actividad Económica' . '####'. ' Tarifa Renta 0.80%'}}
+            {{'Actividad Económica' . ($dataPDF['third']['ciiu']['code'] ?? 'NA'). ' Tarifa Renta 0.80%'}}
             {{$dataPDF['address'] . ' - '. $dataPDF['third']['city']['name'] }}<br>
             {{'Teléfono: ' . $dataPDF['third']['mobile']}}<br>
             No Somos Autorretenedores - No somos Grandes Contribuyentes
