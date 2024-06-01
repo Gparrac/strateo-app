@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Client;
+use Carbon\Carbon;
 
 class ReadResource implements CRUD, RecordOperations
 {
@@ -59,6 +60,11 @@ class ReadResource implements CRUD, RecordOperations
                                 $query->whereRaw("UPPER(CONCAT(thirds.names, ' ',thirds.surnames, ' ' ,IFNULL(thirds.identification,''))) LIKE ?", ['%' . strtoupper($filter['value']) . '%']);
                             });
                             break;
+                        case 'dateInvoice':
+                            $data = $data->whereHas('invoice', function($query) use ($filter) {
+                                $query->whereBetween('invoices.created_at', [$filter['value']['start_date'], $filter['value']['start_date']]);
+                            });
+                            break;
                         case 'status':
                             $data = $data->whereIn('status', $filter['value']);
                             break;
@@ -78,8 +84,14 @@ class ReadResource implements CRUD, RecordOperations
                     ];
                 });
             }else{
-                $data = $data->select('id', 'status', 'legal_representative_name', 'legal_representative_id', 'third_id', 'updated_at')
-                ->with('third:id,names,surnames,identification,email,type_document');
+                $data = $data->with('third:id,names,surnames,identification,email,type_document')
+                            ->select('id', 'status', 'legal_representative_name', 'legal_representative_id', 'third_id', 'updated_at');
+                if($format == 'analytic'){
+                    $data->withCount(['invoices' => function($query) use ($filter){
+                        $query->whereBetween('invoices.created_at', [$filter['value']['start_date'], $filter['value']['start_date']]);
+                    }]);
+                }
+
             //append shorters to query
             foreach ($sorters as $shorter) {
 

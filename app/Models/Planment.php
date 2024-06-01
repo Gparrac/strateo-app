@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Planment extends Model
 {
@@ -34,9 +35,9 @@ class Planment extends Model
     {
         return $this->belongsToMany(Product::class,'further_products_planments','planment_id', 'product_id')->withPivot(['amount','cost','discount']);
     }
-    public function productPlanments() : BelongsToMany
+    public function productPlanments() : HasMany
     {
-        return $this->hasMany(ProductPlanment::class, 'planment_id')->withPivot(['amount','cost','discount']);
+        return $this->hasMany(ProductPlanment::class, 'planment_id');//->withPivot(['amount','cost','discount']);
     }
     public function librettoActivities() : BelongsToMany
     {

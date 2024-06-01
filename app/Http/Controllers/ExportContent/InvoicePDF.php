@@ -69,7 +69,11 @@ class InvoicePDF extends Controller
         $dataPDF = Company::with(['third' =>  function($query){
             $query->with('city:id,name')->select('thirds.id','names','surnames','type_document','identification','business_name','address','mobile','email','postal_code','city_id');
         }])->first();
+        $parts = explode('8000/',$dataPDF['path_logo']);
+        $dataPDF['simple_path_logo'] = (isset($parts[1])) ? public_path($parts[1]) : null ;
 
+
+        // return $dataPDF;
         // Company Header and Footer
         // return compact('dataPDF', 'titlePDF', 'client', 'invoice', 'products', 'productsPurchase', 'furtherProducts', 'furtherProductsPurchase');
         $pdf = PDF::loadView('PDF.invoiceTemplateV2', compact('productTaxes','planment', 'headTaxes', 'dataPDF', 'titlePDF', 'invoice', 'products', 'productsPurchase', 'furtherProducts', 'furtherProductsPurchase'));

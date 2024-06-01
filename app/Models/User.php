@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
@@ -67,6 +68,10 @@ class User extends Authenticatable
     public function offices(): BelongsToMany
     {
         return $this->belongsToMany(Office::class,'office_users','office_users_id','office_id')->withPivot('status');
+    }
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class, 'seller_id');
     }
     public function scopeActiveOffices($query){
         return $query->with('offices', function($subquery){

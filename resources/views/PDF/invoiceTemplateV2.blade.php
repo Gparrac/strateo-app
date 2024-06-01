@@ -12,9 +12,13 @@
     @php
         use App\Http\Utils\PriceFormat;
     @endphp
-    <img src="{{public_path('images/joyFactory.png')}}"a alt="" class="icon">
+    @if ($dataPDF['simple_path_logo'])
+    <img src="{{$dataPDF['simple_path_logo']}}" alt="" class="icon">
+    @endif
     <div class="w-100" >
         <h1 class="text-center w-60 mx-auto" >
+            {{public_path('images/joyFactory.png')}}
+            {{ $dataPDF['path_logo']}}
             {{ $dataPDF['header'] }}
             {{$dataPDF['type_document'] . ': ' . $dataPDF['identification'] . 'IMPUESTO SOBRE EL VALOR DE LA VENTA IVA' }}<br>
             {{'Actividad Económica' . '####'. ' Tarifa Renta 0.80%'}}

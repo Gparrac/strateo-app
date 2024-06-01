@@ -22,6 +22,7 @@ include __DIR__ . '/custom/form.php';
 include __DIR__ . '/custom/extraContent.php';
 include __DIR__ . '/custom/export.php';
 include __DIR__ . '/custom/googleService.php';
+include __DIR__ . '/custom/analytic.php';
 /*
 |--------------------------------------------------------------------------
 | API Routes

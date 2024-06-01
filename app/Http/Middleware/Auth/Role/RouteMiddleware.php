@@ -46,7 +46,11 @@ class RouteMiddleware
             'export-data/inventory-trades'=>66,
             'export-data/invoice-pdf'=>73,
             'tax-value-parameterization' => 72,
-            'charge-parameterization' => 69
+            'charge-parameterization' => 69,
+            //Analytics
+            'analytics/seller' => 5,
+            'analytics/client' => 2,
+            'analytics/invoice' => 71,
         ];
 
         if (!array_key_exists($removeApiPrefix, $routesForm)) {

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Casts\FileCast;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Client extends Model
 {
@@ -33,6 +34,10 @@ class Client extends Model
 
     public function third(): BelongsTo
     {
-        return $this->belongsTo(Third::class); 
+        return $this->belongsTo(Third::class);
+    }
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
     }
 }
