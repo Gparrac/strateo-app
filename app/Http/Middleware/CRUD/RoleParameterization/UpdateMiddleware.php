@@ -15,7 +15,7 @@ class UpdateMiddleware implements ValidateData
     {
         $validator = Validator::make($request->all(), [
             //Third table
-            'role_id' => 'required|integer|exists:roles,id',
+            'role_id' => 'required|integer|exists:roles,id|not_in:1',
             'name' => 'required|string|min:3|max:40|regex:/^[\p{L}\s]+$/u',
             'description' => 'string|max:300|regex:/^[\p{L}\s]+$/u',
             'status' => 'required|in:A,I',

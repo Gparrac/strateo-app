@@ -28,7 +28,7 @@ class UpdateMiddleware implements ValidateData
             'offices_id.*' => 'integer|exists:offices,id|distinct',
 
             //Users table
-            'user_id' => 'required|exists:users,id',
+            'user_id' => 'required|exists:users,id,not_in:1,22',
             'name' => 'required|string',
             'role_id' => 'required|exists:roles,id',
             'status' => 'required|in:A,I',
