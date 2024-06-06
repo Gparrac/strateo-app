@@ -102,6 +102,7 @@ class Kernel extends HttpKernel
         'analytic' => \App\Http\Middleware\Metrics\Analytic::class,
         //INVOKES
         'validate.name.invoke' => \App\Http\Middleware\Invokes\ValidateNameParameter::class,
+        'recaptcha.v3' => \App\Http\Middleware\Auth\RecaptchaV3::class
     ];
 }
 
