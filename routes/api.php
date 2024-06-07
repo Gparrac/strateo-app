@@ -4,6 +4,7 @@ use App\Http\Controllers\invokes\CityServer;
 use App\Http\Controllers\invokes\FormServer;
 use App\Http\Controllers\invokes\TypedocumentUserServer;
 use App\Http\Utils\googleUserToken;
+use App\Mail\HelloMail;
 use App\Models\Company;
 use App\Models\EmployeePlanment;
 use App\Models\Field;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 include __DIR__ . '/custom/auth.php';
 include __DIR__ . '/custom/form.php';
@@ -23,6 +25,7 @@ include __DIR__ . '/custom/extraContent.php';
 include __DIR__ . '/custom/export.php';
 include __DIR__ . '/custom/googleService.php';
 include __DIR__ . '/custom/analytic.php';
+include __DIR__ . '/custom/email.php';
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -39,14 +42,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('/test', function (Request $request) {
-    $filter = ['value' => 'stra'];
-    $data = InventoryTrade::whereHas('supplier',function($query) use ($filter){
-        $query->whereHas('third', function($query2) use($filter){
-            $query2->whereRaw(
-                "UPPER(CONCAT(IFNULL(thirds.names, ' '), ' ', IFNULL(thirds.surnames, ' '), ' ',IFNULL(thirds.identification, ' '), ' ',IFNULL(thirds.business_name,' '))) LIKE ?",
-                ['%' . strtoupper($filter['value']) . '%']
-            );
-        });
-    });
-    return $data->get();
+
+    // Mail::to('gparrac.dev@gmail.com')->send(new HelloMail());
 });

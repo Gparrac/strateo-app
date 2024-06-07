@@ -60,7 +60,7 @@ class GoogleController extends Controller
             ]);
         }
         DB::commit();
-        return redirect(config('app.front_redirect_url'));
+        return redirect(config('app.front_redirect_url').'/enterprises');
 
      }catch (Exception $ex) {
             // In case of error, roll back the transaction

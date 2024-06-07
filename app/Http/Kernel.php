@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -102,7 +103,9 @@ class Kernel extends HttpKernel
         'analytic' => \App\Http\Middleware\Metrics\Analytic::class,
         //INVOKES
         'validate.name.invoke' => \App\Http\Middleware\Invokes\ValidateNameParameter::class,
-        'recaptcha.v3' => \App\Http\Middleware\Auth\RecaptchaV3::class
+        'recaptcha.v3' => \App\Http\Middleware\Auth\RecaptchaV3::class,
+        'recovery.password.send.email' => \App\Http\Middleware\Auth\RecoveryPassword\SendEmail::class,
+
     ];
 }
 
