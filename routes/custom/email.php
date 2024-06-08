@@ -7,5 +7,5 @@ use App\Http\Controllers\Auth\RecoveryPasswordController;
 
 Route::group(['prefix' => 'password'], function(){
     Route::post('/email', [RecoveryPasswordController::class, 'sendResetLinkEmail'])->middleware('recovery.password.send.email');
-    Route::post('/reset', 'Auth\ResetPasswordController@reset')->name('recovery.password.reset');
+    Route::post('/reset', [RecoveryPasswordController::class, 'reset'])->name('recovery.password.reset');
 });
