@@ -30,7 +30,7 @@ class CreateMiddleware implements ValidateData
             'secondary_ciiu_ids' => 'array',
             'secondary_ciiu_ids.*' => 'numeric|exists:code_ciiu,id|distinct',
             //Company Table
-            'path_logo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'path_logo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:5048',
             'header' => 'string',
             'footer' => 'string'
         ]);

@@ -53,7 +53,7 @@ class CreateMiddleware implements ValidateData
                         array_push($contentRules, 'integer');
                         break;
                     case 'F':
-                        array_push($contentRules, 'file', 'mimes:pdf,docx', 'max:2048');
+                        array_push($contentRules, 'file', 'mimes:pdf,docx', 'max:10048');
                         break;
                     default:
                         # code...
@@ -66,7 +66,7 @@ class CreateMiddleware implements ValidateData
                 $contentRules = [];
             }
         }
-        $request->merge(['services' => $recordServices]);
+        $request->merge(['services' => $recordServices, 'payment_methods' => $request->has('payment_methods') ? $request['payment_methods'] : []]);
 
 
         return ['error' => FALSE];
@@ -88,14 +88,17 @@ class CreateMiddleware implements ValidateData
             'type_contract' => 'required|in:TF,TI,OL,PS,CA,OT',
             'hire_date' => 'required|date_format:Y-m-d H:i:s',
             'end_date_contract' => 'date_format:Y-m-d H:i:s|after:hire_date',
-            'rut_file' => ['file', 'mimes:pdf', 'max:2048'],
-            'resume_file' => ['file', 'mimes:pdf,docx', 'max:2048'],
+            'rut_file' => ['file', 'mimes:pdf', 'max:10048'],
+            'resume_file' => ['file', 'mimes:pdf,docx', 'max:10048'],
             'status' => 'required|in:A,I',
             // //--------------------- service attributes
             'services' => ['array'],
             'services.*.service_id' => 'required|exists:services,id|distinct',
             'services.*.fields' => ['required', 'array', new ServiceFieldSizeValidationRule()],
             'services.*.fields.*.field_id' => 'required|exists:fields,id|distinct',
+            'payment_methods' => 'array',
+            'payment_methods.*.payment_method_id' => 'required|number|distinct',
+            'payment_methods.*.reference' => 'required|string|max:20',
         ];
     }
     public function typeConnectionValidation()

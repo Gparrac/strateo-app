@@ -17,8 +17,8 @@ class CreateMiddleware implements ValidateData
         $validator = Validator::make($request->all(), [
             //--------------------- new attributes
             'commercial_registry' => 'string|max:50',
-            'commercial_registry_file' => 'file|mimes:pdf,docx|max:2048',
-            'rut_file' => 'file|mimes:pdf,docx|max:2048',
+            'commercial_registry_file' => 'file|mimes:pdf,docx|max:10048',
+            'rut_file' => 'file|mimes:pdf,docx|max:10048',
             'note' => 'string',
             'status' => 'required|in:A,I',
             //--------------------- third attributes
@@ -75,7 +75,7 @@ class CreateMiddleware implements ValidateData
                         array_push($contentRules, 'integer');
                         break;
                     case 'F':
-                        array_push($contentRules, 'file', 'mimes:pdf,docx', 'max:2048');
+                        array_push($contentRules, 'file', 'mimes:pdf,docx', 'max:10048');
                         break;
                     default:
                         # code...

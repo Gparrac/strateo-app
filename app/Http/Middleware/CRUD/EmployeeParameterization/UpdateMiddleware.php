@@ -57,7 +57,7 @@ class UpdateMiddleware implements ValidateData
                             array_push($contentRules, 'integer');
                             break;
                         case 'F':
-                            array_push($contentRules,'nullable', 'file', 'mimes:pdf,docx', 'max:2048');
+                            array_push($contentRules,'nullable', 'file', 'mimes:pdf,docx', '10048');
                             break;
                         default:
                             # code...
@@ -95,8 +95,8 @@ class UpdateMiddleware implements ValidateData
             'type_contract' => 'required|in:TF,TI,OL,PS,CA,OT',
             'hire_date' => 'required|date_format:Y-m-d H:i:s',
             'end_date_contract' => 'date_format:Y-m-d H:i:s|after:hire_date',
-            'rut_file' => ['file', 'mimes:pdf', 'max:2048'],
-            'resume_file' => ['file', 'mimes:pdf,docx', 'max:2048'],
+            'rut_file' => ['file', 'mimes:pdf', 'max:10048'],
+            'resume_file' => ['file', 'mimes:pdf,docx', 'max:10048'],
             'status' => 'required|in:A,I',
             // //--------------------- service attributes
             'services' => ['array'],

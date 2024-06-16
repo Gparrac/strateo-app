@@ -46,9 +46,9 @@ class UpdateMiddleware implements ValidateData
             'brand_id' => 'required|exists:brands,id',
             'measure_id' => 'required|exists:measures,id',
             'barcode' => 'string|min:3|max:100',
-            'photo1' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'photo2' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'photo3' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'photo1' => 'image|mimes:jpeg,png,jpg,gif,svg|max:5048',
+            'photo2' => 'image|mimes:jpeg,png,jpg,gif,svg|max:5048',
+            'photo3' => 'image|mimes:jpeg,png,jpg,gif,svg|max:5048',
             'status' => 'required|in:A,I',
             'size' => 'required|string|max:100',
 
