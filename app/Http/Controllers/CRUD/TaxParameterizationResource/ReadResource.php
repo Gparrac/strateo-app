@@ -57,6 +57,7 @@ class ReadResource implements CRUD, RecordOperations
                         break;
                     case 'context':
                         $data = $data->whereIn('context', $filter['value']);
+                        break;
                     default: // id
                         $data = $data->where('id', 'LIKE', '%' . $filter['value'] . '%');
                         break;

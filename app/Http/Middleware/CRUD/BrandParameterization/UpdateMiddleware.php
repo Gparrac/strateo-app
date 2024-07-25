@@ -16,7 +16,7 @@ class UpdateMiddleware implements ValidateData
         $validator = Validator::make($request->all(), [
             'brand_id' => 'required|exists:brands,id',
             'name' => ['required','string', 'min:3', 'max:50', Rule::unique('brands', 'name')->ignore(Brand::find($request['brand_id'])->id)],
-            'code' => ['required', 'numeric', 'digits_between:7,10', Rule::unique('brands', 'code')->ignore(Brand::find($request['brand_id'])->id)],
+            'code' => ['required', 'numeric', 'digits_between:1,10', Rule::unique('brands', 'code')->ignore(Brand::find($request['brand_id'])->id)],
             'status' => 'required|in:A,I',
         ]);
 

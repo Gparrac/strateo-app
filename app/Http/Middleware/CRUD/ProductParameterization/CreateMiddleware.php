@@ -50,8 +50,7 @@ class CreateMiddleware implements ValidateData
             'products' => 'array',
             'products.*.product_id' => ['required', new ProductSubproductValidation(request()->input('type'), request()->input('type_content')),'distinct'],
             'products.*.amount' => 'required|integer',
-            'categories' => 'required|array',
-            'categories.*.category_id' => 'required|exists:categories,id|distinct',
+            'categories_id' => 'required|array|exists:categories,id|distinct',
             'libretto_activity_ids' => 'array',
             'libretto_activity_ids*' => 'required|exists:libretto_activities,id|distinct',
         ];
