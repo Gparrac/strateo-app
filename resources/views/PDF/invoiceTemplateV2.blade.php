@@ -23,7 +23,7 @@
             {{$dataPDF['address'] . ' - '. $dataPDF['third']['city']['name'] }}<br>
             {{'Teléfono: ' . $dataPDF['third']['mobile']}}<br>
             No Somos Autorretenedores - No somos Grandes Contribuyentes
-            Régimen IVA: IMPUESTO SOBRE LAS VENTAS - IVA Actividad ICA: 304 9.60 x mil
+            Régimen IVA: IMPUESTO SOBRE LAS VENTAS - IVA Actividad ICA: 304 9.110 x mil
 
         </h1>
         <!-- start invoice data section -->
