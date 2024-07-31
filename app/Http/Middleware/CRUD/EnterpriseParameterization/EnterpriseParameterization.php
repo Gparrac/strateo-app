@@ -25,7 +25,7 @@ class EnterpriseParameterization
                 break;
             case 'PUT':
                 $strategy = new ValidateDataMiddlewareContext(new UpdateMiddleware());
-                break;
+                break; //checking file to sync with the server ⚠️
             case 'DELETE':
                 $strategy = new ValidateDataMiddlewareContext(new DeleteMiddleware());
                 break;
