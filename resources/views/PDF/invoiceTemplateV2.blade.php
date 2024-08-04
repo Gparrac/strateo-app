@@ -12,8 +12,8 @@
     @php
         use App\Http\Utils\PriceFormat;
     @endphp
-    @if ($dataPDF['simple_path_logo'])
-    <img src="{{$dataPDF['simple_path_logo']}}" alt="" class="icon">
+    @if ($dataPDF['path_logo2'])
+    <img src="{{$dataPDF['path_logo2']}}" alt="" class="icon">
     @endif
     <div class="w-100" >
         <h1 class="text-center w-60 mx-auto" >
