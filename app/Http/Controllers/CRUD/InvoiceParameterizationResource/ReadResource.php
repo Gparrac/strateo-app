@@ -98,7 +98,9 @@ class ReadResource implements CRUD, RecordOperations
 
     public function allRecords($ids = null, $pagination = 5, $sorters = [], $filters = [], $format = null)
     {
-        $data = Invoice::with(['seller:id,name', 'client' => function ($query) {
+        $data = Invoice::with(['seller' => function ($query){
+            $query->with('third:id,identification,names,surnames,type_document')->select('id', 'third_id','name');
+        }, 'client' => function ($query) {
             $query->with('third:id,identification,names,surnames,type_document')->select('id', 'third_id');
         }]);
         if ($this->typeSale == 'E') {
