@@ -84,7 +84,7 @@ class ReadResource implements CRUD, RecordOperations
                     ];
                 });
             }else{
-                $data = $data->with('third:id,names,surnames,identification,email,type_document')
+                $data = $data->with('third:id,names,business_name,surnames,identification,email,type_document')
                             ->select('id', 'status', 'legal_representative_name', 'legal_representative_id', 'third_id', 'updated_at');
                 if($format == 'analytic'){
                     $data->withCount(['invoices' => function($query) use ($filter){
