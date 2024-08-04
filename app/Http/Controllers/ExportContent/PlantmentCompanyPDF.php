@@ -71,6 +71,8 @@ class PlantmentCompanyPDF extends Controller
             $indexPublic = strpos($dataPDF['path_logo'], 'uploads');
             // $dataPDF['path_logo'] = substr($dataPDF['path_logo'], $indexPublic);
             $dataPDF['path_logo2'] = substr($dataPDF['path_logo'], $indexPublic);
+            Log::info($dataPDF);
+            Log::info($indexPublic);
         // Employees
         // dd($planment);
         $employees = $employees->map(function ($employee, $key)  {
