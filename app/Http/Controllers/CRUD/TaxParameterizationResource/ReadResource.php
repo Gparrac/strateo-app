@@ -57,8 +57,9 @@ class ReadResource implements CRUD, RecordOperations
                         break;
                     case 'context':
                         $data = $data->whereIn('context', $filter['value']);
-                        break;//checking file to sync with the server ⚠️
-                    default: // id
+                        //checking file to sync with the server ⚠️
+                        break;
+                    default: // using just id 🛖
                         $data = $data->where('id', 'LIKE', '%' . $filter['value'] . '%');
                         break;
                 }
