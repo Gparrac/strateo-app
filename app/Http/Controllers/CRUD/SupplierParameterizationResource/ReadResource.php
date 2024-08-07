@@ -96,12 +96,15 @@ class ReadResource implements CRUD, RecordOperations
             // dd($data->get());
 
             if ($format == 'short') {
+
                 $data = $data->where('status', 'A')->select('suppliers.id', 'suppliers.commercial_registry', 'suppliers.third_id')->take(10)->get()->map(function ($supplier) {
 
                     $supplier['supplier'] = $supplier['third']['fullname'];
                     $supplier['identification'] = $supplier['third']['fullid'];
                     return $supplier;
                 });
+                Log::info('passing');
+                Log::info($data);
             } else {
                 //append shorters to query
                 foreach ($sorters as  $shorter) {
