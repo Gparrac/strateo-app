@@ -114,7 +114,6 @@ class UpdateResource implements CRUD
                     if ($field['type'] == 'F') {
                         if(!array_key_exists('content', $field)){
                             $content = $query->fields()->where('fields.id',$field['field_id'])->first();
-                            Log::info($content);
                             $content = $content ? $content->pivot->path_info : null;
                         }else{
                         $pathFileRequest = 'services.' . $svalue . '.fields.' . $fvalue . '.content';

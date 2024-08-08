@@ -23,8 +23,6 @@ class SendEmail
             $validator = Validator::make($request->all(), [
                 'email' => 'required|string|email',
             ]);
-
-            Log::info('passing mm');
             if ($validator->fails()){
                 return response()->json(['error' => $validator->errors()], 400);
             }

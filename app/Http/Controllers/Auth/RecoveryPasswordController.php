@@ -30,7 +30,7 @@ class RecoveryPasswordController extends Controller
                 ['token' => $token, 'created_at' => Carbon::now()]
             );
             $resetLink = config('app.front_redirect_url'). '/change-recovery-password?token=' . $token . '&email=' . urlencode($email);
-            Log::info($resetLink);
+
             Mail::send('mail.passwordRecovery', ['link' => $resetLink], function ($message) use ($email) {
                 $message->to($email);
                 $message->subject('Recuperación de contraseña.');
@@ -54,8 +54,6 @@ class RecoveryPasswordController extends Controller
         try{
             $email = $request->input('email');
             $token = $request->input('token');
-            Log::info('entry');
-            Log::info($request);
             $passwordReset = DB::table('password_reset_tokens')->where('email', $email)->where('token', $token)->first();
 
             if (!$passwordReset || Carbon::parse($passwordReset->created_at)->addMinutes(60)->isPast()) {

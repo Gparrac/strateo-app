@@ -46,13 +46,10 @@ class ReadResource implements CRUD, RecordOperations
             // return $data['dynamicServices'];
             $data['services'] = $data['dynamicServices']->map(function ($ds, $dskey) use ($data) {
                 $service = $ds['service'];
-                Log::info($service);
-                Log::info('hola');
 
                 $service['fields'] = Service::find($service['id'])->fields()
                     ->select('fields.id', 'fields.name', 'fields.type', 'fields.length', DB::raw('null as data'))
                     ->get()->map(function ($field) use ($ds) {
-                        Log::info($field);
                         $ds['fields']->each(function ($dsfield) use ($field) {
                             if ($field['id'] == $dsfield['id']) {
                                 ($field['type']['id'] == 'F' && $dsfield->pivot['path_info']) ? $field['pathFile'] = FileFormat::downloadPath($dsfield->pivot['path_info']) : $field['data'] = $dsfield->pivot['path_info'];
@@ -109,8 +106,6 @@ class ReadResource implements CRUD, RecordOperations
                     $supplier['identification'] = $supplier['third']['fullid'];
                     return $supplier;
                 });
-                Log::info('passing');
-                Log::info($data);
             } else {
                 //append shorters to query
                 foreach ($sorters as  $shorter) {

@@ -28,7 +28,6 @@ class RecaptchaV3
                         'response' => $value,
                         'remoteip' => request()->ip()
                     ]);
-                    Log::info($response->json());
                     if(!$response->json('success')){
                         $fails("El recaptcha es invalido");
                     }
