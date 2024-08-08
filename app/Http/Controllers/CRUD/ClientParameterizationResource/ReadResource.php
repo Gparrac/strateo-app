@@ -46,7 +46,7 @@ class ReadResource implements CRUD, RecordOperations
     public function allRecords($ids = null, $pagination = 5, $sorters = [], $filters = [], $format = null)
     {
         try {
-            $data = Client::with('third:id,names,surnames,identification,email');;
+            $data = Client::with('third:id,names,surnames,identification,email,type_document');;
 
             //filter query with keyword 🚨
             if ($filters) {
@@ -80,7 +80,7 @@ class ReadResource implements CRUD, RecordOperations
                     return [
                         'id' => $client['id'],
                         'name' => $client['third']['fullname'],
-                        'document' => $client['third']['identification']
+                        'document' => $client['third']['fullid'],
                     ];
                 });
             }else{

@@ -77,22 +77,30 @@ class ReadResource implements CRUD, RecordOperations
                 $query->with('third:id,names,surnames,identification,type_document');
                 $query->select('users.id', 'users.third_id', 'users.name');
             }, 'client' => function ($query) {
-                $query->select('clients.id', 'legal_representative_name as name', 'legal_representative_id as document');
+                $query->with('third:id,names,surnames,identification,type_document')->select('clients.id','clients.third_id');
             }]);
 
         $data = $data->first();
+
+
+
         $data['taxes']->each(function ($item) {
             $item['percent'] = $item['pivot']['percent'];
             unset($item['pivot']);
         });
-        $test = [
+        $newSeller = [
             'id' => $data->seller->id,
-            'full_name' => $data->seller->third->names . ' ' . $data->seller->third->surnames,
-            'identification' => $data->seller->third->type_document . ' ' . $data->seller->third->identification,
-            'name' => $data->name
+            'full_name' => $data->seller->third->fullname,
+            'identification' => $data->seller->third->fullid
         ];
-        unset($data->seller);
-        $data['seller'] = $test;
+        $newCustomer = [
+            'id' => $data->client->id,
+            'name' => $data->client->third->fullname,
+            'document' => $data->client->third->fullid
+        ];
+        unset($data->seller, $data->client);
+        $data['client'] = $newCustomer;
+        $data['seller'] = $newSeller;
         return $data;
     }
 

@@ -29,6 +29,7 @@ class ReadResource implements CRUD, RecordOperations
 
     public function singleRecord($id)
     {
+
         try {
             $data = Supplier::with(['dynamicServices' => function ($query) {
                 $query->with(['service:id,name,description', 'fields' => function ($query) {
@@ -42,23 +43,28 @@ class ReadResource implements CRUD, RecordOperations
                 ->where('suppliers.id', $id)
                 ->select('suppliers.id', 'suppliers.status', 'suppliers.note', 'suppliers.note', 'suppliers.third_id', 'suppliers.commercial_registry', 'suppliers.commercial_registry_file', 'suppliers.rut_file')
                 ->first();
-            $data['dynamicServices']->each(function ($ds, $dskey) use ($data) {
+            // return $data['dynamicServices'];
+            $data['services'] = $data['dynamicServices']->map(function ($ds, $dskey) use ($data) {
                 $service = $ds['service'];
+                Log::info($service);
+                Log::info('hola');
 
                 $service['fields'] = Service::find($service['id'])->fields()
                     ->select('fields.id', 'fields.name', 'fields.type', 'fields.length', DB::raw('null as data'))
                     ->get()->map(function ($field) use ($ds) {
+                        Log::info($field);
                         $ds['fields']->each(function ($dsfield) use ($field) {
                             if ($field['id'] == $dsfield['id']) {
                                 ($field['type']['id'] == 'F' && $dsfield->pivot['path_info']) ? $field['pathFile'] = FileFormat::downloadPath($dsfield->pivot['path_info']) : $field['data'] = $dsfield->pivot['path_info'];
                             }
                         });
                         $field['required'] = $field->pivot['required'];
-                        unset($field->pivot);
+                        // unset($field->pivot);
                         return $field;
                     });
-                $data['services'][$dskey] = $service;
+                return $service;
             });
+            // return $data;
             unset($data->dynamicServices);
             return response()->json(['message' => 'read: ' . $id, 'data' => $data], 200);
         } catch (QueryException $ex) {
